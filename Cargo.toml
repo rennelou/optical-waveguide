@@ -1,0 +1,10 @@
+[package]
+name = "rust-fdmbpm"
+version = "0.1.0"
+authors = ["rennelou <rennelou@outlook.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+num = "0.3"
