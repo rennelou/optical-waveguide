@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use rust_fdmbpm::waveguide::Slab;
+    use rust_fdmbpm::waveguide;
     use num::complex::Complex;
 
     #[test]
@@ -11,8 +11,8 @@ mod tests {
     }
 
     fn get_waveguide_mock(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
-    	k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab {
+    	k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> waveguide::Slab {
     
-        return Slab::new(dx, xdelta, dz, zdelta, k, n, n0, alpha, kleft, kright);
+        return waveguide::Slab::new(dx, xdelta, dz, zdelta, k, n, n0, alpha, kleft, kright);
     }
 }
