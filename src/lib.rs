@@ -31,22 +31,22 @@ pub mod waveguide {
 	    	let xsteps = (dx / xdelta).round() as i64;
 	    	let zsteps = (dz / zdelta).round() as i64;
 			
-			let guiding_space = Complex::new(k.sqrt()*xdelta.sqrt()*(n.sqrt()-n0.sqrt()), 0.0);
-	    	let free_space = Complex::new(0.0, 4.0*k*n0*xdelta.sqrt()/zdelta);
-	    	let loss = Complex::new(0.0, 2.0*k*n0*(xdelta*alpha.sqrt()).sqrt());
+			let guiding_space = |_, _| Complex::new(k.sqrt()*xdelta.sqrt()*(n.sqrt()-n0.sqrt()), 0.0);
+	    	let free_space = |_, _| Complex::new(0.0, 4.0*k*n0*xdelta.sqrt()/zdelta);
+	    	let loss = |_, _| Complex::new(0.0, 2.0*k*n0*xdelta.sqrt()*alpha);
 
-			let _s = (0..zsteps).map(
-				|_i| (0..xsteps).map(
+			let s = (0..zsteps).map(
+				|i| (0..xsteps).map(
 					// okamoto 7.98
-					|_j| Complex::new(2.0, 0.0) - guiding_space + free_space + loss
+					|j| Complex::new(2.0, 0.0)-guiding_space(i, j)+free_space(i, j)+loss(i, j)
 				
 				).collect()
 			).collect();
 
-			let _q = (0..zsteps).map(
-				|_i| (0..xsteps).map(
+			let q = (0..zsteps).map(
+				|i| (0..xsteps).map(
 					// okamoto 7.99
-					|_j| Complex::new(-2.0, 0.0) + guiding_space + free_space - loss
+					|j| Complex::new(-2.0, 0.0)+guiding_space(i, j)+free_space(i, j)-loss(i, j)
 				
 				).collect()
 			).collect();
@@ -57,8 +57,8 @@ pub mod waveguide {
 	    		xdelta: xdelta,
 	    		kright: kright,
 	    		kleft:  kleft,
-	    		s:      _s,
-	    		q:      _q,
+	    		s:      s,
+	    		q:      q,
 	    	}
 	    }
 	}
