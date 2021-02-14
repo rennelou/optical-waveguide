@@ -62,7 +62,7 @@ impl Slab {
     }
 
 	fn get_abcs(&self, z: usize) -> Vec<Abc> {
-		let mut result: Vec<Abc> = Vec::new();
+		let mut result: Vec<Abc> = vec![];
 		
 		if self.xsteps >= MINIMALSTEP {
 			result.push(Abc {
@@ -116,6 +116,19 @@ impl Slab {
 	}
 }
 
+fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
+	return alpha_betas.iter().rev().fold(vec![],
+		|mut result, alpha_beta| {
+			let last_value = fp::last(&result).unwrap();
+			
+			// okamoto 7.110
+			result.push(last_value * alpha_beta.alpha + alpha_beta.beta);
+			
+			return result;
+		}
+	)
+}
+
 fn get_alphas_betas(abcs: &Vec<Abc>, ds: &Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 	
 	return abcs.iter().enumerate().fold(vec![], |mut alpha_betas, (i, abc)| {
@@ -126,12 +139,15 @@ fn get_alphas_betas(abcs: &Vec<Abc>, ds: &Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 				fp::last(&alpha_betas).unwrap()
 			};
 			
-			// okamoto 7.112a
-			let alpha = abc.c / (abc.b - abc.a*last_value.alpha);
-			// okamoto 7.112b     
-			let beta = (ds[i] + abc.a*last_value.beta) / (abc.b - last_value.alpha);
+			alpha_betas.push(
+				AlphaBeta {
+					// okamoto 7.112a
+					alpha: abc.c / (abc.b - abc.a*last_value.alpha),
+					// okamoto 7.112b     		
+					beta: (ds[i] + abc.a*last_value.beta) / (abc.b - last_value.alpha),
+				}
+			);
 			
-			alpha_betas.push(AlphaBeta{alpha: alpha, beta: beta});
 			return alpha_betas;
 		}
 	);
