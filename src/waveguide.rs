@@ -89,6 +89,20 @@ impl Slab {
 		return result;
 	}
 
+	fn insert_boundary_values(&self, z: usize, es: Vec<Complex<f64>>) -> Vec<Complex<f64>>{
+		
+		// okamoto 7.106
+		let frst_element = self.left_boundary(z) * fp::head(&es).unwrap();
+		// okamoto 7.105
+		let last_element = self.right_boundary(z) * fp::last(&es).unwrap();
+		
+		let mut result: Vec<Complex<f64>> = vec![frst_element];
+		result.append(&mut es);
+		result.append(vec![last_element]);
+		
+		return result;
+	}
+
 	fn right_boundary(&self, _z: usize) -> Complex<f64> {
 		return ( 
 			Complex::new(0.0, -1.0)*self.kright*Complex::new(self.xdelta, 0.0) 
@@ -116,10 +130,27 @@ fn get_alphas_betas(abcs: &Vec<Abc>, ds: &Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 			let alpha = abc.c / (abc.b - abc.a*last_value.alpha);
 			// okamoto 7.112b     
 			let beta = (ds[i] + abc.a*last_value.beta) / (abc.b - last_value.alpha);
+			
 			alpha_betas.push(AlphaBeta{alpha: alpha, beta: beta});
 			return alpha_betas;
 		}
 	);
+}
+
+fn get_ds(es: Vec<Complex<f64>>, qs: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
+	if es.len() == qs.len() {
+		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(vec![],
+			|mut result,(i, q)| {
+				
+				// okamoto 7.97
+				result.push(es[i]+q*es[i+1]+es[i+2]);
+				
+				return result;
+			}
+		)
+	}
+
+	return vec![];
 }
 
 #[cfg(test)]
