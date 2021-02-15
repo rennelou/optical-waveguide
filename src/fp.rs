@@ -1,22 +1,22 @@
 use num::complex::Complex;
 
-pub fn head<T: Copy>(l: &Vec<T>) -> Option<T> {
+pub fn head<T: Clone>(l: &Vec<T>) -> Option<T> {
 	if l.is_empty() {
 		return None
 	}
 	let first_index = 0usize;
-	return Some(l[first_index]);
+	return Some(l[first_index].clone());
 }
 
-pub fn last<T: Copy>(l: &Vec<T>) -> Option<T> {
+pub fn last<T: Clone>(l: &Vec<T>) -> Option<T> {
 	if l.is_empty() {
 		return None;
 	}
 	let last_index = (l.len()-1) as usize;
-	return Some(l[last_index]);
+	return Some(l[last_index].clone());
 }
 
-pub fn init<T: Copy>(l: &Vec<T>) -> Vec<T> {
+pub fn init<T: Clone>(l: &Vec<T>) -> Vec<T> {
 	if l.is_empty() {
 		return vec![];
 	}
@@ -33,6 +33,13 @@ pub fn tail<T: Copy>(l: &Vec<T>) -> Vec<T> {
 
 	let mut result: Vec<T> = vec![];
 	result.extend_from_slice(&l[1..]);
+	return result;
+}
+
+pub fn vec_from_slice<T: Clone>(s: &[T]) -> Vec<T> {
+	let mut result: Vec<T> = vec![];
+	result.extend_from_slice(s);
+
 	return result;
 }
 

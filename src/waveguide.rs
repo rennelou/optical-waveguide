@@ -26,16 +26,28 @@ struct AlphaBeta {
 	beta: Complex<f64>,
 }
 
+impl AlphaBeta {
+	
+	pub fn empty() -> AlphaBeta {
+		return AlphaBeta {
+			alpha: zero(),
+			beta: zero(),
+		}
+	}
+}
+
 impl Slab {
 
     pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
     	k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab {
-    	let xsteps = (dx / xdelta).round() as i64;
+    	
+		let xsteps = (dx / xdelta).round() as i64;
     	let zsteps = (dz / zdelta).round() as i64;
 		
 		let guiding_space = |_, _| Complex::new(k.sqrt()*xdelta.sqrt()*(n.sqrt()-n0.sqrt()), 0.0);
     	let free_space = |_, _| Complex::new(0.0, 4.0*k*n0*xdelta.sqrt()/zdelta);
     	let loss = |_, _| Complex::new(0.0, 2.0*k*n0*xdelta.sqrt()*alpha);
+		
 		let s = (0..zsteps).map(
 			|i| (0..xsteps).map(
 				// okamoto 7.98
@@ -43,6 +55,7 @@ impl Slab {
 			
 			).collect()
 		).collect();
+		
 		let q = (0..zsteps).map(
 			|i| (0..xsteps).map(
 				// okamoto 7.99
@@ -50,7 +63,8 @@ impl Slab {
 			
 			).collect()
 		).collect();
-    	return Slab{
+    	
+		return Slab{
     		xsteps: xsteps,
     		zsteps: zsteps,
     		xdelta: xdelta,
@@ -61,16 +75,39 @@ impl Slab {
     	}
     }
 
+	pub fn fdmbpm(&self, e_input: Vec<Complex<f64>>) -> Vec<Vec<Complex<f64>>> {
+		
+		return (1..self.zsteps).fold(vec![e_input], |mut result, _i| {
+			
+			let i = _i as usize;
+			let last_es = fp::last(&result).unwrap();
+			
+			let ds = get_ds(&last_es, &self.q[i-1]);
+			let abcs = self.get_abcs(i);
+
+			result.push(
+				self.insert_boundary_values(
+					i, 
+					get_recurrence_form(get_alphas_betas(abcs, ds)
+				)
+			)
+			);
+
+			return result;
+		})
+	}
+
 	fn get_abcs(&self, z: usize) -> Vec<Abc> {
 		let mut result: Vec<Abc> = vec![];
 		
 		if self.xsteps >= MINIMALSTEP {
 			result.push(Abc {
 				// okamoto 7.108a
-				a: Complex::new(0.0, 0.0), 
+				a: zero(), 
 				b: self.s[z][1] - self.left_boundary(z), 
 				c: Complex::new(1.0, 0.0)
 			});
+			
 			result.append(&mut (2..self.xsteps-2).map(
 				// okamoto 7.108b
 				|i| Abc {
@@ -79,11 +116,12 @@ impl Slab {
 					c: Complex::new(1.0, 0.0)
 				}
 			).collect());
+			
 			result.push(Abc {
 				/// okamoto 7.108c
 				a: Complex::new(1.0, 0.0), 
 				b: self.s[z][(self.xsteps - 2) as usize] - self.right_boundary(z), 
-				c: Complex::new(0.0, 0.0)
+				c: zero()
 			});
 		}
 		return result;
@@ -97,8 +135,8 @@ impl Slab {
 		let last_element = self.right_boundary(z) * fp::last(&es).unwrap();
 		
 		let mut result: Vec<Complex<f64>> = vec![frst_element];
-		result.append(&mut es);
-		result.append(vec![last_element]);
+		result.extend(es);
+		result.extend(vec![last_element]);
 		
 		return result;
 	}
@@ -117,24 +155,32 @@ impl Slab {
 }
 
 fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
-	return alpha_betas.iter().rev().fold(vec![],
+	let es: Vec<Complex<f64>> = alpha_betas.iter().rev().fold(vec![],
 		|mut result, alpha_beta| {
-			let last_value = fp::last(&result).unwrap();
+			
+			let last_value = if result.is_empty() {
+				zero()
+			} else {
+				fp::last(&result).unwrap()
+			};
+			 
 			
 			// okamoto 7.110
 			result.push(last_value * alpha_beta.alpha + alpha_beta.beta);
 			
 			return result;
 		}
-	)
+	);
+
+	return es.iter().rev().cloned().collect();
 }
 
-fn get_alphas_betas(abcs: &Vec<Abc>, ds: &Vec<Complex<f64>>) -> Vec<AlphaBeta> {
+fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 	
 	return abcs.iter().enumerate().fold(vec![], |mut alpha_betas, (i, abc)| {
 			
-			let last_value: AlphaBeta = if alpha_betas.is_empty() {
-				AlphaBeta{alpha: Complex::new(0.0, 0.0), beta:  Complex::new(0.0, 0.0)}
+			let last_alpha_beta = if alpha_betas.is_empty() {
+				AlphaBeta::empty()
 			} else {
 				fp::last(&alpha_betas).unwrap()
 			};
@@ -142,9 +188,9 @@ fn get_alphas_betas(abcs: &Vec<Abc>, ds: &Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 			alpha_betas.push(
 				AlphaBeta {
 					// okamoto 7.112a
-					alpha: abc.c / (abc.b - abc.a*last_value.alpha),
+					alpha: abc.c / (abc.b - abc.a*last_alpha_beta.alpha),
 					// okamoto 7.112b     		
-					beta: (ds[i] + abc.a*last_value.beta) / (abc.b - last_value.alpha),
+					beta: (ds[i] + abc.a*last_alpha_beta.beta) / (abc.b - last_alpha_beta.alpha),
 				}
 			);
 			
@@ -153,7 +199,8 @@ fn get_alphas_betas(abcs: &Vec<Abc>, ds: &Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 	);
 }
 
-fn get_ds(es: Vec<Complex<f64>>, qs: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
+fn get_ds(es: &Vec<Complex<f64>>, qs: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
+	
 	if es.len() == qs.len() {
 		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(vec![],
 			|mut result,(i, q)| {
@@ -169,15 +216,19 @@ fn get_ds(es: Vec<Complex<f64>>, qs: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
 	return vec![];
 }
 
+fn zero() -> Complex<f64> {
+	return Complex::new(0.0, 0.0);
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
-   	use num::complex::Complex;
+   	use super::mock;
    	
 	#[test]
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
-   	        let w = get_waveguide_mock(100.0, i as f64, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, Complex::new(0.0, 0.0), Complex::new(0.0, 0.0));
+   	        let w = mock::get_waveguide_mock(100.0, i as f64, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), (w.xsteps-2) as usize );
    	    }
@@ -185,16 +236,27 @@ mod tests {
 	
 	#[test]
    	fn assert_alpha_betas() {
-   	    let w = get_waveguide_mock(100.0, 10.0, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, Complex::new(0.0, 0.0), Complex::new(0.0, 0.0));
-		let got = get_alphas_betas(&w.get_abcs(0), &get_zeros(10));
+   	    let w = mock::get_waveguide_mock(100.0, 10.0, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, zero(), zero());
+		let got = get_alphas_betas(w.get_abcs(0), mock::get_zeros(10));
 		println!("{:?}", got);
    	}
 	
-	fn get_zeros(i: i32) -> Vec<Complex<f64>> {
-		return (0..i).map(|_| Complex::new(0.0, 0.0)).collect();
+	
+}
+
+pub mod mock {
+	use super::*;
+   	use num::complex::Complex;
+
+	pub fn get_zeros(i: i32) -> Vec<Complex<f64>> {
+		return (0..i).map(|_| zero()).collect();
+	}
+
+	pub fn get_ones(i: i32) -> Vec<Complex<f64>> {
+		return (0..i).map(|_| Complex::new(1.0, 0.0) ).collect();
 	}
    	
-	fn get_waveguide_mock(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
+	pub fn get_waveguide_mock(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
    		k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab {
 		
    	    return Slab::new(dx, xdelta, dz, zdelta, k, n, n0, alpha, kleft, kright);

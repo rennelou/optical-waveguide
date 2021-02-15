@@ -1,2 +1,2 @@
-mod waveguide;
-mod fp;
+pub mod waveguide;
+pub mod fp;
