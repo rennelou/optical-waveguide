@@ -25,6 +25,7 @@ impl AlphaBeta {
 			beta: zero(),
 		}
 	}
+
 }
 
 fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
@@ -37,7 +38,6 @@ fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
 				fp::last(&result).unwrap()
 			};
 			 
-			
 			// okamoto 7.110
 			result.push(last_value * alpha_beta.alpha + alpha_beta.beta);
 			
@@ -75,13 +75,11 @@ fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 fn get_ds(es: &Vec<Complex<f64>>, qs: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
 	
 	if es.len() == qs.len() {
-		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(vec![],
-			|mut result,(i, q)| {
-				
-				// okamoto 7.97
-				result.push(es[i]+q*es[i+1]+es[i+2]);
-				
-				return result;
+		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(vec![], |mut result,(i, q)| {
+					// okamoto 7.97
+					result.push(es[i]+q*es[i+1]+es[i+2]);
+
+					return result;
 			}
 		)
 	}

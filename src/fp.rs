@@ -43,6 +43,3 @@ pub fn vec_from_slice<T: Clone>(s: &[T]) -> Vec<T> {
 	return result;
 }
 
-pub fn multiply_complex(l: &Vec<Complex<f64>>, c: Complex<f64>) -> Vec<Complex<f64>> {
-	return l.iter().map(|x| x * c).collect();
-}
