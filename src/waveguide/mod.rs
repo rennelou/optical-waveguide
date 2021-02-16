@@ -36,16 +36,16 @@ fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
 		|es, alpha_beta| {
 			
 			let last_value = fp::unwrap_or_default(
-				fp::last(&es), 
+				fp::head(&es), 
 				one()
 			);
 			
 			// okamoto 7.110
 			let new_value= last_value * alpha_beta.alpha + alpha_beta.beta;
 			
-			return list::append(es, new_value);
+			return list::concat(list::new(new_value),es);
 		}
-	).iter().rev().cloned().collect();
+	);
 }
 
 fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {

@@ -53,27 +53,34 @@ impl Slab {
 
 	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> List<List<Complex<f64>>> {
 		
-		return (1..self.zsteps).fold(vec![e_input], |result, i| {
-			
-			let index = i as usize;
+		return (1..self.zsteps).fold(
+			vec![e_input], 
+			|result, i| {
+				
+				let index = i as usize;
 
-			let last_es = fp::unwrap_or_default(fp::last(&result), list::empty());
-			let q = &self.q[index-1];
-			
-			let ds = get_ds(&last_es, q);
-			let abcs = self.get_abcs(index);
+				let q = &self.q[index-1];
+				let last_es = fp::unwrap_or_default(
+					fp::last(&result), 
+					list::empty()
+				);
+				
+				let ds = get_ds(&last_es, q);
+				let abcs = self.get_abcs(index);
 
-			let new_es = self.insert_boundary_values(
-				index, 
-				get_recurrence_form(get_alphas_betas(abcs, ds)
-				)
-			);
+				let new_es = self.insert_boundary_values(
+					index, 
+					get_recurrence_form(get_alphas_betas(abcs, ds)
+					)
+				);
 
-			return list::append(result, new_es);
-		})
+				return list::append(result, new_es);
+			}
+		);
 	}
 
 	fn get_abcs(&self, z: usize) -> List<Abc> {
+		
 		if self.xsteps >= MINIMALSTEP {
 			
 			let head = list::new(Abc {
@@ -96,6 +103,7 @@ impl Slab {
 
 			return list::concat(list::concat(head,body),last);
 		}
+
 		return list::empty();
 	}
 
