@@ -15,10 +15,10 @@ pub fn new_from_slice<T: Clone>(s: &[T]) -> List<T> {
 	return result;
 }
 
-pub fn push<T>(mut l: List<T>, v: T) -> List<T> {
-    l.push(v);
+pub fn push<T>(mut list: List<T>, value: T) -> List<T> {
+    list.push(value);
     
-    return l;
+    return list;
 }
 
 pub fn concat<T>(mut init: List<T>, mut tail: List<T>) -> List<T> {
