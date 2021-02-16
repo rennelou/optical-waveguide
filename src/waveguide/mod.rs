@@ -30,22 +30,19 @@ impl AlphaBeta {
 }
 
 fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
-	let es: Vec<Complex<f64>> = alpha_betas.iter().rev().fold(list::empty(),
-		|mut result, alpha_beta| {
+	
+	return alpha_betas.iter().rev().fold(list::empty(),
+		|es, alpha_beta| {
 			
-			let last_value = fp::unwrap_or_default(
-				fp::last(&result), 
-				one()
-			);
-			 
+			let last_value = fp::unwrap_or_default(fp::last(&es), one());
+			
 			// okamoto 7.110
-			result.push(last_value * alpha_beta.alpha + alpha_beta.beta);
+			let new_value= last_value * alpha_beta.alpha + alpha_beta.beta;
 			
-			return result;
+			return list::push(es, new_value);
 		}
-	);
-
-	return es.iter().rev().cloned().collect();
+	).iter().rev().cloned().collect();
+	
 }
 
 fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
