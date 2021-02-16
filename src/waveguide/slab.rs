@@ -1,4 +1,6 @@
 use super::*;
+use fp::list;
+use fp::list::List;
 
 pub struct Slab {
 	xsteps: i64,
@@ -6,8 +8,8 @@ pub struct Slab {
 	xdelta: f64,
 	kright: Complex<f64>,
 	kleft:  Complex<f64>,
-	s: Vec<Vec<Complex<f64>>>,
-	q: Vec<Vec<Complex<f64>>>,
+	s: List<List<Complex<f64>>>,
+	q: List<List<Complex<f64>>>,
 }
 
 pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
@@ -49,70 +51,79 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
 
 impl Slab {
 
-	pub fn fdmbpm(&self, e_input: Vec<Complex<f64>>) -> Vec<Vec<Complex<f64>>> {
+	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> List<List<Complex<f64>>> {
 		
-		return (1..self.zsteps).fold(vec![e_input], |mut result, _i| {
+		return (1..self.zsteps).fold(vec![e_input], |result, _i| {
 			
 			let i = _i as usize;
-			let last_es = fp::last(&result).unwrap();
-			
-			let ds = get_ds(&last_es, &self.q[i-1]);
-			let abcs = self.get_abcs(i);
-
-			result.push(
-				self.insert_boundary_values(
-					i, 
-					get_recurrence_form(get_alphas_betas(abcs, ds)
-				)
-			)
+			let last_es = fp::unwrap_or_default(
+				fp::last(&result), 
+				list::empty()
 			);
 
-			return result;
+			let default: List<Complex<f64>> = list::empty();
+			let q = fp::unwrap_or_default(
+				self.q.get(i-1),
+				&default
+			);
+
+			let ds = get_ds(&last_es, q);
+			let abcs = self.get_abcs(i);
+
+			return list::push(result, self.insert_boundary_values(
+					i, 
+					get_recurrence_form(get_alphas_betas(abcs, ds)
+					)
+				)
+			);
 		})
 	}
 
-	fn get_abcs(&self, z: usize) -> Vec<Abc> {
-		let mut result: Vec<Abc> = vec![];
-		
+	fn get_abcs(&self, z: usize) -> List<Abc> {
 		if self.xsteps >= MINIMALSTEP {
-			result.push(Abc {
+			
+			let head = list::new( Abc {
 				// okamoto 7.108a
-				a: zero(), 
-				b: self.s[z][1] - self.left_boundary(z), 
-				c: Complex::new(1.0, 0.0)
+				a: zero(), b: self.s[z][1] - self.left_boundary(z), c: one()
 			});
 			
-			result.append(&mut (2..self.xsteps-2).map(
+			let body: Vec<_> = (2..self.xsteps-2).map(
 				// okamoto 7.108b
-				|i| Abc {
-					a: Complex::new(1.0, 0.0), 
-					b: self.s[z][i as usize], 
-					c: Complex::new(1.0, 0.0)
-				}
-			).collect());
+				|i| Abc { a: one(), b: self.s[z][i as usize], c: one() }
+
+			).collect();
 			
-			result.push(Abc {
+			let last = list::new( Abc {
 				/// okamoto 7.108c
-				a: Complex::new(1.0, 0.0), 
+				a: one(), 
 				b: self.s[z][(self.xsteps - 2) as usize] - self.right_boundary(z), 
 				c: zero()
 			});
+
+			return list::concat(list::concat(head,body),last);
 		}
-		return result;
+		return list::empty();
 	}
 
-	fn insert_boundary_values(&self, z: usize, es: Vec<Complex<f64>>) -> Vec<Complex<f64>>{
+	fn insert_boundary_values(&self, z: usize, es: List<Complex<f64>>) -> List<Complex<f64>>{
 		
-		// okamoto 7.106
-		let frst_element = self.left_boundary(z) * fp::head(&es).unwrap();
-		// okamoto 7.105
-		let last_element = self.right_boundary(z) * fp::last(&es).unwrap();
+		let first_element = {
+			let head_es = fp::unwrap_or_default(
+				fp::head(&es), 
+				one()
+			);
+			head_es*self.left_boundary(z) // okamoto 7.106
+		};
+
+		let last_element = {
+			let last_es = fp::unwrap_or_default(
+				fp::last(&es), 
+				one()
+			);
+			last_es*self.right_boundary(z) // okamoto 7.105
+		};
 		
-		let mut result: Vec<Complex<f64>> = vec![frst_element];
-		result.extend(es);
-		result.extend(vec![last_element]);
-		
-		return result;
+		return list::push(list::concat(list::new(first_element), es),last_element);
 	}
 
 	fn right_boundary(&self, _z: usize) -> Complex<f64> {
@@ -154,11 +165,11 @@ pub mod mock {
 	use super::*;
    	use num::complex::Complex;
 
-	pub fn get_zeros(i: i32) -> Vec<Complex<f64>> {
+	pub fn get_zeros(i: i32) -> List<Complex<f64>> {
 		return (0..i).map(|_| zero()).collect();
 	}
 
-	pub fn get_ones(i: i32) -> Vec<Complex<f64>> {
+	pub fn get_ones(i: i32) -> List<Complex<f64>> {
 		return (0..i).map(|_| Complex::new(1.0, 0.0) ).collect();
 	}
    	

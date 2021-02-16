@@ -1,5 +1,6 @@
 use crate::fp;	
 use num::complex::Complex;
+use fp::list;
 pub mod slab;
 
 const MINIMALSTEP: i64 = 5;
@@ -29,14 +30,13 @@ impl AlphaBeta {
 }
 
 fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
-	let es: Vec<Complex<f64>> = alpha_betas.iter().rev().fold(vec![],
+	let es: Vec<Complex<f64>> = alpha_betas.iter().rev().fold(list::empty(),
 		|mut result, alpha_beta| {
 			
-			let last_value = if result.is_empty() {
-				zero()
-			} else {
-				fp::last(&result).unwrap()
-			};
+			let last_value = fp::unwrap_or_default(
+				fp::last(&result), 
+				one()
+			);
 			 
 			// okamoto 7.110
 			result.push(last_value * alpha_beta.alpha + alpha_beta.beta);
@@ -50,13 +50,12 @@ fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
 
 fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 	
-	return abcs.iter().enumerate().fold(vec![], |mut alpha_betas, (i, abc)| {
+	return abcs.iter().enumerate().fold(list::empty(), |mut alpha_betas, (i, abc)| {
 			
-			let last_alpha_beta = if alpha_betas.is_empty() {
+			let last_alpha_beta = fp::unwrap_or_default(
+				fp::last(&alpha_betas),
 				AlphaBeta::empty()
-			} else {
-				fp::last(&alpha_betas).unwrap()
-			};
+			);
 			
 			alpha_betas.push(
 				AlphaBeta {
@@ -75,7 +74,7 @@ fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 fn get_ds(es: &Vec<Complex<f64>>, qs: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
 	
 	if es.len() == qs.len() {
-		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(vec![], |mut result,(i, q)| {
+		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(list::empty(), |mut result,(i, q)| {
 					// okamoto 7.97
 					result.push(es[i]+q*es[i+1]+es[i+2]);
 
@@ -84,9 +83,13 @@ fn get_ds(es: &Vec<Complex<f64>>, qs: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
 		)
 	}
 
-	return vec![];
+	return list::empty();
 }
 
 fn zero() -> Complex<f64> {
 	return Complex::new(0.0, 0.0);
+}
+
+fn one() -> Complex<f64> {
+	return Complex::new(1.0, 0.0);
 }
