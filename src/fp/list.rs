@@ -1,7 +1,7 @@
 pub type List<T> = Vec<T>;
 
 pub fn new<T>(v: T) -> List<T> {
-    return push(empty(), v);
+    return append(empty(), v);
 }
 
 pub fn empty<T>() -> List<T> {
@@ -15,7 +15,7 @@ pub fn new_from_slice<T: Clone>(s: &[T]) -> List<T> {
 	return result;
 }
 
-pub fn push<T>(mut list: List<T>, value: T) -> List<T> {
+pub fn append<T>(mut list: List<T>, value: T) -> List<T> {
     list.push(value);
     
     return list;

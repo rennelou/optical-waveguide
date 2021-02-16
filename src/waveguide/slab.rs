@@ -69,7 +69,7 @@ impl Slab {
 				)
 			);
 
-			return list::push(result, new_es);
+			return list::append(result, new_es);
 		})
 	}
 

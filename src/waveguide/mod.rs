@@ -31,39 +31,41 @@ impl AlphaBeta {
 
 fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
 	
-	return alpha_betas.iter().rev().fold(list::empty(),
+	return alpha_betas.iter().rev().fold(
+		list::empty(),
 		|es, alpha_beta| {
 			
-			let last_value = fp::unwrap_or_default(fp::last(&es), one());
+			let last_value = fp::unwrap_or_default(
+				fp::last(&es), 
+				one()
+			);
 			
 			// okamoto 7.110
 			let new_value= last_value * alpha_beta.alpha + alpha_beta.beta;
 			
-			return list::push(es, new_value);
+			return list::append(es, new_value);
 		}
 	).iter().rev().cloned().collect();
-	
 }
 
 fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 	
-	return abcs.iter().enumerate().fold(list::empty(), |mut alpha_betas, (i, abc)| {
-			
+	return abcs.iter().enumerate().fold(
+		list::empty(), 
+		|alpha_betas, (i, abc)| {
+		
 			let last_alpha_beta = fp::unwrap_or_default(
 				fp::last(&alpha_betas),
 				AlphaBeta::empty()
 			);
-			
-			alpha_betas.push(
-				AlphaBeta {
-					// okamoto 7.112a
-					alpha: abc.c / (abc.b - abc.a*last_alpha_beta.alpha),
-					// okamoto 7.112b     		
-					beta: (ds[i] + abc.a*last_alpha_beta.beta) / (abc.b - last_alpha_beta.alpha),
-				}
-			);
-			
-			return alpha_betas;
+		
+			let new_alpha_beta = AlphaBeta {
+				// okamoto 7.112a
+				alpha: abc.c / (abc.b - abc.a*last_alpha_beta.alpha),
+				// okamoto 7.112b     		
+				beta: (ds[i] + abc.a*last_alpha_beta.beta) / (abc.b - last_alpha_beta.alpha),
+			};
+			return list::append(alpha_betas, new_alpha_beta);
 		}
 	);
 }
@@ -71,11 +73,13 @@ fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 fn get_ds(es: &Vec<Complex<f64>>, qs: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
 	
 	if es.len() == qs.len() {
-		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(list::empty(), |mut result,(i, q)| {
-					// okamoto 7.97
-					result.push(es[i]+q*es[i+1]+es[i+2]);
+		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(
+			list::empty(), 
+			|ds,(i, q)| {
+				// okamoto 7.97
+				let new_d = es[i]+q*es[i+1]+es[i+2];
 
-					return result;
+				return list::append(ds, new_d);
 			}
 		)
 	}
