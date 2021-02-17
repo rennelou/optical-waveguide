@@ -37,10 +37,7 @@ fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Complex<f64>> {
 		list::empty(),
 		|es, alpha_beta| {
 			
-			let last_value = fp::unwrap_or_default(
-				fp::head(&es), 
-				one()
-			);
+			let last_value = fp::head_or_default(&es, one());
 			
 			// okamoto 7.110
 			let new_value= last_value * alpha_beta.alpha + alpha_beta.beta;
@@ -56,10 +53,7 @@ fn get_alphas_betas(abcs: List<Abc>, ds: List<Complex<f64>>) -> List<AlphaBeta> 
 		list::empty(), 
 		|alpha_betas, (i, abc)| {
 		
-			let last_alpha_beta = fp::unwrap_or_default(
-				fp::last(&alpha_betas),
-				AlphaBeta::empty()
-			);
+			let last_alpha_beta = fp::last_or_default(&alpha_betas,AlphaBeta::empty());
 		
 			let new_alpha_beta = AlphaBeta {
 				// okamoto 7.112a
@@ -75,7 +69,10 @@ fn get_alphas_betas(abcs: List<Abc>, ds: List<Complex<f64>>) -> List<AlphaBeta> 
 fn get_ds(es: &List<Complex<f64>>, qs: &List<Complex<f64>>) -> List<Complex<f64>> {
 	
 	if es.len() == qs.len() {
-		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(
+		
+		let cropped_qs = fp::init(&fp::tail(&qs));
+		
+		return cropped_qs.iter().enumerate().fold(
 			list::empty(), 
 			|ds,(i, q)| {
 				// okamoto 7.97

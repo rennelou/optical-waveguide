@@ -1,5 +1,19 @@
 pub mod list;
 
+pub fn head_or_default<T: Clone>(list: &list::List<T>, default: T) -> T {
+	return unwrap_or_default(
+		head(&list), 
+		default
+	);
+}
+
+pub fn last_or_default<T: Clone>(list: &list::List<T>, default: T) -> T {
+	return unwrap_or_default(
+		last(&list), 
+		default
+	);
+}
+
 pub fn head<T: Clone>(l: &list::List<T>) -> Option<T> {
 	if l.is_empty() {
 		return None

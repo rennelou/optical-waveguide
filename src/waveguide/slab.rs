@@ -60,10 +60,7 @@ impl Slab {
 				let index = i as usize;
 
 				let q = &self.q[index-1];
-				let last_es = fp::unwrap_or_default(
-					fp::last(&result), 
-					list::empty()
-				);
+				let last_es = fp::last_or_default(&result, list::empty());
 				
 				let ds = get_ds(&last_es, q);
 				let abcs = self.get_abcs(index);
@@ -83,7 +80,7 @@ impl Slab {
 		
 		if self.xsteps >= MINIMALSTEP {
 			
-			let head = list::new(Abc {
+			let head = list::new( Abc {
 				// okamoto 7.108a
 				a: zero(), b: self.s[z][1] - self.left_boundary(z), c: one()
 			});
@@ -94,7 +91,7 @@ impl Slab {
 
 			).collect();
 			
-			let last = list::new(Abc {
+			let last = list::new( Abc {
 				/// okamoto 7.108c
 				a: one(), 
 				b: self.s[z][(self.xsteps - 2) as usize] - self.right_boundary(z), 
@@ -110,14 +107,14 @@ impl Slab {
 	fn insert_boundary_values(&self, z: usize, es: List<Complex<f64>>) -> List<Complex<f64>>{
 		
 		let head = list::new({
-			let es_head = fp::unwrap_or_default(fp::head(&es), one());
+			let es_head = fp::head_or_default(&es, one());
 
 			es_head*self.left_boundary(z) // okamoto 7.106
 
 		});
 
 		let last = list::new({
-			let es_last = fp::unwrap_or_default(fp::last(&es), one());
+			let es_last = fp::last_or_default(&es, one());
 
 			es_last*self.right_boundary(z) // okamoto 7.105
 
