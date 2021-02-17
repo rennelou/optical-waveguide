@@ -154,10 +154,15 @@ mod tests {
    	}
 	
 	#[test]
-   	fn assert_alpha_betas() {
-   	    let w = mock::get_waveguide_mock(100.0, 10.0, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, zero(), zero());
-		let got = get_alphas_betas(w.get_abcs(0), mock::get_zeros(10));
-		println!("{:?}", got);
+   	fn assert_ds_size() {
+
+		for i in 5..500 {
+			let es = (0..i).map(|_| one()).collect();
+			let qs = (0..i).map(|_| one()).collect();
+
+			let got = get_ds(&es, &qs);
+			assert_eq!(got.len(), (i-2) as usize );
+		}
    	}
 }
 
