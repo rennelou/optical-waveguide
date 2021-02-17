@@ -5,7 +5,7 @@ use fp::list::List;
 pub struct Slab {
 	xsteps: i64,
 	zsteps: i64,
-	xdelta: f64,
+	pub xdelta: f64,
 	kright: Complex<f64>,
 	kleft:  Complex<f64>,
 	s: List<List<Complex<f64>>>,

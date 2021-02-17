@@ -12,13 +12,18 @@ fn main() {
     root_drawing_area.fill(&WHITE).unwrap();
 
     let mut chart = ChartBuilder::on(&root_drawing_area)
+        .caption("Figure Sample", ("Arial", 30))
+        .set_label_area_size(LabelAreaPosition::Left, 40)
+        .set_label_area_size(LabelAreaPosition::Bottom, 40)
         .build_cartesian_2d(0.0..10.0, 0.0..1.0)
         .unwrap();
+
+    chart.configure_mesh().draw().unwrap();
 
     for (i,l) in fdmbpm.iter().enumerate() {
         let offset = i as f64 / 10.0;
         chart.draw_series(LineSeries::new(
-            l.iter().enumerate().map(|(i,x)| (i as f64, x.norm()+offset)),
+            l.iter().enumerate().map(|(i,x)| ((i + 1) as f64 * w.xdelta, x.norm()+offset)),
             &RED
         )).unwrap();
     }
