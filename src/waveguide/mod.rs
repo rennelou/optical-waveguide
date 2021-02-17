@@ -1,6 +1,8 @@
-use crate::fp;	
 use num::complex::Complex;
+use crate::fp;	
 use fp::list;
+use fp::list::List;
+
 pub mod slab;
 
 const MINIMALSTEP: i64 = 5;
@@ -29,7 +31,7 @@ impl AlphaBeta {
 
 }
 
-fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
+fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Complex<f64>> {
 	
 	return alpha_betas.iter().rev().fold(
 		list::empty(),
@@ -48,7 +50,7 @@ fn get_recurrence_form(alpha_betas: Vec<AlphaBeta>) -> Vec<Complex<f64>> {
 	);
 }
 
-fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
+fn get_alphas_betas(abcs: List<Abc>, ds: List<Complex<f64>>) -> List<AlphaBeta> {
 	
 	return abcs.iter().enumerate().fold(
 		list::empty(), 
@@ -70,7 +72,7 @@ fn get_alphas_betas(abcs: Vec<Abc>, ds: Vec<Complex<f64>>) -> Vec<AlphaBeta> {
 	);
 }
 
-fn get_ds(es: &Vec<Complex<f64>>, qs: &Vec<Complex<f64>>) -> Vec<Complex<f64>> {
+fn get_ds(es: &List<Complex<f64>>, qs: &List<Complex<f64>>) -> List<Complex<f64>> {
 	
 	if es.len() == qs.len() {
 		return fp::init(&fp::tail(&qs)).iter().enumerate().fold(
