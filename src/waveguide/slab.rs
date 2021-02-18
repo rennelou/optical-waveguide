@@ -6,7 +6,6 @@ pub struct Slab {
 	xsteps: i64,
 	zsteps: i64,
 	xdelta: f64,
-	zdelta: f64,
 	kright: Complex<f64>,
 	kleft:  Complex<f64>,
 	s: List<List<Complex<f64>>>,
@@ -43,7 +42,6 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
         xsteps: xsteps,
         zsteps: zsteps,
         xdelta: xdelta,
-		zdelta: zdelta,
         kright: kright,
         kleft:  kleft,
         s:      s,
@@ -53,7 +51,7 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
 
 impl Slab {
 
-	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> List<List<Node2d>> {
+	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> List<List<Complex<f64>>> {
 		
 		let es = (1..self.zsteps).fold(
 			vec![e_input], 
@@ -77,20 +75,7 @@ impl Slab {
 			}
 		);
 
-		return self.complexs_to_node(es);
-	}
-
-	fn complexs_to_node(&self, cs: List<List<Complex<f64>>>) -> List<List<Node2d>> {
-		return cs.iter().enumerate().map(|(z, l)| {
-				l.iter().enumerate().map(|(x, c)|{
-					return Node2d{
-						z: z as f64 * self.zdelta,
-						x: x as f64 * self.xdelta,
-						c: c.clone()
-					}
-				}).collect()
-			}
-		).collect();
+		return es;
 	}
 
 	fn get_abcs(&self, z: usize) -> List<Abc> {

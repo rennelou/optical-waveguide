@@ -27,11 +27,11 @@ fn main() {
 
     chart.configure_mesh().draw().unwrap();
 
-    for l in fdmbpm.iter() {
+    for (z, l) in fdmbpm.iter().enumerate() {
         chart.draw_series(LineSeries::new(
-            l.iter().map(|n|{
-                let (r, theta) = n.c.to_polar();
-               (n.x * 1000.0, r * theta.cos() + n.z)
+            l.iter().enumerate().map(|(x,c)|{
+                let (r, theta) = c.clone().to_polar();
+                (x as f64, r * theta.cos() + z as f64)
             }),
             &RED
         )).unwrap();
