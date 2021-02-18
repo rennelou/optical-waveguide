@@ -83,7 +83,7 @@ fn get_ds(es: &List<Complex<f64>>, qs: &List<Complex<f64>>) -> List<Complex<f64>
 		)
 	}
 
-	return list::empty();
+	panic!("es array and qs array dosent have the same size");
 }
 
 fn zero() -> Complex<f64> {
