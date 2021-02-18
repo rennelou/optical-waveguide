@@ -7,6 +7,13 @@ pub mod slab;
 
 const MINIMALSTEP: i64 = 5;
 
+#[derive(Debug, Clone)]
+pub struct Node2d {
+	pub z: f64, 
+	pub x: f64, 
+	pub c: Complex<f64>
+}
+
 #[derive(Debug, Clone, Copy)]
 struct Abc {
 	a: Complex<f64>,
