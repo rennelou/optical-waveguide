@@ -6,6 +6,7 @@ pub struct Slab {
 	xsteps: i64,
 	zsteps: i64,
 	xdelta: f64,
+	zdelta: f64,
 	kright: Complex<f64>,
 	kleft:  Complex<f64>,
 	s: List<List<Complex<f64>>>,
@@ -15,8 +16,8 @@ pub struct Slab {
 pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
     k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab {
     
-    let xsteps = (dx / xdelta).round() as i64;
-    let zsteps = (dz / zdelta).round() as i64;
+    let xsteps = (dx / xdelta) as i64;
+    let zsteps = (dz / zdelta) as i64;
     
     let guiding_space = |_, _| Complex::new(k.sqrt()*xdelta.sqrt()*(n.sqrt()-n0.sqrt()), 0.0);
     let free_space = |_, _| Complex::new(0.0, 4.0*k*n0*xdelta.sqrt()/zdelta);
@@ -42,6 +43,7 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
         xsteps: xsteps,
         zsteps: zsteps,
         xdelta: xdelta,
+		zdelta: zdelta,
         kright: kright,
         kleft:  kleft,
         s:      s,
@@ -76,6 +78,14 @@ impl Slab {
 		);
 
 		return es;
+	}
+
+	pub fn get_x_points(&self) -> List<f64> {
+		return (0..self.xsteps).map(|x| (x as f64) * self.xdelta).collect();
+	}
+
+	pub fn get_z_points(&self) -> List<f64> {
+		return (0..self.zsteps).map(|x| (x as f64) * self.zdelta).collect();
 	}
 
 	fn get_abcs(&self, z: usize) -> List<Abc> {
@@ -141,12 +151,11 @@ impl Slab {
 #[cfg(test)]
 mod tests {
 	use super::*;
-   	use super::mock;
    	
 	#[test]
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
-   	        let w = mock::get_waveguide_mock(100.0, i as f64, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, zero(), zero());
+   	        let w = slab::new(100.0, i as f64, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), (w.xsteps-2) as usize );
    	    }
@@ -176,10 +185,4 @@ pub mod mock {
 	pub fn get_ones(i: i32) -> List<Complex<f64>> {
 		return (0..i).map(|_| Complex::new(1.0, 0.0) ).collect();
 	}
-   	
-	pub fn get_waveguide_mock(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
-   		k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab {
-		
-   	    return slab::new(dx, xdelta, dz, zdelta, k, n, n0, alpha, kleft, kright);
-   	}
 }
