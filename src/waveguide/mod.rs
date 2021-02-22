@@ -3,9 +3,10 @@ use crate::fp;
 use fp::list;
 use fp::list::List;
 
+pub mod eletric_field_2d;
 pub mod slab;
 
-const MINIMALSTEP: i64 = 5;
+const MINIMALSTEP: usize = 5;
 
 #[derive(Debug, Clone, Copy)]
 struct Abc {

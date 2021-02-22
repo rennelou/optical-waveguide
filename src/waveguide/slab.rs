@@ -1,12 +1,16 @@
 use super::*;
+use super::eletric_field_2d;
+use super::eletric_field_2d::EletricField2d;
 use fp::list;
 use fp::list::List;
 
 pub struct Slab {
-	xsteps: i64,
-	zsteps: i64,
-	xdelta: f64,
-	zdelta: f64,
+	pub xdelta: f64,
+	pub zdelta: f64,
+
+	pub xsteps: usize,
+	pub zsteps: usize,
+	
 	kright: Complex<f64>,
 	kleft:  Complex<f64>,
 	s: List<List<Complex<f64>>>,
@@ -16,8 +20,8 @@ pub struct Slab {
 pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
     k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab {
     
-    let xsteps = (dx / xdelta) as i64;
-    let zsteps = (dz / zdelta) as i64;
+    let xsteps = (dx / xdelta).round() as usize;
+    let zsteps = (dz / zdelta).round() as usize;
     
     let guiding_space = |_, _| Complex::new(k.sqrt()*xdelta.sqrt()*(n.sqrt()-n0.sqrt()), 0.0);
     let free_space = |_, _| Complex::new(0.0, 4.0*k*n0*xdelta.sqrt()/zdelta);
@@ -53,22 +57,19 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
 
 impl Slab {
 
-	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> List<List<Complex<f64>>> {
+	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> EletricField2d {
 		
-		let es = (1..self.zsteps).fold(
+		let es = (1usize..self.zsteps).fold(
 			vec![e_input], 
 			|result, i| {
 				
-				let index = i as usize;
-
-				let q = &self.q[index-1];
 				let last_es = fp::last_or_default(&result, list::empty());
 				
-				let ds = get_ds(&last_es, q);
-				let abcs = self.get_abcs(index);
+				let ds = get_ds(&last_es, &self.q[i-1]);
+				let abcs = self.get_abcs(i);
 
 				let new_es = self.insert_boundary_values(
-					index, 
+					i, 
 					get_recurrence_form(get_alphas_betas(abcs, ds)
 					)
 				);
@@ -77,15 +78,11 @@ impl Slab {
 			}
 		);
 
-		return es;
+		return eletric_field_2d::new(self, es);
 	}
 
 	pub fn get_x_points(&self) -> List<f64> {
-		return (0..self.xsteps).map(|x| (x as f64) * self.xdelta).collect();
-	}
-
-	pub fn get_z_points(&self) -> List<f64> {
-		return (0..self.zsteps).map(|x| (x as f64) * self.zdelta).collect();
+		return (0usize..self.xsteps).map(|x| (x as f64) * self.xdelta).collect();
 	}
 
 	fn get_abcs(&self, z: usize) -> List<Abc> {
@@ -99,14 +96,14 @@ impl Slab {
 			
 			let body: Vec<_> = (2..self.xsteps-2).map(
 				// okamoto 7.108b
-				|i| Abc { a: one(), b: self.s[z][i as usize], c: one() }
+				|i| Abc { a: one(), b: self.s[z][i], c: one() }
 
 			).collect();
 			
 			let last = list::new( Abc {
 				/// okamoto 7.108c
 				a: one(), 
-				b: self.s[z][(self.xsteps - 2) as usize] - self.right_boundary(z), 
+				b: self.s[z][self.xsteps - 2usize] - self.right_boundary(z), 
 				c: zero()
 			});
 
@@ -157,7 +154,7 @@ mod tests {
    	    for i in 1..10 {
    	        let w = slab::new(100.0, i as f64, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
-			assert_eq!(got.len(), (w.xsteps-2) as usize );
+			assert_eq!(got.len(), w.xsteps-2usize);
    	    }
    	}
 	
@@ -169,7 +166,7 @@ mod tests {
 			let qs = (0..i).map(|_| one()).collect();
 
 			let got = get_ds(&es, &qs);
-			assert_eq!(got.len(), (i-2) as usize );
+			assert_eq!(got.len(), i-2usize);
 		}
    	}
 }
