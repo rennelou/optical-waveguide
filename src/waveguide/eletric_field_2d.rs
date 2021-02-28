@@ -1,5 +1,5 @@
 use num::Complex;
-use super::slab::Slab;
+use super::slab::Slab2d;
 use crate::fp::list::List;
 
 pub struct EletricField2d {
@@ -22,7 +22,7 @@ pub struct Point2d{
     pub eletric_field: f64,
 }
 
-pub fn new(w: &Slab, es: List<List<Complex<f64>>>) -> EletricField2d {
+pub fn new(w: &Slab2d, es: List<List<Complex<f64>>>) -> EletricField2d {
     return EletricField2d {
         es: es,
         dz: w.dz,

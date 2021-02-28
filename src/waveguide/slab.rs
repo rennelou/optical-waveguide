@@ -4,7 +4,7 @@ use super::eletric_field_2d::EletricField2d;
 use fp::list;
 use fp::list::List;
 
-pub struct Slab {
+pub struct Slab2d {
 	pub dx: f64,
 	pub dz: f64,
 	
@@ -21,7 +21,7 @@ pub struct Slab {
 }
 
 pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
-    k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab {
+    k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
     let xsteps = (dx / xdelta).round() as usize;
     let zsteps = (dz / zdelta).round() as usize;
@@ -46,7 +46,7 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
         ).collect()
     ).collect();
     
-    return Slab{
+    return Slab2d{
 		dx: dx,
 		dz: dz,
         xsteps: xsteps,
@@ -60,7 +60,7 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
     }
 }
 
-impl Slab {
+impl Slab2d {
 
 	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> EletricField2d {
 		
