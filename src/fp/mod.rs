@@ -50,10 +50,10 @@ pub fn tail<T: Clone>(l: &list::List<T>) -> list::List<T> {
 	return result;
 }
 
-pub fn unwrap_or_default<T: Clone>(wrap: Option<T>, default: T) -> T {
+pub fn unwrap_or_default<T>(wrap: Option<T>, default: T) -> T {
 	return {
 		if let None = wrap {
-			default.clone()
+			default
 		} else {
 			wrap.unwrap()
 		}

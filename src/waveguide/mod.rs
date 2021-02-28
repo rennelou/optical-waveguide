@@ -8,14 +8,14 @@ pub mod slab;
 
 const MINIMALSTEP: usize = 5;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 struct Abc {
 	a: Complex<f64>,
 	b: Complex<f64>,
 	c: Complex<f64>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 struct AlphaBeta {
 	alpha: Complex<f64>,
 	beta: Complex<f64>,
@@ -34,7 +34,7 @@ impl AlphaBeta {
 
 fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Complex<f64>> {
 	
-	return alpha_betas.iter().rev().fold(
+	return alpha_betas.into_iter().rev().fold(
 		list::empty(),
 		|es, alpha_beta| {
 			
@@ -50,7 +50,7 @@ fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Complex<f64>> {
 
 fn get_alphas_betas(abcs: List<Abc>, ds: List<Complex<f64>>) -> List<AlphaBeta> {
 	
-	return abcs.iter().enumerate().fold(
+	return abcs.into_iter().enumerate().fold(
 		list::empty(), 
 		|alpha_betas, (i, abc)| {
 		
@@ -73,7 +73,7 @@ fn get_ds(es: &List<Complex<f64>>, qs: &List<Complex<f64>>) -> List<Complex<f64>
 		
 		let cropped_qs = fp::init(&fp::tail(&qs));
 		
-		return cropped_qs.iter().enumerate().fold(
+		return cropped_qs.into_iter().enumerate().fold(
 			list::empty(), 
 			|ds,(i, q)| {
 				// okamoto 7.97

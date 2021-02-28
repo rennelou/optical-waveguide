@@ -36,18 +36,18 @@ pub fn new(w: &Slab2d, es: List<List<Complex<f64>>>) -> EletricField2d {
 
 impl EletricField2d {
     pub fn get_points(&self) -> List<List<Point2d>> {
-        let zpoints: List<f64> = (0usize..self.zsteps).map(|x| (x as f64) * self.zdelta).collect();
-        let xpoints: List<f64> = (0usize..self.xsteps).map(|x| (x as f64) * self.xdelta).collect();
+        let zpoints = (0usize..self.zsteps).map(|x| (x as f64) * self.zdelta);
         
-        return zpoints.iter().copied().zip(&self.es).map(|(z, l)| {
+        return zpoints.zip(&self.es).map(|(z, l)| {
+                
+                let xpoints = (0usize..self.xsteps).map(|x| (x as f64) * self.xdelta);    
+
                 let es_real = l.iter().map(|c| {
                     let (r, theta) = c.clone().to_polar();
                     r * theta.cos()
                 });
 
-                let x_and_es: List<(f64, f64)> = xpoints.iter().copied().zip(es_real).collect();
-
-                return x_and_es.iter().copied().map(|(x, eletric_field)|
+                return xpoints.zip(es_real).map(|(x, eletric_field)|
                     Point2d{
                         z, 
                         x, 

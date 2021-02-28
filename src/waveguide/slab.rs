@@ -99,7 +99,7 @@ impl Slab2d {
 				a: zero(), b: self.s[z][1] - self.left_boundary(z), c: one()
 			});
 			
-			let body: Vec<_> = (2..self.xsteps-2).map(
+			let body = (2..self.xsteps-2).map(
 				// okamoto 7.108b
 				|i| Abc { a: one(), b: self.s[z][i], c: one() }
 

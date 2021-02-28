@@ -21,5 +21,5 @@ fn main() {
 }
 
 fn f64_to_complex(l: List<f64>) -> List<Complex<f64>> {
-    return l.iter().copied().map(|x|Complex::new(x, 0.0)).collect();
+    return l.into_iter().map(|x|Complex::new(x, 0.0)).collect();
 }
