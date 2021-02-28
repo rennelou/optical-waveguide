@@ -5,6 +5,9 @@ use crate::fp::list::List;
 pub struct EletricField2d {
     pub es: List<List<Complex<f64>>>,
     
+    pub dx: f64,
+    pub dz: f64,
+
     pub xdelta: f64,
     pub zdelta: f64,
 
@@ -22,6 +25,8 @@ pub struct Point2d{
 pub fn new(w: &Slab, es: List<List<Complex<f64>>>) -> EletricField2d {
     return EletricField2d {
         es: es,
+        dz: w.dz,
+        dx: w.dx,
         zdelta: w.zdelta,
         xdelta: w.xdelta,
         zsteps: w.zsteps,

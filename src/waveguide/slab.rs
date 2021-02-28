@@ -5,6 +5,9 @@ use fp::list;
 use fp::list::List;
 
 pub struct Slab {
+	pub dx: f64,
+	pub dz: f64,
+	
 	pub xdelta: f64,
 	pub zdelta: f64,
 
@@ -44,6 +47,8 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
     ).collect();
     
     return Slab{
+		dx: dx,
+		dz: dz,
         xsteps: xsteps,
         zsteps: zsteps,
         xdelta: xdelta,

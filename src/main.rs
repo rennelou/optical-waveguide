@@ -17,7 +17,7 @@ fn main() {
     
     let es_2d = w.fdmbpm(f64_to_complex(gaussian));
 
-    plotters::plot_waveguide_2d(es_2d, dx, dz + 1.0);
+    plotters::plot_waveguide_2d(es_2d);
 }
 
 fn f64_to_complex(l: List<f64>) -> List<Complex<f64>> {

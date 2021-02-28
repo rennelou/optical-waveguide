@@ -1,7 +1,7 @@
 use super::waveguide::eletric_field_2d::EletricField2d;
 use plotters::prelude::*;
 
-pub fn plot_waveguide_2d(es_2d: EletricField2d, dx: f64, dz: f64) {
+pub fn plot_waveguide_2d(es_2d: EletricField2d) {
     let root_drawing_area = BitMapBackend::new("waveguide.png", (1024, 768))
         .into_drawing_area();
     
@@ -11,7 +11,7 @@ pub fn plot_waveguide_2d(es_2d: EletricField2d, dx: f64, dz: f64) {
         .caption("Waveguide", ("Arial", 30))
         .set_label_area_size(LabelAreaPosition::Left, 40)
         .set_label_area_size(LabelAreaPosition::Bottom, 40)
-        .build_cartesian_2d(0.0..dx, 0.0..dz)
+        .build_cartesian_2d(0.0..es_2d.dx, 0.0..es_2d.dz)
         .unwrap();
 
     chart.configure_mesh().draw().unwrap();
