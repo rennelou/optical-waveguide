@@ -23,17 +23,17 @@ pub fn new<T: RefractiveIndex>(g: &SlabGeometry, k: f64, r: T, alpha: f64, kleft
     let loss = |_, _| Complex::new(0.0, 2.0*k*r.get_n0()*g.xdelta.sqrt()*alpha);
     
     let s = g.get_z_points().into_iter().map(
-        |i| g.get_x_points().into_iter().map(
+        |z| g.get_x_points().into_iter().map(
             // okamoto 7.98
-            |j| Complex::new(2.0, 0.0)-guiding_space(i, j)+free_space()+loss(i, j)
+            |x| Complex::new(2.0, 0.0)-guiding_space(x, z)+free_space()+loss(x, z)
         
         ).collect()
     ).collect();
     
     let q = g.get_z_points().into_iter().map(
-        |i| g.get_x_points().into_iter().map(
+        |z| g.get_x_points().into_iter().map(
             // okamoto 7.99
-            |j| Complex::new(-2.0, 0.0)+guiding_space(i, j)+free_space()-loss(i, j)
+            |x| Complex::new(-2.0, 0.0)+guiding_space(x, z)+free_space()-loss(x, z)
         
         ).collect()
     ).collect();

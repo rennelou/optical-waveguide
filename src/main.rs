@@ -14,7 +14,7 @@ fn main() {
     let zdelta = 0.5;
 
     let g = geometry::new(dx, xdelta, dz, zdelta);
-		let r = refractive_index::optical_fiber::new(3.4757, 1.0, 4.5, 7.5);
+	let r = refractive_index::optical_fiber::new(3.4757, 1.0, 4.5, 7.5);
     let w = slab::new(&g, 1.0/1550.0, r, 0.0, Complex::new(1.0, 0.0), Complex::new(1.0, 0.0));
     
     let gaussian = waves::gaussian(g.get_x_points(), 5.0, 0.2);
