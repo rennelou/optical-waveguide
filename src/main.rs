@@ -1,3 +1,5 @@
+use rust_fdmbpm::waveguide::geometry;
+use rust_fdmbpm::waveguide::refractive_index;
 use rust_fdmbpm::waves;
 use rust_fdmbpm::fp::list::List;
 use rust_fdmbpm::waveguide::slab;
@@ -11,13 +13,15 @@ fn main() {
     let dz = 20.0;
     let zdelta = 0.5;
 
-    let w = slab::new(dx, xdelta, dz, zdelta, 1.0/1550.0, 3.4757, 3.4757, 0.0, Complex::new(1.0, 0.0), Complex::new(1.0, 0.0));
+    let g = geometry::new(dx, xdelta, dz, zdelta);
+		let r = refractive_index::optical_fiber::new(3.4757, 1.0, 4.5, 7.5);
+    let w = slab::new(&g, 1.0/1550.0, r, 0.0, Complex::new(1.0, 0.0), Complex::new(1.0, 0.0));
     
-    let gaussian = waves::gaussian(w.get_x_points(), 5.0, 0.2);
+    let gaussian = waves::gaussian(g.get_x_points(), 5.0, 0.2);
     
     let es_2d = w.fdmbpm(f64_to_complex(gaussian));
 
-    plotters::plot_waveguide_2d(es_2d);
+    plotters::plot_waveguide_2d(es_2d, g);
 }
 
 fn f64_to_complex(l: List<f64>) -> List<Complex<f64>> {

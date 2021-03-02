@@ -5,6 +5,8 @@ use fp::list::List;
 
 pub mod eletric_field_2d;
 pub mod slab;
+pub mod refractive_index;
+pub mod geometry;
 
 const MINIMALSTEP: usize = 5;
 

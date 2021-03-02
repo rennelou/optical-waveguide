@@ -1,3 +1,4 @@
+use super::{geometry::SlabGeometry, refractive_index::RefractiveIndex};
 use super::*;
 use super::eletric_field_2d;
 use super::eletric_field_2d::EletricField2d;
@@ -5,59 +6,48 @@ use fp::list;
 use fp::list::List;
 
 pub struct Slab2d {
-	pub dx: f64,
-	pub dz: f64,
-	
 	pub xdelta: f64,
 	pub zdelta: f64,
-
 	pub xsteps: usize,
 	pub zsteps: usize,
-	
 	kright: Complex<f64>,
 	kleft:  Complex<f64>,
 	s: List<List<Complex<f64>>>,
 	q: List<List<Complex<f64>>>,
 }
 
-pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64,
-    k: f64, n: f64, n0: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
+pub fn new<T: RefractiveIndex>(g: &SlabGeometry, k: f64, r: T, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
-    let xsteps = (dx / xdelta).round() as usize;
-    let zsteps = (dz / zdelta).round() as usize;
+    let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_n(x, z).sqrt()-r.get_n0().sqrt()), 0.0);
+    let free_space = || Complex::new(0.0, 4.0*k*r.get_n0()*g.xdelta.sqrt()/g.zdelta);
+    let loss = |_, _| Complex::new(0.0, 2.0*k*r.get_n0()*g.xdelta.sqrt()*alpha);
     
-    let guiding_space = |_, _| Complex::new(k.sqrt()*xdelta.sqrt()*(n.sqrt()-n0.sqrt()), 0.0);
-    let free_space = |_, _| Complex::new(0.0, 4.0*k*n0*xdelta.sqrt()/zdelta);
-    let loss = |_, _| Complex::new(0.0, 2.0*k*n0*xdelta.sqrt()*alpha);
-    
-    let s = (0..zsteps).map(
-        |i| (0..xsteps).map(
+    let s = g.get_z_points().into_iter().map(
+        |i| g.get_x_points().into_iter().map(
             // okamoto 7.98
-            |j| Complex::new(2.0, 0.0)-guiding_space(i, j)+free_space(i, j)+loss(i, j)
+            |j| Complex::new(2.0, 0.0)-guiding_space(i, j)+free_space()+loss(i, j)
         
         ).collect()
     ).collect();
     
-    let q = (0..zsteps).map(
-        |i| (0..xsteps).map(
+    let q = g.get_z_points().into_iter().map(
+        |i| g.get_x_points().into_iter().map(
             // okamoto 7.99
-            |j| Complex::new(-2.0, 0.0)+guiding_space(i, j)+free_space(i, j)-loss(i, j)
+            |j| Complex::new(-2.0, 0.0)+guiding_space(i, j)+free_space()-loss(i, j)
         
         ).collect()
     ).collect();
     
-    return Slab2d{
-		dx: dx,
-		dz: dz,
-        xsteps: xsteps,
-        zsteps: zsteps,
-        xdelta: xdelta,
-		zdelta: zdelta,
-        kright: kright,
-        kleft:  kleft,
-        s:      s,
-        q:      q,
-    }
+    Slab2d{ 
+		xdelta: g.xdelta,
+		zdelta: g.zdelta,
+		xsteps: g.xsteps,
+		zsteps: g.zsteps,
+		kright,
+		kleft,
+		s,
+		q,
+	}
 }
 
 impl Slab2d {
@@ -84,10 +74,6 @@ impl Slab2d {
 		);
 
 		return eletric_field_2d::new(self, es);
-	}
-
-	pub fn get_x_points(&self) -> List<f64> {
-		return (0usize..self.xsteps).map(|x| (x as f64) * self.xdelta).collect();
 	}
 
 	fn get_abcs(&self, z: usize) -> List<Abc> {
@@ -157,7 +143,9 @@ mod tests {
 	#[test]
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
-   	        let w = slab::new(100.0, i as f64, 2.0, 1.0, 1.0/1550.0, 3.4757, 1.0, 0.2, zero(), zero());
+			let g = geometry::new(100.0, i as f64, 2.0, 1.0);
+			let r = refractive_index::optical_fiber::new(3.4757, 1.0, 45.0, 75.0);
+   	        let w = slab::new(&g, 1.0/1550.0, r, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), w.xsteps-2usize);
    	    }
