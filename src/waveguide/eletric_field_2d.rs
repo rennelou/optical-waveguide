@@ -39,7 +39,7 @@ impl EletricField2d {
 
                 let es_real = l.iter().map(|c| {
                     let (r, theta) = c.clone().to_polar();
-                    r * theta.cos()
+                    (r * theta.cos()).abs()
                 });
 
                 return xpoints.zip(es_real).map(|(x, eletric_field)|

@@ -1,8 +1,8 @@
 use super::waveguide::eletric_field_2d::EletricField2d;
-use super::waveguide::geometry::SlabGeometry;
+use super::array::Array2d;
 use plotters::prelude::*;
 
-pub fn plot_waveguide_2d(es_2d: EletricField2d, g: SlabGeometry) {
+pub fn plot_waveguide_2d(es_2d: EletricField2d, g: Array2d) {
     let root_drawing_area = BitMapBackend::new("waveguide.png", (1024, 768))
         .into_drawing_area();
     

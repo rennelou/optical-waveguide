@@ -1,6 +1,6 @@
 use super::fp::list::List;
 
-pub struct SlabGeometry {
+pub struct Array2d {
     pub dx: f64,
 	pub dz: f64,
 	
@@ -11,22 +11,22 @@ pub struct SlabGeometry {
 	pub zsteps: usize,
 }
 
-pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64) -> SlabGeometry {
+impl Array2d {
+	pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64) -> Array2d {
     
-    let xsteps = (dx / xdelta).round() as usize;
-    let zsteps = (dz / zdelta).round() as usize;
-    
-    SlabGeometry{
-		dx: dx,
-		dz: dz,
-        xsteps: xsteps,
-        zsteps: zsteps,
-        xdelta: xdelta,
-		zdelta: zdelta,
-    }
-}
+		let xsteps = (dx / xdelta).round() as usize;
+		let zsteps = (dz / zdelta).round() as usize;
+		
+		Array2d{
+			dx: dx,
+			dz: dz,
+			xsteps: xsteps,
+			zsteps: zsteps,
+			xdelta: xdelta,
+			zdelta: zdelta,
+		}
+	}
 
-impl SlabGeometry {
     pub fn get_x_points(&self) -> List<f64> {
 		return (0usize..self.xsteps).map(|x| (x as f64) * self.xdelta).collect();
 	}

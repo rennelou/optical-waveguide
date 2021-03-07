@@ -1,4 +1,5 @@
-use super::{geometry::SlabGeometry, refractive_index::RefractiveIndex};
+use crate::array::Array2d;
+use super::refractive_index::RefractiveIndex;
 use super::*;
 use super::eletric_field_2d;
 use super::eletric_field_2d::EletricField2d;
@@ -16,7 +17,7 @@ pub struct Slab2d {
 	q: List<List<Complex<f64>>>,
 }
 
-pub fn new<T: RefractiveIndex>(g: &SlabGeometry, k: f64, r: T, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
+pub fn new<T: RefractiveIndex>(g: &Array2d, k: f64, r: T, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
     let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_n(x, z).sqrt()-r.get_n0().sqrt()), 0.0);
     let free_space = || Complex::new(0.0, 4.0*k*r.get_n0()*g.xdelta.sqrt()/g.zdelta);
@@ -138,14 +139,15 @@ impl Slab2d {
 
 #[cfg(test)]
 mod tests {
+	use crate::*;
 	use super::*;
    	
 	#[test]
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
-			let g = geometry::new(100.0, i as f64, 2.0, 1.0);
+			let geometry = array::Array2d::new(100.0, i as f64, 2.0, 1.0);
 			let r = refractive_index::optical_fiber::new(3.4757, 1.0, 45.0, 75.0);
-   	        let w = slab::new(&g, 1.0/1550.0, r, 0.2, zero(), zero());
+   	        let w = slab::new(&geometry, 1.0/1550.0, r, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), w.xsteps-2usize);
    	    }
