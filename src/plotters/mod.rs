@@ -19,7 +19,7 @@ pub fn plot_waveguide_2d(es_2d: EletricField2d, g: Array2d) {
 
     for line in es_2d.get_points() {
         chart.draw_series(LineSeries::new(
-            line.iter().map(|p| (p.x, p.z + p.eletric_field)),
+            line.map(|p| (p.x, p.z + p.eletric_field)),
             &RED
         )).unwrap();
     }

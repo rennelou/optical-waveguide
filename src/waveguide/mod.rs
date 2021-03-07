@@ -68,7 +68,7 @@ fn get_alphas_betas(abcs: List<Abc>, ds: List<Complex<f64>>) -> List<AlphaBeta> 
 	);
 }
 
-fn get_ds(es: &List<Complex<f64>>, qs: &List<Complex<f64>>) -> List<Complex<f64>> {
+fn get_ds(es: List<Complex<f64>>, qs: List<Complex<f64>>) -> List<Complex<f64>> {
 	
 	if es.len() == qs.len() {
 		

@@ -30,26 +30,23 @@ pub fn new(w: &Slab2d, es: List<List<Complex<f64>>>) -> EletricField2d {
 }
 
 impl EletricField2d {
-    pub fn get_points(&self) -> List<List<Point2d>> {
-        let zpoints = (0usize..self.zsteps).map(|x| (x as f64) * self.zdelta);
+    pub fn get_points(&self) -> impl Iterator<Item=impl Iterator<Item=Point2d> + '_> + '_ {
+        let zpoints = (0usize..self.zsteps).map(move |z| (z as f64) * self.zdelta);
         
-        return zpoints.zip(&self.es).map(|(z, l)| {
-                
-                let xpoints = (0usize..self.xsteps).map(|x| (x as f64) * self.xdelta);    
-
-                let es_real = l.iter().map(|c| {
-                    let (r, theta) = c.clone().to_polar();
-                    (r * theta.cos()).abs()
-                });
-
-                return xpoints.zip(es_real).map(|(x, eletric_field)|
-                    Point2d{
-                        z, 
-                        x, 
-                        eletric_field
-                    }
-                ).collect();
-            }
-        ).collect();
+        return zpoints.zip(&self.es).map(move |(z, l)| {
+            
+            return (0usize..self.xsteps)
+                        .map(move |x| (x as f64) * self.xdelta)
+                        .zip(l)
+                        .map(move |(x, c)| {
+                            let (r, theta) = c.clone().to_polar();
+                            let eletric_field = (r * theta.cos()).abs();
+                            Point2d{
+                                z, 
+                                x, 
+                                eletric_field
+                            }
+                        });    
+        });
     }
 }

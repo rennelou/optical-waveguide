@@ -17,22 +17,22 @@ pub struct Slab2d {
 	q: List<List<Complex<f64>>>,
 }
 
-pub fn new<T: RefractiveIndex>(g: &Array2d, k: f64, r: T, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
+pub fn new(g: &Array2d, k: f64, r: impl RefractiveIndex, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
     let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_n(x, z).sqrt()-r.get_n0().sqrt()), 0.0);
     let free_space = || Complex::new(0.0, 4.0*k*r.get_n0()*g.xdelta.sqrt()/g.zdelta);
     let loss = |_, _| Complex::new(0.0, 2.0*k*r.get_n0()*g.xdelta.sqrt()*alpha);
     
-    let s = g.get_z_points().into_iter().map(
-        |z| g.get_x_points().into_iter().map(
+    let s = g.get_z_points().map(
+        |z| g.get_x_points().map(
             // okamoto 7.98
             |x| Complex::new(2.0, 0.0)-guiding_space(x, z)+free_space()+loss(x, z)
         
         ).collect()
     ).collect();
     
-    let q = g.get_z_points().into_iter().map(
-        |z| g.get_x_points().into_iter().map(
+    let q = g.get_z_points().map(
+        |z| g.get_x_points().map(
             // okamoto 7.99
             |x| Complex::new(-2.0, 0.0)+guiding_space(x, z)+free_space()-loss(x, z)
         
@@ -60,8 +60,9 @@ impl Slab2d {
 			|result, i| {
 				
 				let last_es = fp::last_or_default(&result, list::empty());
+				let last_q = self.q[i-1].clone();
 				
-				let ds = get_ds(&last_es, &self.q[i-1]);
+				let ds = get_ds(last_es, last_q);
 				let abcs = self.get_abcs(i);
 
 				let new_es = self.insert_boundary_values(
@@ -160,7 +161,7 @@ mod tests {
 			let es = (0..i).map(|_| one()).collect();
 			let qs = (0..i).map(|_| one()).collect();
 
-			let got = get_ds(&es, &qs);
+			let got = get_ds(es, qs);
 			assert_eq!(got.len(), i-2usize);
 		}
    	}

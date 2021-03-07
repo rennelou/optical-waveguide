@@ -1,5 +1,3 @@
-use super::fp::list::List;
-
 pub struct Array2d {
     pub dx: f64,
 	pub dz: f64,
@@ -27,11 +25,11 @@ impl Array2d {
 		}
 	}
 
-    pub fn get_x_points(&self) -> List<f64> {
-		return (0usize..self.xsteps).map(|x| (x as f64) * self.xdelta).collect();
+    pub fn get_x_points(&self) -> impl Iterator<Item=f64> + '_ {
+		return (0usize..self.xsteps).map(move |x| (x as f64) * self.xdelta);
 	}
 
-    pub fn get_z_points(&self) -> List<f64> {
-		return (0usize..self.zsteps).map(|z| (z as f64) * self.zdelta).collect();
+    pub fn get_z_points(&self) -> impl Iterator<Item=f64> + '_ {
+		return (0usize..self.zsteps).map(move |z| (z as f64) * self.zdelta);
 	}
 }
