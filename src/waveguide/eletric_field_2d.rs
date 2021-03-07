@@ -35,18 +35,19 @@ impl EletricField2d {
         
         return zpoints.zip(&self.es).map(move |(z, l)| {
             
-            return (0usize..self.xsteps)
-                        .map(move |x| (x as f64) * self.xdelta)
-                        .zip(l)
-                        .map(move |(x, c)| {
-                            let (r, theta) = c.clone().to_polar();
-                            let eletric_field = (r * theta.cos()).abs();
-                            Point2d{
-                                z, 
-                                x, 
-                                eletric_field
-                            }
-                        });    
+            let xpoints = (0usize..self.xsteps).map(move |x| (x as f64) * self.xdelta);
+            
+            return xpoints.zip(l).map(move |(x, c)| {
+                
+                let (r, theta) = c.clone().to_polar();
+                let eletric_field = (r * theta.cos()).abs();
+                
+                Point2d{
+                    z, 
+                    x, 
+                    eletric_field
+                }
+            });    
         });
     }
 }
