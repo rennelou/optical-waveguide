@@ -40,7 +40,7 @@ impl EletricField2d {
             return xpoints.zip(l).map(move |(x, c)| {
                 
                 let (r, theta) = c.clone().to_polar();
-                let eletric_field = (r * theta.cos()).abs();
+                let eletric_field = r * theta.cos();
                 
                 Point2d{
                     z, 

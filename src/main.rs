@@ -8,17 +8,17 @@ use num::complex::Complex;
 
 fn main() {
     
-    let dx = 10.0;
-    let xdelta = 0.001;
-    let dz = 20.0;
-    let zdelta = 0.5;
+    let dx = 1000.0;
+    let xdelta = 1.0;
+    let dz = 200.0;
+    let zdelta = 5.0;
 
     let geometry = array::Array2d::new(dx, xdelta, dz, zdelta);
-	let r = refractive_index::optical_fiber::new(3.4757, 3.0, 3.0, 7.0);
-    let w = slab::new(&geometry, 1.0/1550.0, r, 0.0, Complex::new(1.0, 0.0), Complex::new(1.0, 0.0));
-    
-    let gaussian = waves::gaussian(geometry.get_x_points(), 5.0, 0.2);
-    
+	let r = refractive_index::optical_fiber::new(3.4757, 3.0, dx, 0.3, 0.7);
+    let w = slab::new(&geometry, 1.0/1550.0, r, 0.0, Complex::new(-10000.0, 0.0), Complex::new(-10000.0, 0.0));
+
+    let gaussian = waves::gaussian(geometry.get_x_indexs(), 1000.0, geometry.get_x_median_index(), 30.0);
+
     let es_2d = w.fdmbpm(f64_to_complex(gaussian));
 
     plotters::plot_waveguide_2d(es_2d, geometry);

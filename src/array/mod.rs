@@ -32,4 +32,12 @@ impl Array2d {
     pub fn get_z_points(&self) -> impl Iterator<Item=f64> + '_ {
 		return (0usize..self.zsteps).map(move |z| (z as f64) * self.zdelta);
 	}
+
+	pub fn get_x_indexs(&self) -> impl Iterator<Item=f64> + '_ {
+		return (0usize..self.xsteps).map(move |x| x as f64);
+	}
+
+	pub fn get_x_median_index(&self) -> f64 {
+		return self.xsteps as f64 / 2.0;
+	}
 }

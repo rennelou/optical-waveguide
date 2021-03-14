@@ -147,7 +147,7 @@ mod tests {
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
 			let geometry = array::Array2d::new(100.0, i as f64, 2.0, 1.0);
-			let r = refractive_index::optical_fiber::new(3.4757, 1.0, 45.0, 75.0);
+			let r = refractive_index::optical_fiber::new(3.4757, 1.0, 100.0, 0.45, 0.75);
    	        let w = slab::new(&geometry, 1.0/1550.0, r, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), w.xsteps-2usize);
