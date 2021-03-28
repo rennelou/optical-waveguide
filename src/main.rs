@@ -1,27 +1,31 @@
 use rust_fdmbpm::array;
-use rust_fdmbpm::waveguide::refractive_index;
+use rust_fdmbpm::waveguide::core_waveguide;
 use rust_fdmbpm::waves;
 use rust_fdmbpm::fp::list::List;
 use rust_fdmbpm::waveguide::slab;
 use rust_fdmbpm::plotters;
 use num::complex::Complex;
+use core::f64::consts::PI;
 
 fn main() {
     
-    let dx = 1000.0;
-    let xdelta = 1.0;
-    let dz = 200.0;
-    let zdelta = 5.0;
+    let dx = 10.0;
+    let xdelta = dx/1000.0;
+    let dz = 50.0;
+    let zdelta = dz/100.0;
 
-    let geometry = array::Array2d::new(dx, xdelta, dz, zdelta);
-	let r = refractive_index::optical_fiber::new(3.0, 2.91, dx, 0.45, 0.55);
-    let w = slab::new(&geometry, 1.0/0.155, r, 0.0, Complex::new(-10000.0, 0.0), Complex::new(-10000.0, 0.0));
+    let core_position = dx/2.0;
+    let core_width = 0.0;
 
-    let gaussian = waves::gaussian(geometry.get_x_indexs(), 200.0, geometry.get_x_median_index(), 6.0);
+    let grid = array::Array2d::new(dx, xdelta, dz, zdelta);
+	let r = core_waveguide::rectilinear::new(1.3, &grid, core_position, core_width);
+    let w = slab::new(&grid, r, (2.0*PI)/1.55, 1.0, 0.0, Complex::new(-10000.0, 0.0), Complex::new(-10000.0, 0.0));
+
+    let gaussian = waves::gaussian(grid.get_x_indexs(), 20.0, grid.get_x_median_index(), 4.0);
 
     let es_2d = w.fdmbpm(f64_to_complex(gaussian));
 
-    plotters::plot_waveguide_2d(es_2d, geometry);
+    plotters::plot_waveguide_2d(es_2d, grid);
 }
 
 fn f64_to_complex(l: List<f64>) -> List<Complex<f64>> {

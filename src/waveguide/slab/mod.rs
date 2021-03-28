@@ -1,5 +1,5 @@
 use crate::array::Array2d;
-use super::refractive_index::RefractiveIndex;
+use super::core_waveguide::Core;
 use super::*;
 use super::eletric_field_2d;
 use super::eletric_field_2d::EletricField2d;
@@ -17,11 +17,11 @@ pub struct Slab2d {
 	q: List<List<Complex<f64>>>,
 }
 
-pub fn new(g: &Array2d, k: f64, r: impl RefractiveIndex, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
+pub fn new(g: &Array2d, r: impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
-    let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_n(x, z).sqrt()-r.get_n0().sqrt()), 0.0);
-    let free_space = || Complex::new(0.0, 4.0*k*r.get_n0()*g.xdelta.sqrt()/g.zdelta);
-    let loss = |_, _| Complex::new(0.0, 2.0*k*r.get_n0()*g.xdelta.sqrt()*alpha);
+    let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_n(x, z, n0).sqrt()-n0.sqrt()), 0.0);
+    let free_space = || Complex::new(0.0, 4.0*k*n0*g.xdelta.sqrt()/g.zdelta);
+    let loss = |_, _| Complex::new(0.0, 2.0*k*n0*g.xdelta.sqrt()*alpha);
     
     let s = g.get_z_points().map(
         |z| g.get_x_points().map(
@@ -140,15 +140,17 @@ impl Slab2d {
 
 #[cfg(test)]
 mod tests {
-	use crate::*;
-	use super::*;
+	
+use core::f64::consts::PI;
+use crate::*;
+use super::*;
    	
 	#[test]
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
-			let geometry = array::Array2d::new(100.0, i as f64, 2.0, 1.0);
-			let r = refractive_index::optical_fiber::new(3.4757, 1.0, 100.0, 0.45, 0.75);
-   	        let w = slab::new(&geometry, 1.0/1550.0, r, 0.2, zero(), zero());
+			let grid = array::Array2d::new(100.0, i as f64, 2.0, 1.0);
+			let r = core_waveguide::rectilinear::new(3.4757, &grid, i as f64/2.0, i as f64/5.0);
+   	        let w = slab::new(&grid, r, 2.0*PI/1.55, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), w.xsteps-2usize);
    	    }
