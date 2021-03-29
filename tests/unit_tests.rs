@@ -9,7 +9,7 @@ mod tests {
    	fn assert_fdmbpm() {
 		let grid = array::Array2d::new(10.0, 2.0, 10.0, 5.0);
 		let r = core_waveguide::rectilinear::new(3.4757, &grid, 5.0, 2.0);
-   	    let w = slab::new(&grid, r, 1.0/1550.0, 1.0, 0.2, Complex::new(1.0, 0.0), Complex::new(1.0, 0.0));
+   	    let w = slab::new(&grid, &r, 1.0/1550.0, 1.0, 0.2, Complex::new(1.0, 0.0), Complex::new(1.0, 0.0));
 		let _ = w.fdmbpm(slab::mock::get_ones(5));
    	}
 }

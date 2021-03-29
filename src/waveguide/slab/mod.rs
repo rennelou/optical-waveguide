@@ -17,7 +17,7 @@ pub struct Slab2d {
 	q: List<List<Complex<f64>>>,
 }
 
-pub fn new(g: &Array2d, r: impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
+pub fn new(g: &Array2d, r: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
     let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_n(x, z, n0).sqrt()-n0.sqrt()), 0.0);
     let free_space = || Complex::new(0.0, 4.0*k*n0*g.xdelta.sqrt()/g.zdelta);
@@ -150,7 +150,7 @@ use super::*;
    	    for i in 1..10 {
 			let grid = array::Array2d::new(100.0, i as f64, 2.0, 1.0);
 			let r = core_waveguide::rectilinear::new(3.4757, &grid, i as f64/2.0, i as f64/5.0);
-   	        let w = slab::new(&grid, r, 2.0*PI/1.55, 1.0, 0.2, zero(), zero());
+   	        let w = slab::new(&grid, &r, 2.0*PI/1.55, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), w.xsteps-2usize);
    	    }
