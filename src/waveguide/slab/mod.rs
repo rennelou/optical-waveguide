@@ -19,7 +19,7 @@ pub struct Slab2d {
 
 pub fn new(g: &Array2d, r: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
-    let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_n(x, z, n0).sqrt()-n0.sqrt()), 0.0);
+    let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_half_n(x, z, n0).sqrt()-n0.sqrt()), 0.0);
     let free_space = || Complex::new(0.0, 4.0*k*n0*g.xdelta.sqrt()/g.zdelta);
     let loss = |_, _| Complex::new(0.0, 2.0*k*n0*g.xdelta.sqrt()*alpha);
     

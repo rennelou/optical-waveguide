@@ -31,12 +31,14 @@ pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f6
         .draw()
         .unwrap();
 
-    for line in es_2d.get_points() {
-        chart.draw_series(LineSeries::new(
-            line.map(|p| (p.x, p.z + p.eletric_field)),
-            &RED
-        ))
-        .unwrap();
+    for (i, line) in es_2d.get_points().enumerate() {
+        if i%10 == 0 {
+            chart.draw_series(LineSeries::new(
+                line.map(|p| (p.x, p.z + p.eletric_field)),
+                &RED
+            ))
+            .unwrap();
+        }
     }
     
     let mut cc = ChartBuilder::on(&lower)

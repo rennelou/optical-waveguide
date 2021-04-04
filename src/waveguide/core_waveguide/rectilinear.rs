@@ -29,8 +29,8 @@ impl Core for Rectilinear {
         }
     }
 
-    fn get_half_n(&self, _: f64, _: f64, n0: f64) -> f64 {
-        n0
+    fn get_half_n(&self, x: f64, z: f64, n0: f64) -> f64 {
+        return self.get_n(x, z, n0);
     }
 }
 
