@@ -39,8 +39,9 @@ impl EletricField2d {
             
             return xpoints.zip(l).map(move |(x, c)| {
                 
-                let (r, theta) = c.clone().to_polar();
-                let eletric_field = r * theta.cos();
+                let (r, _theta) = c.clone().to_polar();
+                // Intensidade é proporcional |e|²
+                let eletric_field = r.abs().powf(2.0);
                 
                 Point2d{
                     z, 
