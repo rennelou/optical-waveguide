@@ -19,23 +19,21 @@ pub struct Slab2d {
 
 pub fn new(g: &Array2d, r: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
-    let guiding_space = |x: f64, z: f64| Complex::new(k.sqrt()*g.xdelta.sqrt()*(r.get_half_n(x, z, n0).sqrt()-n0.sqrt()), 0.0);
-    let free_space = || Complex::new(0.0, 4.0*k*n0*g.xdelta.sqrt()/g.zdelta);
-    let loss = |_, _| Complex::new(0.0, 2.0*k*n0*g.xdelta.sqrt()*alpha);
+    let guiding_space = |x: f64, z: f64| k.powf(2.0)*g.xdelta.powf(2.0)*(r.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
+    let free_space = || 4.0*k*n0*g.xdelta.powf(2.0)/g.zdelta;
+    let loss = |_, _| 2.0*k*n0*g.xdelta.powf(2.0)*alpha;
     
     let s = g.get_z_points().map(
         |z| g.get_x_points().map(
             // okamoto 7.98
-            |x| Complex::new(2.0, 0.0)-guiding_space(x, z)+free_space()+loss(x, z)
-        
+            |x| Complex::new(2.0 - guiding_space(x, z), free_space() + loss(x, z))
         ).collect()
     ).collect();
     
     let q = g.get_z_points().map(
         |z| g.get_x_points().map(
             // okamoto 7.99
-            |x| Complex::new(-2.0, 0.0)+guiding_space(x, z)+free_space()-loss(x, z)
-        
+            |x| Complex::new(-2.0 + guiding_space(x, z), free_space() - loss(x, z))
         ).collect()
     ).collect();
     
@@ -126,15 +124,23 @@ impl Slab2d {
 	}
 
 	fn right_boundary(&self, _z: usize) -> Complex<f64> {
-		return ( 
-			Complex::new(0.0, -1.0)*self.kright*Complex::new(self.xdelta, 0.0) 
-		).exp();
+		
+		//Dirichlet condition
+		return zero()
+		
+		//return ( 
+		//	Complex::new(0.0, -1.0)*self.kright*Complex::new(self.xdelta, 0.0) 
+		//).exp();
 	}
 
 	fn left_boundary(&self, _z: usize) -> Complex<f64> {
-		return ( 
-			Complex::new(0.0, -1.0)*self.kleft*Complex::new(self.xdelta, 0.0) 
-		).exp();
+		
+		//Dirichlet condition
+		return zero()
+		
+		//return ( 
+		//	Complex::new(0.0, -1.0)*self.kleft*Complex::new(self.xdelta, 0.0) 
+		//).exp();
 	}
 }
 

@@ -61,7 +61,7 @@ fn get_alphas_betas(abcs: List<Abc>, ds: List<Complex<f64>>) -> List<AlphaBeta> 
 				// okamoto 7.112a
 				alpha: abc.c / (abc.b - abc.a*last_alpha_beta.alpha),
 				// okamoto 7.112b     		
-				beta: (ds[i] + abc.a*last_alpha_beta.beta) / (abc.b - last_alpha_beta.alpha),
+				beta: (ds[i] + abc.a*last_alpha_beta.beta) / (abc.b - abc.a*last_alpha_beta.alpha),
 			};
 			return list::append(alpha_betas, new_alpha_beta);
 		}

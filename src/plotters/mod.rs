@@ -32,7 +32,7 @@ pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f6
         .unwrap();
 
     for (i, line) in es_2d.get_points().enumerate() {
-        if i%10 == 0 {
+        if i%250 == 0 {
             chart.draw_series(LineSeries::new(
                 line.map(|p| (p.x, p.z + p.eletric_field)),
                 &RED

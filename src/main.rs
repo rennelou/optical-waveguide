@@ -12,19 +12,19 @@ fn main() {
     let dx = 260.0;
     let xdelta = dx/1024.0;
     
-    let zdelta = 2.0;
-    let dz = zdelta * 300.0;
+    let zdelta = 0.5;
+    let dz = zdelta * 20000.0;
 
     let core_position = dx/2.0;
     let core_width = 20.0;
 
-    let n0 = 2.9;
+    let n0 = 2.7;
 
     let grid = array::Array2d::new(dx, xdelta, dz, zdelta);
 	let r = core_waveguide::rectilinear::new(3.0, &grid, core_position, core_width);
-    let w = slab::new(&grid, &r, (2.0*PI)/1.55, n0, 0.0, Complex::new(-10000.0, 0.0), Complex::new(-10000.0, 0.0));
+    let w = slab::new(&grid, &r, n0, (2.0*PI)/1.55, 0.0, Complex::new(-10000.0, 0.0), Complex::new(-10000.0, 0.0));
 
-    let gaussian = waves::gaussian(&grid, core_position, 100.0, 12.0);
+    let gaussian = waves::gaussian(&grid, core_position, 300.0, 20.0);
 
     let es_2d = w.fdmbpm(f64_to_complex(gaussian));
 
