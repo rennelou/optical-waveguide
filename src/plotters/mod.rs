@@ -3,7 +3,7 @@ use super::array::Array2d;
 use super::waveguide::core_waveguide::Core;
 use plotters::prelude::*;
 
-pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f64) {
+pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f64, lines: usize) {
     let root_drawing_area = BitMapBackend::new("waveguide.png", (1024, 768))
         .into_drawing_area();
     
@@ -31,8 +31,10 @@ pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f6
         .draw()
         .unwrap();
 
+    let throttle = g.zsteps / lines; 
+
     for (i, line) in es_2d.get_points().enumerate() {
-        if i%250 == 0 {
+        if i % throttle == 0 {
             chart.draw_series(LineSeries::new(
                 line.map(|p| (p.x, p.z + p.eletric_field)),
                 &RED
