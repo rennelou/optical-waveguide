@@ -1,5 +1,6 @@
 use super::fp::list;
 
+#[derive(Clone, Copy)]
 pub struct Array {
 	pub d: f64,
 	pub delta: f64,
@@ -28,6 +29,7 @@ impl Array {
 	}
 }
 
+#[derive(Clone)]
 pub struct Array2d {
     values: list::List<Array>
 }

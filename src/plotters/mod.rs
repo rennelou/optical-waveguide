@@ -1,13 +1,14 @@
 use super::waveguide::eletric_field_2d::EletricField2d;
-use super::array::Array2d;
 use super::waveguide::core_waveguide::Core;
 use plotters::prelude::*;
 
-pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f64, lines: usize) {
-    let dx = g.get(0).d;
-    let dz = g.get(1).d;
+pub fn plot_waveguide_2d(core: impl Core, es_2d: EletricField2d, n0: f64, lines: usize) {
+    
+    let grid = core.get_grid();
+    let dx = grid.get(0).d;
+    let dz = grid.get(1).d;
 
-    let zsteps = g.get(1).steps;
+    let zsteps = grid.get(1).steps;
     
     let root_drawing_area = BitMapBackend::new("waveguide.png", (1024, 768))
         .into_drawing_area();
@@ -66,7 +67,7 @@ pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f6
         .unwrap();
 
     cc.draw_series(LineSeries::new(
-        x_axis.clone().values().map(|x| (x, r.get_n(x, 0.0, n0))),
+        x_axis.clone().values().map(|x| (x, core.get_n(x, 0.0, n0))),
         &BLUE,
     ))
     .unwrap()

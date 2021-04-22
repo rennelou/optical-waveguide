@@ -1,16 +1,15 @@
 use crate::array::Array2d;
-use super::core_waveguide::Core;
+
 use super::*;
+use super::core_waveguide::Core;
 use super::eletric_field_2d;
 use super::eletric_field_2d::EletricField2d;
+
 use fp::list;
 use fp::list::List;
 
 pub struct Slab2d {
-	pub xdelta: f64,
-	pub zdelta: f64,
-	pub xsteps: usize,
-	pub zsteps: usize,
+	pub grid: Array2d,
 	kright: Complex<f64>,
 	kleft:  Complex<f64>,
 	s: List<List<Complex<f64>>>,
@@ -20,72 +19,74 @@ pub struct Slab2d {
 const X: usize = 0;
 const Z: usize = 1;
 
-pub fn new(g: &Array2d, r: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
-    
-	let xdelta = g.get(X).delta;
-	let xsteps = g.get(X).steps;
-	
-	let zdelta = g.get(Z).delta;
-	let zsteps = g.get(Z).steps;
+pub fn new(core: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
+    let grid = core.get_grid();
 
-    let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(r.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
+	let xdelta = grid.get(X).delta;
+	let zdelta = grid.get(Z).delta;
+
+    let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
     let free_space = || 4.0*k*n0*xdelta.powf(2.0)/zdelta;
     let loss = |_, _| 2.0*k*n0*xdelta.powf(2.0)*alpha;
     
-    let s = g.get(Z).get_points().map(
-        |z| g.get(X).get_points().map(
+    let s = grid.get(Z).get_points().map(
+        |z| grid.get(X).get_points().map(
             // okamoto 7.98
             |x| Complex::new(2.0 - guiding_space(x, z), free_space() + loss(x, z))
         ).collect()
     ).collect();
     
-    let q = g.get(Z).get_points().map(
-        |z| g.get(X).get_points().map(
+    let q = grid.get(Z).get_points().map(
+        |z| grid.get(X).get_points().map(
             // okamoto 7.99
             |x| Complex::new(-2.0 + guiding_space(x, z), free_space() - loss(x, z))
         ).collect()
     ).collect();
     
-    Slab2d{ xdelta,zdelta,xsteps,zsteps,kright,kleft,s,q }
+    Slab2d{ grid: grid.clone(), kright, kleft, s, q }
+}
+
+pub fn fdmbpm(waveguide: &Slab2d, e_input: List<Complex<f64>>) -> EletricField2d {
+	
+	let zsteps = waveguide.grid.get(Z).steps;
+
+	let es = (1usize..zsteps).fold(
+		vec![e_input], 
+		|result, i| {
+			
+			let last_es = fp::last_or_default(&result, list::empty());
+			let last_q = waveguide.q[i-1].clone();
+			
+			let ds = get_ds(last_es, last_q);
+			let abcs = waveguide.get_abcs(i);
+
+			let new_es = waveguide.insert_boundary_values(
+				i, 
+				get_recurrence_form(get_alphas_betas(abcs, ds)
+				)
+			);
+
+			return list::append(result, new_es);
+		}
+	);
+
+	return eletric_field_2d::new(waveguide, es);
 }
 
 impl Slab2d {
 
-	pub fn fdmbpm(&self, e_input: List<Complex<f64>>) -> EletricField2d {
-		
-		let es = (1usize..self.zsteps).fold(
-			vec![e_input], 
-			|result, i| {
-				
-				let last_es = fp::last_or_default(&result, list::empty());
-				let last_q = self.q[i-1].clone();
-				
-				let ds = get_ds(last_es, last_q);
-				let abcs = self.get_abcs(i);
-
-				let new_es = self.insert_boundary_values(
-					i, 
-					get_recurrence_form(get_alphas_betas(abcs, ds)
-					)
-				);
-
-				return list::append(result, new_es);
-			}
-		);
-
-		return eletric_field_2d::new(self, es);
-	}
-
 	fn get_abcs(&self, z: usize) -> List<Abc> {
 		
-		if self.xsteps >= MINIMALSTEP {
+		let xsteps = self.grid.get(X).steps;
+
+		if xsteps >= MINIMALSTEP {
 			
 			let head = list::new( Abc {
 				// okamoto 7.108a
 				a: zero(), b: self.s[z][1] - self.left_boundary(z), c: one()
 			});
 			
-			let body = (2..self.xsteps-2).map(
+			let body = (2..xsteps-2).map(
 				// okamoto 7.108b
 				|i| Abc { a: one(), b: self.s[z][i], c: one() }
 
@@ -94,7 +95,7 @@ impl Slab2d {
 			let last = list::new( Abc {
 				/// okamoto 7.108c
 				a: one(), 
-				b: self.s[z][self.xsteps - 2usize] - self.right_boundary(z), 
+				b: self.s[z][xsteps - 2usize] - self.right_boundary(z), 
 				c: zero()
 			});
 
@@ -148,17 +149,15 @@ impl Slab2d {
 mod tests {
 	
 use core::f64::consts::PI;
-use crate::*;
 use super::*;
    	
 	#[test]
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
-			let grid = array::Array2d::new(100.0, i as f64, 2.0, 1.0);
-			let r = core_waveguide::rectilinear::new(&grid, 3.4757, i as f64/2.0, i as f64/5.0);
-   	        let w = slab::new(&grid, &r, 2.0*PI/1.55, 1.0, 0.2, zero(), zero());
+			let core = core_waveguide::rectilinear::new(100.0, i as f64, 2.0, 1.0, 3.4757, i as f64/2.0, i as f64/5.0);
+   	        let w = slab::new(&core, 2.0*PI/1.55, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
-			assert_eq!(got.len(), w.xsteps-2usize);
+			assert_eq!(got.len(), w.grid.get(0).steps-2usize);
    	    }
    	}
 	
