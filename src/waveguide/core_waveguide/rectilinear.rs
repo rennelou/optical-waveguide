@@ -7,8 +7,12 @@ pub struct Rectilinear {
     core_right: f64
 }
 
-pub fn new(n: f64, grid: &Array2d, position: f64, core_width: f64) -> Rectilinear {
-    if position >= grid.dx|| core_width >= grid.dx {
+const X: usize = 0;
+
+pub fn new(grid: &Array2d, n: f64, position: f64, core_width: f64) -> Rectilinear {
+   let dx = grid.get(X).d;
+
+    if position >= dx|| core_width >= dx {
         panic!("percent parameters need be less than 1");
     }
 

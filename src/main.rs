@@ -9,22 +9,27 @@ use core::f64::consts::PI;
 
 fn main() {
     
+    let x = 0usize;
+
     let dx = 260.0;
     let xdelta = dx/1024.0;
     
     let zdelta = 0.5;
-    let dz = zdelta * 200.0;
+    let dz = zdelta * 4000.0;
 
     let core_position = dx/2.0;
-    let core_width = 30.0;
+    let core_width = 20.0;
 
     let n0 = 3.0;
+    let n = 3.3;
 
     let grid = array::Array2d::new(dx, xdelta, dz, zdelta);
-	let r = core_waveguide::rectilinear::new(3.3, &grid, core_position, core_width);
+	
+    let gaussian = waves::gaussian(&grid.get(x), core_position, 12.0, 20.0);
+    let r = core_waveguide::rectilinear::new(&grid, n, core_position, core_width);
+    
     let w = slab::new(&grid, &r, n0, (2.0*PI)/1.55, 0.0, Complex::new(-10000.0, 0.0), Complex::new(-10000.0, 0.0));
 
-    let gaussian = waves::gaussian(&grid, core_position, 50.0, 20.0);
 
     let es_2d = w.fdmbpm(f64_to_complex(gaussian));
 

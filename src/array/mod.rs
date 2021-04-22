@@ -1,43 +1,54 @@
-pub struct Array2d {
-    pub dx: f64,
-	pub dz: f64,
-	
-	pub xdelta: f64,
-	pub zdelta: f64,
+use super::fp::list;
 
-	pub xsteps: usize,
-	pub zsteps: usize,
+pub struct Array {
+	pub d: f64,
+	pub delta: f64,
+	pub steps: usize
 }
 
-impl Array2d {
-	pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64) -> Array2d {
-    
-		let xsteps = (dx / xdelta).round() as usize;
-		let zsteps = (dz / zdelta).round() as usize;
-		
-		Array2d{
-			dx: dx,
-			dz: dz,
-			xsteps: xsteps,
-			zsteps: zsteps,
-			xdelta: xdelta,
-			zdelta: zdelta,
+impl Array {
+	const EMPTY: Array = Array{d:0.0,delta:0.0,steps:0};
+
+	pub fn new(d: f64, delta: f64) -> Array {
+		let steps = (d/delta).round() as usize;
+
+		Array {
+			d, 
+			delta,
+			steps
 		}
 	}
 
-    pub fn get_x_points(&self) -> impl Iterator<Item=f64> + '_ {
-		return (0usize..self.xsteps).map(move |x| (x as f64) * self.xdelta);
+	pub fn get_points(&self) -> impl Iterator<Item=f64> + '_ {
+		return (0usize..self.steps).map(move |i| (i as f64)*self.delta);
 	}
 
-    pub fn get_z_points(&self) -> impl Iterator<Item=f64> + '_ {
-		return (0usize..self.zsteps).map(move |z| (z as f64) * self.zdelta);
+	pub fn get_indexs(&self) -> impl Iterator<Item=f64> + '_ {
+		return (0usize..self.steps).map(move |i| i as f64);
+	}
+}
+
+pub struct Array2d {
+    values: list::List<Array>
+}
+
+impl Array2d {
+	const DIMENSION: usize = 2;
+
+	pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64) -> Array2d {
+    
+		let array0 = Array::new(dx,xdelta);
+		let array1 = Array::new(dz,zdelta);
+		let values = list::append(list::new(array0),array1);
+
+		Array2d {values}
 	}
 
-	pub fn get_x_indexs(&self) -> impl Iterator<Item=f64> + '_ {
-		return (0usize..self.xsteps).map(move |x| x as f64);
-	}
+	pub fn get(&self, index: usize) -> &Array {
+		if index < Array2d::DIMENSION {
+			return &self.values[index];
+		}
 
-	pub fn get_x_median_index(&self) -> f64 {
-		return self.xsteps as f64 / 2.0;
+		return &Array::EMPTY;
 	}
 }

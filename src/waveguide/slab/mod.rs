@@ -17,36 +17,36 @@ pub struct Slab2d {
 	q: List<List<Complex<f64>>>,
 }
 
+const X: usize = 0;
+const Z: usize = 1;
+
 pub fn new(g: &Array2d, r: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     
-    let guiding_space = |x: f64, z: f64| k.powf(2.0)*g.xdelta.powf(2.0)*(r.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
-    let free_space = || 4.0*k*n0*g.xdelta.powf(2.0)/g.zdelta;
-    let loss = |_, _| 2.0*k*n0*g.xdelta.powf(2.0)*alpha;
+	let xdelta = g.get(X).delta;
+	let xsteps = g.get(X).steps;
+	
+	let zdelta = g.get(Z).delta;
+	let zsteps = g.get(Z).steps;
+
+    let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(r.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
+    let free_space = || 4.0*k*n0*xdelta.powf(2.0)/zdelta;
+    let loss = |_, _| 2.0*k*n0*xdelta.powf(2.0)*alpha;
     
-    let s = g.get_z_points().map(
-        |z| g.get_x_points().map(
+    let s = g.get(Z).get_points().map(
+        |z| g.get(X).get_points().map(
             // okamoto 7.98
             |x| Complex::new(2.0 - guiding_space(x, z), free_space() + loss(x, z))
         ).collect()
     ).collect();
     
-    let q = g.get_z_points().map(
-        |z| g.get_x_points().map(
+    let q = g.get(Z).get_points().map(
+        |z| g.get(X).get_points().map(
             // okamoto 7.99
             |x| Complex::new(-2.0 + guiding_space(x, z), free_space() - loss(x, z))
         ).collect()
     ).collect();
     
-    Slab2d{ 
-		xdelta: g.xdelta,
-		zdelta: g.zdelta,
-		xsteps: g.xsteps,
-		zsteps: g.zsteps,
-		kright,
-		kleft,
-		s,
-		q,
-	}
+    Slab2d{ xdelta,zdelta,xsteps,zsteps,kright,kleft,s,q }
 }
 
 impl Slab2d {
@@ -155,7 +155,7 @@ use super::*;
    	fn assert_abcs_sizes() {
    	    for i in 1..10 {
 			let grid = array::Array2d::new(100.0, i as f64, 2.0, 1.0);
-			let r = core_waveguide::rectilinear::new(3.4757, &grid, i as f64/2.0, i as f64/5.0);
+			let r = core_waveguide::rectilinear::new(&grid, 3.4757, i as f64/2.0, i as f64/5.0);
    	        let w = slab::new(&grid, &r, 2.0*PI/1.55, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
 			assert_eq!(got.len(), w.xsteps-2usize);

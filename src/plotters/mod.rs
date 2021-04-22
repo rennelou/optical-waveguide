@@ -4,6 +4,11 @@ use super::waveguide::core_waveguide::Core;
 use plotters::prelude::*;
 
 pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f64, lines: usize) {
+    let dx = g.get(0).d;
+    let dz = g.get(1).d;
+
+    let zsteps = g.get(1).steps;
+    
     let root_drawing_area = BitMapBackend::new("waveguide.png", (1024, 768))
         .into_drawing_area();
     
@@ -12,14 +17,14 @@ pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f6
     let root_drawing_area = root_drawing_area.titled("Image Title", ("sans-serif", 40)).unwrap();
     let (upper, lower) = root_drawing_area.split_vertically(512);
 
-    let x_axis = (0.0f64..g.dx).step(g.dx/1000.0);
+    let x_axis = (0.0f64..dx).step(dx/1000.0);
 
     let mut chart = ChartBuilder::on(&upper)
         .margin(10)
         .caption("Waveguide", ("Arial", 30))
         .set_label_area_size(LabelAreaPosition::Left, 40)
         .set_label_area_size(LabelAreaPosition::Bottom, 40)
-        .build_cartesian_2d(x_axis.clone(), 0.0..g.dz)
+        .build_cartesian_2d(x_axis.clone(), 0.0..dz)
         .unwrap();
 
         chart.configure_mesh()
@@ -31,7 +36,7 @@ pub fn plot_waveguide_2d(g: Array2d, es_2d: EletricField2d, r: impl Core, n0: f6
         .draw()
         .unwrap();
 
-    let throttle = g.zsteps / lines; 
+    let throttle = zsteps / lines; 
 
     for (i, line) in es_2d.get_points().enumerate() {
         if i % throttle == 0 {
