@@ -3,9 +3,6 @@ use super::slab::Slab2d;
 use crate::fp::list::List;
 use crate::array::Array2d;
 
-const X: usize = 0;
-const Z: usize = 1;
-
 pub struct EletricField2d {
     pub es: List<List<Complex<f64>>>,
 
@@ -27,10 +24,10 @@ pub fn new(w: &Slab2d, es: List<List<Complex<f64>>>) -> EletricField2d {
 
 impl EletricField2d {
     pub fn get_points(&self) -> impl Iterator<Item=impl Iterator<Item=Point2d> + '_> + '_ {
-        let xdelta = self.grid.get(X).delta;
-        let xsteps = self.grid.get(X).steps;
-        let zdelta = self.grid.get(Z).delta;
-        let zsteps = self.grid.get(Z).steps;
+        let xdelta = self.grid.get_x().delta;
+        let xsteps = self.grid.get_x().steps;
+        let zdelta = self.grid.get_z().delta;
+        let zsteps = self.grid.get_z().steps;
 
         let zpoints = (0usize..zsteps).map(move |z| (z as f64) * zdelta);
         

@@ -5,10 +5,10 @@ use plotters::prelude::*;
 pub fn plot_waveguide_2d(core: impl Core, es_2d: EletricField2d, n0: f64, lines: usize) {
     
     let grid = core.get_grid();
-    let dx = grid.get(0).d;
-    let dz = grid.get(1).d;
+    let dx = grid.get_x().d;
+    let dz = grid.get_z().d;
 
-    let zsteps = grid.get(1).steps;
+    let zsteps = grid.get_z().steps;
     
     let root_drawing_area = BitMapBackend::new("waveguide.png", (1024, 768))
         .into_drawing_area();

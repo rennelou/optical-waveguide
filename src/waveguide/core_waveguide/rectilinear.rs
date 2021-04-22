@@ -3,7 +3,7 @@ use super::*;
 
 pub struct Rectilinear {
     pub grid: Array2d,
-    position: f64,
+    pub position: f64,
     n: f64,
     core_left: f64,
     core_right: f64

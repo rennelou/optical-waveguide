@@ -16,28 +16,25 @@ pub struct Slab2d {
 	q: List<List<Complex<f64>>>,
 }
 
-const X: usize = 0;
-const Z: usize = 1;
-
 pub fn new(core: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, kright: Complex<f64>) -> Slab2d {
     let grid = core.get_grid();
 
-	let xdelta = grid.get(X).delta;
-	let zdelta = grid.get(Z).delta;
+	let xdelta = grid.get_x().delta;
+	let zdelta = grid.get_z().delta;
 
     let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
     let free_space = || 4.0*k*n0*xdelta.powf(2.0)/zdelta;
     let loss = |_, _| 2.0*k*n0*xdelta.powf(2.0)*alpha;
     
-    let s = grid.get(Z).get_points().map(
-        |z| grid.get(X).get_points().map(
+    let s = grid.get_z().get_points().map(
+        |z| grid.get_x().get_points().map(
             // okamoto 7.98
             |x| Complex::new(2.0 - guiding_space(x, z), free_space() + loss(x, z))
         ).collect()
     ).collect();
     
-    let q = grid.get(Z).get_points().map(
-        |z| grid.get(X).get_points().map(
+    let q = grid.get_z().get_points().map(
+        |z| grid.get_x().get_points().map(
             // okamoto 7.99
             |x| Complex::new(-2.0 + guiding_space(x, z), free_space() - loss(x, z))
         ).collect()
@@ -48,7 +45,7 @@ pub fn new(core: &impl Core, n0: f64, k: f64, alpha: f64, kleft: Complex<f64>, k
 
 pub fn fdmbpm(waveguide: &Slab2d, e_input: List<Complex<f64>>) -> EletricField2d {
 	
-	let zsteps = waveguide.grid.get(Z).steps;
+	let zsteps = waveguide.grid.get_z().steps;
 
 	let es = (1usize..zsteps).fold(
 		vec![e_input], 
@@ -77,7 +74,7 @@ impl Slab2d {
 
 	fn get_abcs(&self, z: usize) -> List<Abc> {
 		
-		let xsteps = self.grid.get(X).steps;
+		let xsteps = self.grid.get_x().steps;
 
 		if xsteps >= MINIMALSTEP {
 			
@@ -157,7 +154,7 @@ use super::*;
 			let core = core_waveguide::rectilinear::new(100.0, i as f64, 2.0, 1.0, 3.4757, i as f64/2.0, i as f64/5.0);
    	        let w = slab::new(&core, 2.0*PI/1.55, 1.0, 0.2, zero(), zero());
 			let got = w.get_abcs(0);
-			assert_eq!(got.len(), w.grid.get(0).steps-2usize);
+			assert_eq!(got.len(), w.grid.get_x().steps-2usize);
    	    }
    	}
 	

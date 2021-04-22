@@ -8,7 +8,6 @@ pub struct Array {
 }
 
 impl Array {
-	const EMPTY: Array = Array{d:0.0,delta:0.0,steps:0};
 
 	pub fn new(d: f64, delta: f64) -> Array {
 		let steps = (d/delta).round() as usize;
@@ -35,7 +34,8 @@ pub struct Array2d {
 }
 
 impl Array2d {
-	const DIMENSION: usize = 2;
+	const X: usize = 0;
+	const Z: usize = 1;
 
 	pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64) -> Array2d {
     
@@ -46,11 +46,11 @@ impl Array2d {
 		Array2d {values}
 	}
 
-	pub fn get(&self, index: usize) -> &Array {
-		if index < Array2d::DIMENSION {
-			return &self.values[index];
-		}
+	pub fn get_x(&self) -> &Array {
+		return &self.values[Array2d::X];
+	}
 
-		return &Array::EMPTY;
+	pub fn get_z(&self) -> &Array {
+		return &self.values[Array2d::Z];
 	}
 }

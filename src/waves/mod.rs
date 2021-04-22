@@ -1,13 +1,9 @@
 use crate::fp::list::List;
-use crate::waveguide::core_waveguide::Core;
+
+use crate::array::Array;
 use num::complex::Complex;
 
-const X: usize = 0;
-
-pub fn gaussian(core: &impl Core, amplitude: f64, width: f64) -> List<Complex<f64>> {
-    
-    let position = core.get_position();
-    let grid_width = core.get_grid().get(X);
+pub fn gaussian(grid_width: &Array, position: f64, amplitude: f64, width: f64) -> List<Complex<f64>> {
 
     let position_normalized = position / grid_width.delta;
 
