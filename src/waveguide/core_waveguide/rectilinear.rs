@@ -27,10 +27,6 @@ impl Core for Rectilinear {
         return &self.grid;
     }
 
-    fn get_position(&self) -> f64 {
-        return self.position;
-    }
-    
     fn get_n(&self, x: f64, _: f64, n0: f64) -> f64 {
         return {
             if x > self.core_left && x < self.core_right {
