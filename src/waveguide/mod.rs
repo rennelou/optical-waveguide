@@ -3,18 +3,10 @@ use crate::fp;
 use fp::list;
 use fp::list::List;
 
+pub mod boundary_codition;
 pub mod eletric_field_2d;
 pub mod slab;
 pub mod core_waveguide;
-
-const MINIMALSTEP: usize = 5;
-
-#[derive(Clone, Copy)]
-struct Abc {
-	a: Complex<f64>,
-	b: Complex<f64>,
-	c: Complex<f64>,
-}
 
 #[derive(Clone, Copy)]
 struct AlphaBeta {
@@ -49,30 +41,55 @@ fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Complex<f64>> {
 	);
 }
 
-fn get_alphas_betas(abcs: List<Abc>, ds: List<Complex<f64>>) -> List<AlphaBeta> {
+fn get_alphas_betas(ss: &List<Complex<f64>>, ds: &List<Complex<f64>>, boundary_codition: fn()->Complex<f64>) -> List<AlphaBeta> {
 	
-	return abcs.into_iter().enumerate().fold(
-		list::empty(), 
-		|alpha_betas, (i, abc)| {
+	if ss.len() != ds.len() + 2 {
+		panic!("ss array need has 2 more elements than ds array");
+	}
+
+	let cropped_s = &fp::body(ss);
+
+	let s1 = fp::head_or_default(cropped_s, zero());
+	let d1 = fp::head_or_default(ds, zero());
+	
+	let alpha_beta_one = AlphaBeta {
+		alpha: 1.0/(s1-boundary_codition()),
+		beta: d1/(s1-boundary_codition()) 
+	};
+
+	let alpha_betas = fp::body(cropped_s).into_iter().zip(fp::body(ds)).fold(
+		fp::list::new(alpha_beta_one), 
+		|alpha_betas, (s, d)| {
 		
 			let last_alpha_beta = fp::last_or_default(&alpha_betas,AlphaBeta::empty());
 		
 			let new_alpha_beta = AlphaBeta {
 				// okamoto 7.112a
-				alpha: abc.c / (abc.b - abc.a*last_alpha_beta.alpha),
+				alpha: 1.0 / (s - last_alpha_beta.alpha),
 				// okamoto 7.112b     		
-				beta: (ds[i] + abc.a*last_alpha_beta.beta) / (abc.b - abc.a*last_alpha_beta.alpha),
+				beta: (d + last_alpha_beta.beta) / (s - last_alpha_beta.alpha),
 			};
 			return list::append(alpha_betas, new_alpha_beta);
 		}
 	);
+
+	let sn = fp::last_or_default(cropped_s, zero());
+	let dn = fp::last_or_default(ds, zero());
+	let alpha_beta_n_less_one = fp::last_or_default(&alpha_betas,AlphaBeta::empty());
+
+	let alpha_beta_n = AlphaBeta {
+		alpha: zero(),
+		beta: (dn + alpha_beta_n_less_one.beta) / (sn-boundary_codition()-alpha_beta_n_less_one.alpha) 
+	};
+
+	return list::append(alpha_betas, alpha_beta_n);
 }
 
 fn get_ds(es: List<Complex<f64>>, qs: List<Complex<f64>>) -> List<Complex<f64>> {
 	
 	if es.len() == qs.len() {
 		
-		let cropped_qs = fp::init(&fp::tail(&qs));
+		let cropped_qs = fp::body(&qs);
 		
 		return cropped_qs.into_iter().enumerate().fold(
 			list::empty(), 

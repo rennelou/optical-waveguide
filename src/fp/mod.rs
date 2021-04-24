@@ -50,6 +50,14 @@ pub fn tail<T: Clone>(l: &list::List<T>) -> list::List<T> {
 	return result;
 }
 
+pub fn body<T: Clone>(l: &list::List<T>) -> list::List<T> {
+	if l.is_empty() {
+		return vec![];
+	}
+
+	return init(&tail(&l));
+}
+
 pub fn unwrap_or_default<T>(wrap: Option<T>, default: T) -> T {
 	return {
 		if let None = wrap {
