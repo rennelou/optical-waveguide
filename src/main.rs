@@ -7,23 +7,28 @@ use core::f64::consts::PI;
 
 fn main() {
     
-    let k0 = (2.0*PI)/1.55;
+    let k0 = (2.0*PI)/1.55e-6_f64;
 
-    let dx = 100.0 * k0;
+    let dx = 260e-6_f64 * k0;
     let xdelta = dx/1024.0;
     
-    let zdelta = 0.5 * k0;
-    let dz = zdelta * 200.0;
+    let zdelta = 0.5e-6_f64 * k0;
+    let dz = zdelta * 1000.0;
 
     let position = dx/2.0;
-    let width = 10.0 * k0;
+    let width = 35e-6_f64 * k0;
 
     let n0 = 3.0;
     let n = 3.3;
 
+    let p = 30e-6_f64 * k0;
+    let eta = 120.0*PI;
+
     let core = core_waveguide::rectilinear::new(dx, xdelta, dz, zdelta, n, n0, position, width);
     
-    let gaussian = waves::gaussian(core.grid.get_x(), core.position, 4.5, 9.0*k0);
+    let w = 10e-6_f64*k0;
+    let e0 = p*eta / (w.powf(2.0)*PI);
+    let gaussian = waves::gaussian(core.grid.get_x(), core.position, e0, w);
 
     let w = slab::new(&core, 1.0, 0.0);
 
