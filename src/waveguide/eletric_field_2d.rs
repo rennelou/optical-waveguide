@@ -1,12 +1,12 @@
 use num::Complex;
 use super::slab::Slab2d;
 use crate::fp::list::List;
-use crate::array::Array2d;
+use crate::grid::Grid2d;
 
 pub struct EletricField2d {
     pub es: List<List<Complex<f64>>>,
 
-    pub grid: Array2d
+    pub grid: Grid2d
 }
 
 #[derive(Debug, Clone, Copy)]

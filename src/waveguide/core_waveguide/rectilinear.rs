@@ -1,8 +1,8 @@
-use crate::array::Array2d;
+use crate::grid::Grid2d;
 use super::*;
 
 pub struct Rectilinear {
-    pub grid: Array2d,
+    pub grid: Grid2d,
     pub position: f64,
     n: f64,
     n0: f64,
@@ -11,7 +11,7 @@ pub struct Rectilinear {
 }
 
 pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, position: f64, core_width: f64) -> Rectilinear {
-    let grid = Array2d::new(dx, xdelta, dz, zdelta);
+    let grid = Grid2d::new(dx, xdelta, dz, zdelta);
 
     if position >= dx|| core_width >= dx {
         panic!("percent parameters need be less than 1");
@@ -24,7 +24,7 @@ pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, position
 }
 
 impl Core for Rectilinear {
-    fn get_grid(&self) -> &Array2d {
+    fn get_grid(&self) -> &Grid2d {
         return &self.grid;
     }
 
@@ -38,6 +38,7 @@ impl Core for Rectilinear {
         }
     }
 
+    // Essa função ta incompleta
     fn get_half_n(&self, x: f64, z: f64, n0: f64) -> f64 {
         return self.get_n(x, z, n0);
     }

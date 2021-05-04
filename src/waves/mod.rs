@@ -1,9 +1,9 @@
 use crate::fp::list::List;
 
-use crate::array::Array;
+use crate::grid::Grid;
 use num::complex::Complex;
 
-pub fn gaussian(grid_width: &Array, position: f64, amplitude: f64, width: f64) -> List<Complex<f64>> {
+pub fn gaussian(grid_width: &Grid, position: f64, amplitude: f64, width: f64) -> List<Complex<f64>> {
 
     let position_normalized = position / grid_width.delta;
 

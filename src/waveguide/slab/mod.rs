@@ -1,4 +1,4 @@
-use crate::array::Array2d;
+use crate::grid::Grid2d;
 
 use super::*;
 use super::core_waveguide::Core;
@@ -9,7 +9,7 @@ use fp::list;
 use fp::list::List;
 
 pub struct Slab2d {
-	pub grid: Array2d,
+	pub grid: Grid2d,
 
 	s: List<List<Complex<f64>>>,
 	q: List<List<Complex<f64>>>,
