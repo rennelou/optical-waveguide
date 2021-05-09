@@ -36,7 +36,7 @@ mod tests {
     	let es_2d = slab::fdmbpm(&w, gaussian, boundary_codition::dirichlet);
     	let intensity = es_2d.get_intensity();
 
-    	let array = Array::from_shape_vec(intensity.dimensions, intensity.values).unwrap();
+    	let array = Array::from_shape_vec(intensity.shape, intensity.values).unwrap();
 
     	let file = hdf5::File::open("slab.h5").unwrap();
 		let dir = file.group("dir").unwrap();

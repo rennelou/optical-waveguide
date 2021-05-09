@@ -5,13 +5,13 @@ use crate::fp::list::List;
 
 pub struct EletricField2d {
     pub es: List<List<Complex<f64>>>,
-    pub dimensions: (usize, usize),
+    pub shape: (usize, usize),
     pub deltas: (f64, f64)
 }
 
 pub struct Intensity {
     pub values: List<f64>,
-    pub dimensions: (usize, usize),
+    pub shape: (usize, usize),
     pub deltas: (f64, f64)
 }
 
@@ -29,16 +29,16 @@ pub fn new(w: &Slab2d, es: List<List<Complex<f64>>>) -> EletricField2d {
     let zdelta = grid.get_z().delta;
     let zsteps = grid.get_z().steps;
 
-    let dimensions = (xsteps, zsteps);
-    let deltas = (xdelta, zdelta);
+    let dimensions = (zsteps, xsteps);
+    let deltas = (zdelta, xdelta);
 
-    return EletricField2d { es, dimensions, deltas };
+    return EletricField2d { es, shape: dimensions, deltas };
 }
 
 impl EletricField2d {
     pub fn get_points(&self) -> impl Iterator<Item=impl Iterator<Item=Point2d> + '_> + '_ {
-        let (xdelta, zdelta) = self.deltas;
-        let (xsteps, zsteps) = self.dimensions;
+        let (zdelta, xdelta) = self.deltas;
+        let (zsteps, xsteps) = self.shape;
 
         let zpoints = (0usize..zsteps).map(
             move |z| (z as f64) * zdelta
@@ -59,7 +59,7 @@ impl EletricField2d {
     }
 
     pub fn get_intensity(&self) -> Intensity {
-        let dimensions = self.dimensions;
+        let dimensions = self.shape;
         let deltas = self.deltas;
 
         let values = self.es.iter().fold(
@@ -69,7 +69,7 @@ impl EletricField2d {
                 ).collect()
         );
 
-        Intensity { dimensions, deltas, values }
+        Intensity { shape: dimensions, deltas, values }
     }
 }
 
