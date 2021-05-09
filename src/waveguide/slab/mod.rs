@@ -1,21 +1,42 @@
-use crate::grid::Grid2d;
-
 use super::*;
 use super::core_waveguide::Core;
-use super::eletric_field_2d;
 use super::eletric_field_2d::EletricField2d;
-
 use fp::list;
 use fp::list::List;
 
-pub struct Slab2d {
-	pub grid: Grid2d,
+pub fn fdmbpm(core: &impl Core, k: f64, alpha: f64, e_input: List<Complex<f64>>, boundary_codition: fn()->Complex<f64>) -> EletricField2d {
+	
+	let grid = core.get_grid();
+	let xsteps = grid.get_x().steps;
+	let zsteps = grid.get_z().steps;
+	let xdelta = grid.get_x().delta;
+	let zdelta = grid.get_z().delta;
 
-	s: List<List<Complex<f64>>>,
-	q: List<List<Complex<f64>>>,
+	let (s, q) = get_initialized_params(core, k, alpha);
+
+	let es = (1usize..zsteps).fold(
+		vec![e_input], 
+		|result, i| {
+			
+			let last_es = fp::last_or_default(&result, list::empty());
+			let last_q = q[i-1].clone();
+			
+			let ds = get_ds(last_es, last_q);
+			let new_es = insert_boundary_values(
+				get_recurrence_form(get_alphas_betas(&s[i], &ds, boundary_codition)),
+				boundary_codition
+			);
+
+			return list::append(result, new_es);
+		}
+	);
+
+	let shape = (zsteps, xsteps);
+	let deltas = (zdelta, xdelta);
+	return EletricField2d { es, shape, deltas };
 }
 
-pub fn new(core: &impl Core, k: f64, alpha: f64) -> Slab2d {
+pub fn get_initialized_params(core: &impl Core, k: f64, alpha: f64) -> (List<List<Complex<f64>>>, List<List<Complex<f64>>>) {
     let grid = core.get_grid();
 
 	let xdelta = grid.get_x().delta;
@@ -40,31 +61,7 @@ pub fn new(core: &impl Core, k: f64, alpha: f64) -> Slab2d {
         ).collect()
     ).collect();
     
-    Slab2d{ grid: grid.clone(), s, q }
-}
-
-pub fn fdmbpm(waveguide: &Slab2d, e_input: List<Complex<f64>>, boundary_codition: fn()->Complex<f64>) -> EletricField2d {
-	
-	let zsteps = waveguide.grid.get_z().steps;
-
-	let es = (1usize..zsteps).fold(
-		vec![e_input], 
-		|result, i| {
-			
-			let last_es = fp::last_or_default(&result, list::empty());
-			let last_q = waveguide.q[i-1].clone();
-			
-			let ds = get_ds(last_es, last_q);
-			let new_es = insert_boundary_values(
-				get_recurrence_form(get_alphas_betas(&waveguide.s[i], &ds, boundary_codition)),
-				boundary_codition
-			);
-
-			return list::append(result, new_es);
-		}
-	);
-
-	return eletric_field_2d::new(waveguide, es);
+    (s, q)
 }
 
 fn insert_boundary_values(es: List<Complex<f64>>, boundary_codition: fn()->Complex<f64>) -> List<Complex<f64>>{

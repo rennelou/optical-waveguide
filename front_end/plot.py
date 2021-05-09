@@ -26,8 +26,7 @@ with h5py.File(filename, "r") as f:
             y = line + (i*zdelta)
             plt.plot(x, y)
 
-    #plt.plot(x,data[500])
-    plt.title("Muito Fácil")
+    plt.title('Muito Fácil')
     plt.show()
 
     

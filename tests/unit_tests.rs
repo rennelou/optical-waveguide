@@ -31,9 +31,7 @@ mod tests {
     	let e0 = p*eta / (w.powf(2.0)*PI);
     	let gaussian = waves::gaussian(core.grid.get_x(), core.position, e0, w);
 
-    	let w = slab::new(&core, 1.0, 0.0);
-
-    	let es_2d = slab::fdmbpm(&w, gaussian, boundary_codition::dirichlet);
+    	let es_2d = slab::fdmbpm(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
     	let intensity = es_2d.get_intensity();
 
     	let array = Array::from_shape_vec(intensity.shape, intensity.values).unwrap();

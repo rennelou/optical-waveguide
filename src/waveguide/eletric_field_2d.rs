@@ -1,5 +1,4 @@
 use num::Complex;
-use super::slab::Slab2d;
 use crate::fp::list;
 use crate::fp::list::List;
 
@@ -20,19 +19,6 @@ pub struct Point2d{
     pub z: f64, 
     pub x: f64,
     pub intensity: f64,
-}
-
-pub fn new(w: &Slab2d, es: List<List<Complex<f64>>>) -> EletricField2d {
-    let grid = &w.grid;
-    let xdelta = grid.get_x().delta;
-    let xsteps = grid.get_x().steps;
-    let zdelta = grid.get_z().delta;
-    let zsteps = grid.get_z().steps;
-
-    let dimensions = (zsteps, xsteps);
-    let deltas = (zdelta, xdelta);
-
-    return EletricField2d { es, shape: dimensions, deltas };
 }
 
 impl EletricField2d {
