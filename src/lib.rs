@@ -3,3 +3,4 @@ pub mod fp;
 pub mod grid;
 pub mod waves;
 pub mod plotters;
+pub mod export;

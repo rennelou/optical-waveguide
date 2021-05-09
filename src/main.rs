@@ -2,8 +2,8 @@ use rust_fdmbpm::waveguide::core_waveguide;
 use rust_fdmbpm::waveguide::boundary_codition;
 use rust_fdmbpm::waves;
 use rust_fdmbpm::waveguide::slab;
+use rust_fdmbpm::export;
 use core::f64::consts::PI;
-use ndarray::Array;
 
 fn main() {
     
@@ -30,21 +30,6 @@ fn main() {
     let gaussian = waves::gaussian(core.grid.get_x(), core.position, e0, w);
 
     let w = slab::new(&core, 1.0, 0.0);
-
     let es_2d = slab::fdmbpm(&w, gaussian, boundary_codition::dirichlet);
-    let intensity = es_2d.get_intensity();
-    let (xdelta, zdelta) = intensity.deltas;
-
-    let array = Array::from_shape_vec(intensity.dimensions, intensity.values).unwrap();
-
-    let file = hdf5::File::create("slab.h5").unwrap();
-    let group = file.create_group("dir").unwrap();
-    
-    let deltas_hdf5 = group.new_dataset::<f64>().create("deltas", 2).unwrap();
-    deltas_hdf5.write(&[xdelta, zdelta]).unwrap();
-
-    let dataset = group.new_dataset::<f64>().create("intensity", intensity.dimensions).unwrap();
-    dataset.write(&array).unwrap();
-
-    //plotters::plot_waveguide_2d(core, es_2d, n0, 50);
+    export::hdf5("slab.h5", es_2d.get_intensity());
 }
