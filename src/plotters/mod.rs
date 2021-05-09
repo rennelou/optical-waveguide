@@ -42,7 +42,7 @@ pub fn plot_waveguide_2d(core: impl Core, es_2d: EletricField2d, n0: f64, lines:
     for (i, line) in es_2d.get_points().enumerate() {
         if i % throttle == 0 {
             chart.draw_series(LineSeries::new(
-                line.map(|p| (p.x, p.z + p.eletric_field)),
+                line.map(|p| (p.x, p.z + p.intensity)),
                 &RED
             ))
             .unwrap();
