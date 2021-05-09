@@ -8,10 +8,12 @@ pub mod eletric_field_2d;
 pub mod slab;
 pub mod core_waveguide;
 
+pub type Phasor = Complex<f64>;
+
 #[derive(Clone, Copy)]
 struct AlphaBeta {
-	alpha: Complex<f64>,
-	beta: Complex<f64>,
+	alpha: Phasor,
+	beta: Phasor,
 }
 
 impl AlphaBeta {
@@ -25,7 +27,7 @@ impl AlphaBeta {
 
 }
 
-fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Complex<f64>> {
+fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Phasor> {
 	
 	return alpha_betas.into_iter().rev().fold(
 		list::empty(),
@@ -41,7 +43,7 @@ fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Complex<f64>> {
 	);
 }
 
-fn get_alphas_betas(ss: &List<Complex<f64>>, ds: &List<Complex<f64>>, boundary_codition: fn()->Complex<f64>) -> List<AlphaBeta> {
+fn get_alphas_betas(ss: &List<Phasor>, ds: &List<Phasor>, boundary_codition: fn()->Phasor) -> List<AlphaBeta> {
 	
 	if ss.len() != ds.len() + 2 {
 		panic!("ss array need has 2 more elements than ds array");
@@ -85,7 +87,7 @@ fn get_alphas_betas(ss: &List<Complex<f64>>, ds: &List<Complex<f64>>, boundary_c
 	return list::append(alpha_betas, alpha_beta_n);
 }
 
-fn get_ds(es: List<Complex<f64>>, qs: List<Complex<f64>>) -> List<Complex<f64>> {
+fn get_ds(es: List<Phasor>, qs: List<Phasor>) -> List<Phasor> {
 	
 	if es.len() == qs.len() {
 		
@@ -105,10 +107,14 @@ fn get_ds(es: List<Complex<f64>>, qs: List<Complex<f64>>) -> List<Complex<f64>> 
 	panic!("es array and qs array dosent have the same size");
 }
 
-fn zero() -> Complex<f64> {
+pub fn zero() -> Phasor {
 	return Complex::new(0.0, 0.0);
 }
 
-fn one() -> Complex<f64> {
+pub fn one() -> Phasor {
 	return Complex::new(1.0, 0.0);
+}
+
+pub fn to_phasor(x: f64) -> Phasor {
+	return Complex::new(x, 0.0);
 }

@@ -1,10 +1,11 @@
 use super::*;
-use super::core_waveguide::Core;
-use super::eletric_field_2d::EletricField2d;
+use core_waveguide::Core;
+use Phasor;
+use eletric_field_2d::EletricField2d;
 use fp::list;
 use fp::list::List;
 
-pub fn fdmbpm(core: &impl Core, k: f64, alpha: f64, e_input: List<Complex<f64>>, boundary_codition: fn()->Complex<f64>) -> EletricField2d {
+pub fn fdmbpm(core: &impl Core, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField2d {
 	
 	let grid = core.get_grid();
 	let xsteps = grid.get_x().steps;
@@ -36,7 +37,7 @@ pub fn fdmbpm(core: &impl Core, k: f64, alpha: f64, e_input: List<Complex<f64>>,
 	return EletricField2d { es, shape, deltas };
 }
 
-pub fn get_initialized_params(core: &impl Core, k: f64, alpha: f64) -> (List<List<Complex<f64>>>, List<List<Complex<f64>>>) {
+pub fn get_initialized_params(core: &impl Core, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {
     let grid = core.get_grid();
 
 	let xdelta = grid.get_x().delta;
@@ -64,7 +65,7 @@ pub fn get_initialized_params(core: &impl Core, k: f64, alpha: f64) -> (List<Lis
     (s, q)
 }
 
-fn insert_boundary_values(es: List<Complex<f64>>, boundary_codition: fn()->Complex<f64>) -> List<Complex<f64>>{
+fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn()-> Phasor) -> List<Phasor>{
 	
 	let head = list::new({
 		let es_head = fp::head_or_default(&es, one());

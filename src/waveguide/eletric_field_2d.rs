@@ -1,9 +1,9 @@
-use num::Complex;
+use super::Phasor;
 use crate::fp::list;
 use crate::fp::list::List;
 
 pub struct EletricField2d {
-    pub es: List<List<Complex<f64>>>,
+    pub es: List<List<Phasor>>,
     pub shape: (usize, usize),
     pub deltas: (f64, f64)
 }
@@ -59,7 +59,7 @@ impl EletricField2d {
     }
 }
 
-fn intensity(e: &Complex<f64>) -> f64 {
+fn intensity(e: &Phasor) -> f64 {
     let (r, _theta) = e.clone().to_polar();
     
     // Intensidade é proporcional |e|²

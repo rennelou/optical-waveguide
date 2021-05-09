@@ -1,5 +1,5 @@
-use num::complex::Complex;
+use crate::waveguide;
 
-pub fn dirichlet() -> Complex<f64> {
-    return Complex::new(0.0, 0.0);
+pub fn dirichlet() -> waveguide::Phasor {
+    return waveguide::zero();
 }
