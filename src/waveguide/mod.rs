@@ -6,7 +6,7 @@ use fp::list::List;
 pub mod boundary_codition;
 pub mod eletric_field_2d;
 pub mod slab;
-pub mod core_waveguide;
+pub mod cores;
 
 pub type Phasor = Complex<f64>;
 

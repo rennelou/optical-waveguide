@@ -1,5 +1,5 @@
 use super::waveguide::eletric_field_2d::EletricField2d;
-use super::waveguide::core_waveguide::Core;
+use super::waveguide::cores::Core;
 use plotters::prelude::*;
 
 pub fn plot_waveguide_2d(core: impl Core<2usize>, es_2d: EletricField2d, n0: f64, lines: usize) {

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use rust_fdmbpm::waveguide::core_waveguide;
+    use rust_fdmbpm::waveguide::cores;
 	use rust_fdmbpm::waveguide::slab;
 	use rust_fdmbpm::waveguide::boundary_codition;
 	use rust_fdmbpm::waves;
@@ -23,7 +23,7 @@ mod tests {
     	let n0 = 3.0;
     	let n = 3.3;
 
-    	let core = core_waveguide::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
+    	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 		
     	let p = 200.0;
     	let eta = 120.0 * PI; // eta usa eps e mi do meio

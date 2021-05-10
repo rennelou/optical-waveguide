@@ -1,5 +1,5 @@
 use super::*;
-use core_waveguide::Core;
+use cores::Core;
 use Phasor;
 use eletric_field_2d::EletricField2d;
 use fp::comprehension;
