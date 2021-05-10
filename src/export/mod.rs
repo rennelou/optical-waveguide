@@ -1,11 +1,12 @@
 use ndarray::Array;
 use crate::fp::List;
-use crate::waveguide::Intensity;
+use crate::waveguide::EletricField;
 
-pub fn hdf5<const N: usize>(title: &str, intensity: Intensity<N>) {
-    if let [zdelta, xdelta] = intensity.deltas[0..1] {
-        if let [zsteps, xsteps] = intensity.shape[0..1] {
-            hdf5_2d(title, intensity.values, (zsteps, xsteps), [zdelta, xdelta]);
+pub fn hdf5<const N: usize>(title: &str, eletric_field: &EletricField<N>) {
+    if let [zdelta, xdelta] = eletric_field.deltas[0..1] {
+        if let [zsteps, xsteps] = eletric_field.shape[0..1] {
+            let intensity = eletric_field.get_intensity();
+            hdf5_2d(title, intensity, (zsteps, xsteps), [zdelta, xdelta]);
 
             return;
         }

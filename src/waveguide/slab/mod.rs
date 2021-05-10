@@ -28,7 +28,7 @@ pub fn fdmbpm_2d(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Pha
 		}
 	);
 
-	return EletricField { es, shape, deltas };
+	return EletricField { values: es, shape, deltas };
 }
 
 pub fn get_initialized_params_2d(core: &impl Core<2usize>, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {

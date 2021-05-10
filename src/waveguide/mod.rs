@@ -10,13 +10,7 @@ pub mod cores;
 pub type Phasor = Complex<f64>;
 
 pub struct EletricField<const N: usize> {
-    pub es: List<List<Phasor>>,
-    pub shape: [usize;N],
-    pub deltas: [f64;N]
-}
-
-pub struct Intensity<const N: usize> {
-    pub values: List<f64>,
+    pub values: List<List<Phasor>>,
     pub shape: [usize;N],
     pub deltas: [f64;N]
 }
