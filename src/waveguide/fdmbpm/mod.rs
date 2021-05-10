@@ -1,6 +1,6 @@
 use super::*;
 
-pub mod slab;
+pub mod slab2d;
 
 #[derive(Clone, Copy)]
 struct AlphaBeta {

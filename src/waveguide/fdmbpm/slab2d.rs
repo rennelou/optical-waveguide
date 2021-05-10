@@ -3,7 +3,7 @@ use cores::Core;
 use Phasor;
 use fp::{comprehension, list, List};
 
-pub fn execute_2d(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField<2usize> {
+pub fn run(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField<2usize> {
 	
 	let shape = core.get_shape();
 	let deltas = core.get_deltas();

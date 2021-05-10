@@ -31,7 +31,7 @@ mod tests {
     	let e0 = p*eta / (w.powf(2.0)*PI);
     	let gaussian = waves::gaussian(dx, xdelta, core.position, e0, w);
 
-    	let e = fdmbpm::slab::execute_2d(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
+    	let e = fdmbpm::slab2d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
 		// para gerar seria so exportar e -- export::hdf5("example.h5", &e);
 
 		let intensity = e.get_intensity();
