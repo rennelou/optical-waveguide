@@ -1,5 +1,5 @@
 use ndarray::Array;
-use crate::waveguide::eletric_field_2d::Intensity;
+use crate::waveguide::Intensity;
 
 pub fn hdf5(title: &str, intensity: Intensity) {
     let (xdelta, zdelta) = intensity.deltas;

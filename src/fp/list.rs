@@ -1,4 +1,4 @@
-pub type List<T> = Vec<T>;
+use super::List;
 
 pub fn new<T>(v: T) -> List<T> {
     return append(empty(), v);

@@ -1,14 +1,25 @@
 use num::complex::Complex;
 use crate::fp;	
-use fp::list;
-use fp::list::List;
+use crate::fp::{list, List};
 
 pub mod boundary_codition;
-pub mod eletric_field_2d;
+pub mod eletric_field;
 pub mod slab;
 pub mod cores;
 
 pub type Phasor = Complex<f64>;
+
+pub struct EletricField {
+    pub es: List<List<Phasor>>,
+    pub shape: (usize, usize),
+    pub deltas: (f64, f64)
+}
+
+pub struct Intensity {
+    pub values: List<f64>,
+    pub shape: (usize, usize),
+    pub deltas: (f64, f64)
+}
 
 #[derive(Clone, Copy)]
 struct AlphaBeta {

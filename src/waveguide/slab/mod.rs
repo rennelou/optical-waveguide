@@ -1,12 +1,9 @@
 use super::*;
 use cores::Core;
 use Phasor;
-use eletric_field_2d::EletricField2d;
-use fp::comprehension;
-use fp::list;
-use fp::list::List;
+use fp::{comprehension, list, List};
 
-pub fn fdmbpm_2d(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField2d {
+pub fn fdmbpm_2d(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
 	
 	let [zsteps, xsteps] = core.get_shape();
 	let [zdelta, xdelta]  = core.get_deltas();
@@ -32,7 +29,7 @@ pub fn fdmbpm_2d(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Pha
 
 	let shape = (zsteps, xsteps);
 	let deltas = (zdelta, xdelta);
-	return EletricField2d { es, shape, deltas };
+	return EletricField { es, shape, deltas };
 }
 
 pub fn get_initialized_params_2d(core: &impl Core<2usize>, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {

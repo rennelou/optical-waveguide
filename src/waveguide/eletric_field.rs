@@ -1,18 +1,7 @@
 use super::Phasor;
+use super::EletricField;
+use super::Intensity;
 use crate::fp::list;
-use crate::fp::list::List;
-
-pub struct EletricField2d {
-    pub es: List<List<Phasor>>,
-    pub shape: (usize, usize),
-    pub deltas: (f64, f64)
-}
-
-pub struct Intensity {
-    pub values: List<f64>,
-    pub shape: (usize, usize),
-    pub deltas: (f64, f64)
-}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Point2d{
@@ -21,7 +10,7 @@ pub struct Point2d{
     pub intensity: f64,
 }
 
-impl EletricField2d {
+impl EletricField {
     pub fn get_points(&self) -> impl Iterator<Item=impl Iterator<Item=Point2d> + '_> + '_ {
         let (zdelta, xdelta) = self.deltas;
         let (zsteps, xsteps) = self.shape;

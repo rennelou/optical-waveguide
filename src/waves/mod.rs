@@ -1,4 +1,4 @@
-use crate::fp::list::List;
+use crate::fp::List;
 use crate::waveguide;
 
 pub fn gaussian(grid_width: f64, delta: f64, position: f64, amplitude: f64, core_width: f64) -> List<waveguide::Phasor> {

@@ -1,21 +1,23 @@
 pub mod list;
 pub mod comprehension;
 
-pub fn head_or_default<T: Clone>(list: &list::List<T>, default: T) -> T {
+pub type List<T> = Vec<T>;
+
+pub fn head_or_default<T: Clone>(list: &List<T>, default: T) -> T {
 	return unwrap_or_default(
 		head(&list), 
 		default
 	);
 }
 
-pub fn last_or_default<T: Clone>(list: &list::List<T>, default: T) -> T {
+pub fn last_or_default<T: Clone>(list: &List<T>, default: T) -> T {
 	return unwrap_or_default(
 		last(&list), 
 		default
 	);
 }
 
-pub fn head<T: Clone>(l: &list::List<T>) -> Option<T> {
+pub fn head<T: Clone>(l: &List<T>) -> Option<T> {
 	if l.is_empty() {
 		return None
 	}
@@ -23,7 +25,7 @@ pub fn head<T: Clone>(l: &list::List<T>) -> Option<T> {
 	return Some(l[first_index].clone());
 }
 
-pub fn last<T: Clone>(l: &list::List<T>) -> Option<T> {
+pub fn last<T: Clone>(l: &List<T>) -> Option<T> {
 	if l.is_empty() {
 		return None;
 	}
@@ -31,27 +33,27 @@ pub fn last<T: Clone>(l: &list::List<T>) -> Option<T> {
 	return Some(l[last_index].clone());
 }
 
-pub fn init<T: Clone>(l: &list::List<T>) -> list::List<T> {
+pub fn init<T: Clone>(l: &List<T>) -> List<T> {
 	if l.is_empty() {
 		return vec![];
 	}
 
-	let mut result: list::List<T> = vec![];
+	let mut result: List<T> = vec![];
 	result.extend_from_slice(&l[0..l.len()-1]);
 	return result;
 }
 
-pub fn tail<T: Clone>(l: &list::List<T>) -> list::List<T> {
+pub fn tail<T: Clone>(l: &List<T>) -> List<T> {
 	if l.is_empty() {
 		return vec![];
 	}
 
-	let mut result: list::List<T> = vec![];
+	let mut result: List<T> = vec![];
 	result.extend_from_slice(&l[1..]);
 	return result;
 }
 
-pub fn body<T: Clone>(l: &list::List<T>) -> list::List<T> {
+pub fn body<T: Clone>(l: &List<T>) -> List<T> {
 	if l.is_empty() {
 		return vec![];
 	}
