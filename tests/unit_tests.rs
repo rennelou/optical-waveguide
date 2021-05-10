@@ -32,8 +32,9 @@ mod tests {
     	let gaussian = waves::gaussian(dx, xdelta, core.position, e0, w);
 
     	let e = slab::fdmbpm_2d(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
+		// para gerar seria so exportar e -- export::hdf5("example.h5", &e);
+
 		let intensity = e.get_intensity();
-		
     	let array = Array::from_shape_vec(e.shape, intensity).unwrap();
 
     	let file = hdf5::File::open("slab.h5").unwrap();
