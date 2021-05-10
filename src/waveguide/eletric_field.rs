@@ -1,15 +1,10 @@
 use super::Phasor;
 use super::EletricField;
-use crate::fp::{list, List};
+use crate::fp::List;
 
 impl<const N: usize> EletricField<N> {
     pub fn get_intensity(&self) -> List<f64> {
-        self.values.iter().fold(
-            list::empty(), 
-            |acc, l| acc.into_iter().chain(
-                    l.iter().map(|c| intensity(c))
-                ).collect()
-        )
+        self.values.iter().map(|c| intensity(c)).collect()
     }
 }
 

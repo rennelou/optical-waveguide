@@ -4,7 +4,6 @@ use Phasor;
 use fp::{comprehension, list, List};
 
 pub fn run(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField<2usize> {
-	
 	let shape = core.get_shape();
 	let deltas = core.get_deltas();
 	let [zsteps, _] = shape;
@@ -28,7 +27,8 @@ pub fn run(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, 
 		}
 	);
 
-	return EletricField { values: es, shape, deltas };
+	let values = flat(es);
+	return EletricField { values, shape, deltas };
 }
 
 pub fn get_initialized_params_2d(core: &impl Core<2usize>, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {
@@ -73,4 +73,12 @@ fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -
 	});
 	
 	return list::concat(list::concat(head, es),last);
+}
+
+fn flat(l: List<List<Phasor>>) -> List<Phasor> {
+	l.into_iter().fold(
+		list::empty(), 
+		|acc, value| 
+				list::concat(acc, value)
+	)
 }

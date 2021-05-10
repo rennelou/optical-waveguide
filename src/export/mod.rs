@@ -3,16 +3,15 @@ use crate::fp::List;
 use crate::waveguide::EletricField;
 
 pub fn hdf5<const N: usize>(title: &str, eletric_field: &EletricField<N>) {
-    if let [zdelta, xdelta] = eletric_field.deltas[0..1] {
-        if let [zsteps, xsteps] = eletric_field.shape[0..1] {
+    match N {
+        2 => {
+            let shape = (eletric_field.shape[0], eletric_field.shape[1]);
+            let deltas = [eletric_field.deltas[0], eletric_field.deltas[1]];
             let intensity = eletric_field.get_intensity();
-            hdf5_2d(title, intensity, (zsteps, xsteps), [zdelta, xdelta]);
-
-            return;
-        }
+            hdf5_2d(title, intensity, shape, deltas);
+        },
+        _ => panic!("dimension dont match")
     }
-    
-    panic!("dimension dont match");
 }
 
 pub fn hdf5_2d(title: &str, values: List<f64>, shape: (usize, usize), deltas: [f64;2]) {
