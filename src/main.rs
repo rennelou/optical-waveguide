@@ -32,6 +32,4 @@ fn main() {
 
     let es_2d = slab::fdmbpm_2d(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
     export::hdf5("slab.h5", es_2d.get_intensity());
-
-    //plotters::plot_waveguide_2d(core, es_2d, n0, 50);
 }

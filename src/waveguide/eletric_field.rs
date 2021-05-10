@@ -10,31 +10,9 @@ pub struct Point2d{
     pub intensity: f64,
 }
 
-impl EletricField {
-    pub fn get_points(&self) -> impl Iterator<Item=impl Iterator<Item=Point2d> + '_> + '_ {
-        let (zdelta, xdelta) = self.deltas;
-        let (zsteps, xsteps) = self.shape;
-
-        let zpoints = (0usize..zsteps).map(
-            move |z| (z as f64) * zdelta
-        );
-        
-        return zpoints.zip(&self.es).map(move |(z, l)| {
-            
-            let xpoints = (0usize..xsteps).map(
-                move |x| (x as f64) * xdelta
-            );
-            
-            return xpoints.zip(l).map(move |(x, c)| {
-                let intensity = intensity(c);
-                
-                Point2d{ z, x, intensity }
-            });    
-        });
-    }
-
-    pub fn get_intensity(&self) -> Intensity {
-        let dimensions = self.shape;
+impl<const N: usize> EletricField<N> {
+    pub fn get_intensity(&self) -> Intensity<N> {
+        let shape = self.shape;
         let deltas = self.deltas;
 
         let values = self.es.iter().fold(
@@ -44,7 +22,7 @@ impl EletricField {
                 ).collect()
         );
 
-        Intensity { shape: dimensions, deltas, values }
+        Intensity { shape, deltas, values }
     }
 }
 
