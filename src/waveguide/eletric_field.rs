@@ -3,13 +3,6 @@ use super::EletricField;
 use super::Intensity;
 use crate::fp::list;
 
-#[derive(Debug, Clone, Copy)]
-pub struct Point2d{
-    pub z: f64, 
-    pub x: f64,
-    pub intensity: f64,
-}
-
 impl<const N: usize> EletricField<N> {
     pub fn get_intensity(&self) -> Intensity<N> {
         let shape = self.shape;
