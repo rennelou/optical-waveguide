@@ -36,7 +36,7 @@ pub fn get_initialized_params_2d(core: &impl Core<2usize>, k: f64, alpha: f64) -
 	let [zdelta, xdelta]  = core.get_deltas();
 	let n0 = core.get_n0();
 
-    let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
+    let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(z,0.0, x, n0).powf(2.0)-n0.powf(2.0));
     let free_space = || 4.0*k*n0*xdelta.powf(2.0)/zdelta;
     let loss = |_, _| 2.0*k*n0*xdelta.powf(2.0)*alpha;
     

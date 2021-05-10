@@ -37,23 +37,23 @@ impl<const N: usize> Core<N> for Rectilinear<N> {
         self.deltas
     }
 
-    fn get_n(&self, x: f64, _: f64, n0: f64) -> f64 {
-        return {
-            if x > self.core_left && x < self.core_right {
-                self.n
-            } else {
-                n0
-            }
+    fn get_n(&self, _: f64, y: f64, x: f64, n0: f64) -> f64 {
+        match N {
+            2 => if x > self.core_left && x < self.core_right {
+                    self.n
+                } else {
+                    n0
+                },
+            3 => if x > self.core_left && x < self.core_right && y > self.core_left && y < self.core_right {
+                    self.n
+                } else {
+                   n0
+                },
+            _ => panic!("core must be 2 or 3 dimensions")
         }
-    }
-
-    // Essa função ta incompleta
-    fn get_half_n(&self, x: f64, z: f64, n0: f64) -> f64 {
-        return self.get_n(x, z, n0);
     }
 
     fn get_n0(&self) -> f64 {
         return self.n0;
     }
 }
-
