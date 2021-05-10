@@ -2,18 +2,16 @@ use super::*;
 use core_waveguide::Core;
 use Phasor;
 use eletric_field_2d::EletricField2d;
+use fp::comprehension;
 use fp::list;
 use fp::list::List;
 
-pub fn fdmbpm(core: &impl Core, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField2d {
+pub fn fdmbpm_2d(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField2d {
 	
-	let grid = core.get_grid();
-	let xsteps = grid.get_x().steps;
-	let zsteps = grid.get_z().steps;
-	let xdelta = grid.get_x().delta;
-	let zdelta = grid.get_z().delta;
+	let [zsteps, xsteps] = core.get_shape();
+	let [zdelta, xdelta]  = core.get_deltas();
 
-	let (s, q) = get_initialized_params(core, k, alpha);
+	let (s, q) = get_initialized_params_2d(core, k, alpha);
 
 	let es = (1usize..zsteps).fold(
 		vec![e_input], 
@@ -37,35 +35,37 @@ pub fn fdmbpm(core: &impl Core, k: f64, alpha: f64, e_input: List<Phasor>, bound
 	return EletricField2d { es, shape, deltas };
 }
 
-pub fn get_initialized_params(core: &impl Core, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {
-    let grid = core.get_grid();
-
-	let xdelta = grid.get_x().delta;
-	let zdelta = grid.get_z().delta;
+pub fn get_initialized_params_2d(core: &impl Core<2usize>, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {
+	let [zsteps, xsteps] = core.get_shape();
+	let [zdelta, xdelta]  = core.get_deltas();
 	let n0 = core.get_n0();
 
     let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(x, z, n0).powf(2.0)-n0.powf(2.0));
     let free_space = || 4.0*k*n0*xdelta.powf(2.0)/zdelta;
     let loss = |_, _| 2.0*k*n0*xdelta.powf(2.0)*alpha;
     
-    let s = grid.get_z().get_points().map(
-        |z| grid.get_x().get_points().map(
-            // okamoto 7.98
+    let s = comprehension::arange(zsteps, zdelta).map(
+        |z| comprehension::arange(xsteps, xdelta).map(
+            
+			// okamoto 7.98
             |x| Complex::new(2.0 - guiding_space(x, z), free_space() + loss(x, z))
-        ).collect()
+        
+		).collect()
     ).collect();
     
-    let q = grid.get_z().get_points().map(
-        |z| grid.get_x().get_points().map(
-            // okamoto 7.99
+    let q = comprehension::arange(zsteps, zdelta).map(
+        |z| comprehension::arange(xsteps, xdelta).map(
+            
+			// okamoto 7.99
             |x| Complex::new(-2.0 + guiding_space(x, z), free_space() - loss(x, z))
-        ).collect()
+        
+		).collect()
     ).collect();
     
     (s, q)
 }
 
-fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn()-> Phasor) -> List<Phasor>{
+fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -> List<Phasor>{
 	
 	let head = list::new({
 		let es_head = fp::head_or_default(&es, one());

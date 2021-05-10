@@ -3,6 +3,7 @@ use rust_fdmbpm::waveguide::boundary_codition;
 use rust_fdmbpm::waves;
 use rust_fdmbpm::waveguide::slab;
 use rust_fdmbpm::export;
+
 use core::f64::consts::PI;
 
 fn main() {
@@ -21,15 +22,15 @@ fn main() {
     let n0 = 3.0;
     let n = 3.3;
 
-    let core = core_waveguide::rectilinear::new(dx, xdelta, dz, zdelta, n, n0, position, width);
+    let core = core_waveguide::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
     
     let p = 200.0;
     let eta = 120.0 * PI; // eta usa eps e mi do meio
     let w = 10e-6 * k0;
     let e0 = p*eta / (w.powf(2.0)*PI);
-    let gaussian = waves::gaussian(core.grid.get_x(), core.position, e0, w);
+    let gaussian = waves::gaussian(dx, xdelta, core.position, e0, w);
 
-    let es_2d = slab::fdmbpm(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
+    let es_2d = slab::fdmbpm_2d(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
     export::hdf5("slab.h5", es_2d.get_intensity());
 
     //plotters::plot_waveguide_2d(core, es_2d, n0, 50);

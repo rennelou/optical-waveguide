@@ -1,9 +1,13 @@
-use crate::grid::Grid2d;
-
 pub mod rectilinear;
 
-pub trait Core {
-    fn get_grid(&self) -> &Grid2d;
+pub trait Core<const N: usize> {
+    fn get_dimension() -> usize {
+        N
+    }
+
+    fn get_shape(&self) -> [usize;N];
+
+    fn get_deltas(&self) -> [f64;N];
 
     fn get_n(&self, x: f64, z: f64, n0: f64) -> f64;
 

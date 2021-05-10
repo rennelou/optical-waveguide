@@ -23,15 +23,15 @@ mod tests {
     	let n0 = 3.0;
     	let n = 3.3;
 
-    	let core = core_waveguide::rectilinear::new(dx, xdelta, dz, zdelta, n, n0, position, width);
+    	let core = core_waveguide::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 		
     	let p = 200.0;
     	let eta = 120.0 * PI; // eta usa eps e mi do meio
     	let w = 10e-6 * k0;
     	let e0 = p*eta / (w.powf(2.0)*PI);
-    	let gaussian = waves::gaussian(core.grid.get_x(), core.position, e0, w);
+    	let gaussian = waves::gaussian(dx, xdelta, core.position, e0, w);
 
-    	let es_2d = slab::fdmbpm(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
+    	let es_2d = slab::fdmbpm_2d(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
     	let intensity = es_2d.get_intensity();
 
     	let array = Array::from_shape_vec(intensity.shape, intensity.values).unwrap();

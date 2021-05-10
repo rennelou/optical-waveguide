@@ -2,14 +2,13 @@ use super::waveguide::eletric_field_2d::EletricField2d;
 use super::waveguide::core_waveguide::Core;
 use plotters::prelude::*;
 
-pub fn plot_waveguide_2d(core: impl Core, es_2d: EletricField2d, n0: f64, lines: usize) {
+pub fn plot_waveguide_2d(core: impl Core<2usize>, es_2d: EletricField2d, n0: f64, lines: usize) {
     
-    let grid = core.get_grid();
-    let dx = grid.get_x().d;
-    let dz = grid.get_z().d;
+    let [zsteps, xsteps] = core.get_shape();
+	let [zdelta, xdelta]  = core.get_deltas();
+    let dx = (xsteps as f64)*xdelta;
+    let dz = (zsteps as f64)*zdelta;
 
-    let zsteps = grid.get_z().steps;
-    
     let root_drawing_area = BitMapBackend::new("waveguide.png", (1024, 768))
         .into_drawing_area();
     

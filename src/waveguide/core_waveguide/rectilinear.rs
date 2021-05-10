@@ -1,8 +1,8 @@
-use crate::grid::Grid2d;
 use super::*;
 
-pub struct Rectilinear {
-    pub grid: Grid2d,
+pub struct Rectilinear<const N: usize> {
+    pub shape: [usize;N],
+    pub deltas: [f64;N],
     pub position: f64,
     n: f64,
     n0: f64,
@@ -10,22 +10,31 @@ pub struct Rectilinear {
     core_right: f64
 }
 
-pub fn new(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, position: f64, core_width: f64) -> Rectilinear {
-    let grid = Grid2d::new(dx, xdelta, dz, zdelta);
-
+pub fn new_2d(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, position: f64, core_width: f64) -> Rectilinear<2usize> {
     if position >= dx|| core_width >= dx {
         panic!("percent parameters need be less than 1");
     }
 
+    let zsteps = (dz/zdelta).round() as usize;
+    let xsteps = (dx/xdelta).round() as usize;
+    let shape = [zsteps, xsteps];
+
+    let deltas = [zdelta, xdelta];
+
     let core_left = position - (core_width/2.0);
     let core_right = position + (core_width/2.0);
     
-    Rectilinear { grid: grid, position, n, n0, core_left, core_right }
+    Rectilinear { shape, deltas, position, n, n0, core_left, core_right }
 }
 
-impl Core for Rectilinear {
-    fn get_grid(&self) -> &Grid2d {
-        return &self.grid;
+impl<const N: usize> Core<N> for Rectilinear<N> {
+    
+    fn get_shape(&self) -> [usize;N] {
+        self.shape
+    }
+
+    fn get_deltas(&self) -> [f64;N] {
+        self.deltas
     }
 
     fn get_n(&self, x: f64, _: f64, n0: f64) -> f64 {

@@ -1,4 +1,5 @@
 pub mod list;
+pub mod comprehension;
 
 pub fn head_or_default<T: Clone>(list: &list::List<T>, default: T) -> T {
 	return unwrap_or_default(
