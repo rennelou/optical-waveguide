@@ -1,7 +1,7 @@
 use super::*;
-use cores::Core;
 use Phasor;
-use fp::{comprehension, list, List};
+use cores::Core;
+use crate::fp::{comprehension, list, List};
 
 pub fn run(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField<2usize> {
 	let shape = core.get_shape();
@@ -14,7 +14,7 @@ pub fn run(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, 
 		vec![e_input], 
 		|result, i| {
 			
-			let last_es = fp::last_or_default(&result, list::empty());
+			let last_es = list::last_or_default(&result, list::empty());
 			let last_q = q[i-1].clone();
 			
 			let ds = get_ds(last_es, last_q);
@@ -64,11 +64,11 @@ pub fn get_initialized_params_2d(core: &impl Core<2usize>, k: f64, alpha: f64) -
 fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -> List<Phasor>{
 	
 	let head = list::new({
-		let es_head = fp::head_or_default(&es, one());
+		let es_head = list::head_or_default(&es, one());
 		es_head*boundary_codition()
 	});
 	let last = list::new({
-		let es_last = fp::last_or_default(&es, one());
+		let es_last = list::last_or_default(&es, one());
 		es_last*boundary_codition()
 	});
 	
