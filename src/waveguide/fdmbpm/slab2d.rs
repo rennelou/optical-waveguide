@@ -27,7 +27,7 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: List<Phasor>, boundary
 		}
 	);
 
-	let values = flat(es);
+	let values = es.into_iter().flatten().collect::<List<Phasor>>();
 	return EletricField { values, shape, deltas };
 }
 
@@ -75,12 +75,4 @@ fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -
 	});
 	
 	return list::concat(list::concat(head, es),last);
-}
-
-fn flat(l: List<List<Phasor>>) -> List<Phasor> {
-	l.into_iter().fold(
-		list::empty(), 
-		|acc, value| 
-				list::concat(acc, value)
-	)
 }
