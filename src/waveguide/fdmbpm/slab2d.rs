@@ -3,10 +3,10 @@ use Phasor;
 use cores::Core;
 use crate::fp::{comprehension, list, List};
 
-pub fn run(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField<2usize> {
-	let shape = core.get_shape();
-	let deltas = core.get_deltas();
-	let [zsteps, _] = shape;
+pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
+	let shape = core.get_shape().clone();
+	let deltas = core.get_deltas().clone();
+	let zsteps = shape[0];
 
 	let (s, q) = get_initialized_params_2d(core, k, alpha);
 
@@ -31,9 +31,11 @@ pub fn run(core: &impl Core<2usize>, k: f64, alpha: f64, e_input: List<Phasor>, 
 	return EletricField { values, shape, deltas };
 }
 
-pub fn get_initialized_params_2d(core: &impl Core<2usize>, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {
-	let [zsteps, xsteps] = core.get_shape();
-	let [zdelta, xdelta]  = core.get_deltas();
+pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {
+	let mut shape_delta = core.get_shape().clone().into_iter().zip(core.get_deltas().clone().into_iter());
+	let (zsteps, zdelta) = shape_delta.next().unwrap();
+	let (xsteps, xdelta) = shape_delta.next().unwrap();
+	
 	let n0 = core.get_n0();
 
     let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(z,0.0, x, n0).powf(2.0)-n0.powf(2.0));

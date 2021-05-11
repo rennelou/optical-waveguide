@@ -16,14 +16,14 @@ pub fn new_from_slice<T: Clone>(s: &[T]) -> List<T> {
 }
 
 pub fn head_or_default<T: Clone>(list: &List<T>, default: T) -> T {
-	return unwrap_or_default(
+	return super::unwrap_or_default(
 		head(&list), 
 		default
 	);
 }
 
 pub fn last_or_default<T: Clone>(list: &List<T>, default: T) -> T {
-	return unwrap_or_default(
+	return super::unwrap_or_default(
 		last(&list), 
 		default
 	);
@@ -71,16 +71,6 @@ pub fn body<T: Clone>(l: &List<T>) -> List<T> {
 	}
 
 	return init(&tail(&l));
-}
-
-pub fn unwrap_or_default<T>(wrap: Option<T>, default: T) -> T {
-	return {
-		if let None = wrap {
-			default
-		} else {
-			wrap.unwrap()
-		}
-	};
 }
 
 pub fn append<T>(mut list: List<T>, value: T) -> List<T> {

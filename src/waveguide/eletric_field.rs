@@ -2,7 +2,7 @@ use super::Phasor;
 use super::EletricField;
 use crate::fp::List;
 
-impl<const N: usize> EletricField<N> {
+impl EletricField {
     pub fn get_intensity(&self) -> List<f64> {
         self.values.iter().map(|c| intensity(c)).collect()
     }

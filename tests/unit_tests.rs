@@ -41,6 +41,6 @@ mod tests {
 		let dir = file.group("dir").unwrap();
 		let values = dir.dataset("intensity").unwrap();
 
-		assert_eq!(values.read_2d::<f64>().unwrap(), array);
+		assert_eq!(values.read_dyn::<f64>().unwrap(), array);
    	}
 }
