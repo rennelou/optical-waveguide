@@ -6,7 +6,7 @@ use rust_fdmbpm::export;
 
 use core::f64::consts::PI;
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     
     let k0 = (2.0*PI)/1.55e-6_f64;
 
@@ -32,4 +32,6 @@ fn main() {
 
     let e = fdmbpm::slab2d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
     export::hdf5("slab.h5", &e);
+
+    Ok(())
 }

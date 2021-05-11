@@ -6,9 +6,10 @@ mod tests {
 	use rust_fdmbpm::waves;
 	use core::f64::consts::PI;
 	use ndarray::Array;
+	use std::error::Error;
 
     #[test]
-   	fn slab() {
+   	fn slab() -> Result<(), Box<dyn Error>> {
 		let k0 = (2.0*PI)/1.55e-6_f64;
 
     	let dx = 260e-6 * k0;
@@ -35,12 +36,14 @@ mod tests {
 		// para gerar seria so exportar e -- export::hdf5("example.h5", &e);
 
 		let intensity = e.get_intensity();
-    	let array = Array::from_shape_vec(e.shape, intensity).unwrap();
+    	let array = Array::from_shape_vec(e.shape, intensity)?;
 
-    	let file = hdf5::File::open("slab.h5").unwrap();
-		let dir = file.group("dir").unwrap();
-		let values = dir.dataset("intensity").unwrap();
+    	let file = hdf5::File::open("slab.h5")?;
+		let dir = file.group("dir")?;
+		let values = dir.dataset("intensity")?;
 
-		assert_eq!(values.read_dyn::<f64>().unwrap(), array);
+		assert_eq!(values.read_dyn::<f64>()?, array);
+
+		Ok(())
    	}
 }
