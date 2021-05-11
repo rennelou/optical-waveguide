@@ -8,13 +8,6 @@ pub fn empty<T>() -> List<T> {
     return vec![];
 }
 
-pub fn new_from_slice<T: Clone>(s: &[T]) -> List<T> {
-	let mut result: Vec<T> = vec![];
-	result.extend_from_slice(s);
-
-	return result;
-}
-
 pub fn append<T>(mut list: List<T>, value: T) -> List<T> {
     list.push(value);
     
