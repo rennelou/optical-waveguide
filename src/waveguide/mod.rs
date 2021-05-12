@@ -14,12 +14,14 @@ pub struct EletricField {
     pub deltas: List<f64>
 }
 
-pub fn zero() -> Phasor {
-	return Complex::new(0.0, 0.0);
+const PHASOR_ZERO: Phasor = Complex::new(0.0, 0.0);
+const fn zero() -> &'static Phasor {
+	&PHASOR_ZERO
 }
 
-pub fn one() -> Phasor {
-	return Complex::new(1.0, 0.0);
+const PHASOR_ONE: Phasor = Complex::new(1.0, 0.0);
+const fn one() -> &'static Phasor {
+	&PHASOR_ONE
 }
 
 pub fn to_phasor(x: f64) -> Phasor {
