@@ -2,7 +2,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = "slab.h5"
+filename = "main.h5"
 lines = 50
 with h5py.File(filename, "r") as f:
 
@@ -26,7 +26,7 @@ with h5py.File(filename, "r") as f:
             y = line + (i*zdelta)
             plt.plot(x, y)
 
-    plt.title('Muito Fácil')
+    plt.title('Intensidade')
     plt.show()
 
     

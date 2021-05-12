@@ -1,10 +1,11 @@
 pub mod list;
-//pub mod matrix;
+pub mod matrix;
 pub mod comprehension;
 
 pub type List<T> = Vec<T>;
 
-pub struct Matrix<T: Clone> {
+#[derive(Clone)]
+pub struct Matrix<T: Clone + Copy> {
     values: List<T>,
     shape: List<usize>
 }
