@@ -36,7 +36,7 @@ mod tests {
 		// para gerar seria so exportar e -- export::hdf5("example.h5", &e);
 
 		let intensity = e.get_intensity();
-    	let array = Array::from_shape_vec(e.shape, intensity)?;
+    	let array = Array::from_shape_vec(e.shape().clone(), intensity)?;
 
     	let file = hdf5::File::open("slab.h5")?;
 		let dir = file.group("dir")?;

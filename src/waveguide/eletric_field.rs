@@ -4,7 +4,15 @@ use crate::fp::List;
 
 impl EletricField {
     pub fn get_intensity(&self) -> List<f64> {
-        self.values.iter().map(|c| intensity(c)).collect()
+        self.values.raw().iter().map(|c| intensity(c)).collect()
+    }
+
+    pub fn shape(&self) -> &List<usize> {
+        self.values.shape()
+    }
+
+    pub fn grid_steps(&self) -> &List<f64> {
+        &self.grid_steps
     }
 }
 

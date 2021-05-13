@@ -2,11 +2,12 @@ use super::*;
 use cores::Core;
 use Phasor;
 use fp::{comprehension, list, List};
+use fp::{matrix, Matrix};
 
-pub fn run(core: &impl Core<3usize>, k: f64, alpha: f64, e_input: List<List<Phasor>>, boundary_codition: fn()-> Phasor) -> EletricField<3usize> {
+pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
 	let shape = core.get_shape();
 	let deltas = core.get_deltas();
-	let [zsteps, _, _] = shape;
+	let zsteps = shape[0];
 
 	let (s, S, q, Q) = get_initialized_params_3d(core, k, alpha);
 
@@ -31,11 +32,13 @@ pub fn run(core: &impl Core<3usize>, k: f64, alpha: f64, e_input: List<List<Phas
 	return EletricField { values, shape, deltas };
 }
 
-pub fn get_initialized_params_3d(core: &impl Core<3usize>, k: f64, alpha: f64) 
--> (List<List<List<Phasor>>>, List<List<List<Phasor>>>, List<List<List<Phasor>>>, List<List<List<Phasor>>>) {
-
-    let [zsteps, ysteps, xsteps] = core.get_shape();
-	let [zdelta, ydelta, xdelta]  = core.get_deltas();
+pub fn get_initialized_params_3d(core: &impl Core, k: f64, alpha: f64) 
+-> (Matrix<Phasor>, Matrix<Phasor>, Matrix<Phasor>, Matrix<Phasor>) {
+	let shape = core.get_shape();
+	let mut shape_delta = shape.clone().into_iter().zip(core.get_deltas().clone().into_iter());
+	let (zsteps, zdelta) = shape_delta.next().unwrap();
+	let (ysteps, ydelta) = shape_delta.next().unwrap();
+	let (xsteps, xdelta) = shape_delta.next().unwrap();
 	let n0 = core.get_n0();
 
     let guiding_space = |x: f64, y:f64, z: f64, delta: f64| k.powf(2.0)*delta.powf(2.0)*(core.get_half_n(z,0.0, x, n0).powf(2.0)-n0.powf(2.0));
@@ -62,10 +65,10 @@ pub fn get_initialized_params_3d(core: &impl Core<3usize>, k: f64, alpha: f64)
 		).collect()
 	};
 
-    let s = s_params(xdelta);
-    let S = s_params(ydelta);
-    let q = q_params(xdelta);
-    let Q = q_params(ydelta);
+    let s = matrix::new_3d(s_params(xdelta), shape) ;
+    let S = matrix::new_3d(s_params(ydelta), shape);
+    let q = matrix::new_3d(q_params(xdelta), shape);
+    let Q = matrix::new_3d(q_params(ydelta), shape);
     
     (s, S, q, Q)
 }
@@ -82,18 +85,4 @@ fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -
 	});
 	
 	return list::concat(list::concat(head, es),last);
-}
-
-fn flat(l: List<List<List<Phasor>>>) -> List<Phasor> {
-	l.into_iter().fold(
-		list::empty(), 
-		|result, v| {
-			let value = v.into_iter().fold(
-				list::empty(), 
-				|result_intern, value_intern| list::concat(result_intern, value_intern)
-			);
-
-			list::concat(result, value)
-		}
-	)
 }

@@ -11,16 +11,29 @@ pub struct SliceMask {
     position_mask: List<usize>
 }
 
-pub fn new<T: Clone + Copy>(values: List<T>, shape: List<usize>) -> Matrix<T> {
-    if shape.iter().product::<usize>() != values.len() {
+pub fn new_raw<T: Clone + Copy>(values: List<T>, shape_ref: &List<usize>) -> Matrix<T> {
+    if shape_ref.iter().product::<usize>() != values.len() {
         panic!("shape dosent match with values")
     }
-
+    let shape = shape_ref.clone();
+    
     Matrix { values, shape }
 }
 
+pub fn new_2d<T: Clone + Copy>(values: List<List<T>>, shape: &List<usize>) -> Matrix<T> {
+    let raw_values = values.into_iter().flatten().collect::<List<T>>();
+
+    new_raw(raw_values, shape)
+}
+
+pub fn new_3d<T: Clone + Copy>(values: List<List<List<T>>>, shape: &List<usize>) -> Matrix<T> {
+    let raw_values = values.into_iter().flatten().flatten().collect::<List<T>>();
+
+    new_raw(raw_values, shape)
+}
+
 pub fn new_single<T: Clone + Copy>(value: T) -> Matrix<T> {
-    new(vec![value], vec![1])
+    new_raw(vec![value], &vec![1])
 }
 
 impl<T: Clone + Copy> Matrix<T> {
@@ -131,14 +144,14 @@ mod tests {
 
     #[test]
     fn acess_position() {
-        let m = new(vec![0,1,2,3,4,5], vec![2usize, 3usize]);
+        let matrix = new_raw(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
 
-        assert_eq!(m.get_at(vec![0,0]), 0);
-        assert_eq!(m.get_at(vec![0,1]), 1);
-        assert_eq!(m.get_at(vec![0,2]), 2);
-        assert_eq!(m.get_at(vec![1,0]), 3);
-        assert_eq!(m.get_at(vec![1,1]), 4);
-        assert_eq!(m.get_at(vec![1,2]), 5);
+        assert_eq!(matrix.get_at(vec![0,0]), 0);
+        assert_eq!(matrix.get_at(vec![0,1]), 1);
+        assert_eq!(matrix.get_at(vec![0,2]), 2);
+        assert_eq!(matrix.get_at(vec![1,0]), 3);
+        assert_eq!(matrix.get_at(vec![1,1]), 4);
+        assert_eq!(matrix.get_at(vec![1,2]), 5);
     }
 
     #[test]
@@ -165,29 +178,28 @@ mod tests {
 
     #[test]
     fn concat() {
-        let m = new(vec![0,1,2,3,4,5], vec![2usize, 3usize]);
+        let matrix = new_raw(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
 
-        let slice_mask = m.get_slice_mask(vec![Position::Index(0), Position::Free]);
-        assert_eq!(m.get(&slice_mask, vec![0]), 0);
-        assert_eq!(m.get(&slice_mask, vec![1]), 1);
-        assert_eq!(m.get(&slice_mask, vec![2]), 2);
+        let slice_mask = matrix.get_slice_mask(vec![Position::Index(0), Position::Free]);
+        assert_eq!(matrix.get(&slice_mask, vec![0]), 0);
+        assert_eq!(matrix.get(&slice_mask, vec![1]), 1);
+        assert_eq!(matrix.get(&slice_mask, vec![2]), 2);
 
-        let slice_mask = m.get_slice_mask(vec![Position::Index(1), Position::Free]);
-        assert_eq!(m.get(&slice_mask, vec![0]), 3);
-        assert_eq!(m.get(&slice_mask, vec![1]), 4);
-        assert_eq!(m.get(&slice_mask, vec![2]), 5);
+        let slice_mask = matrix.get_slice_mask(vec![Position::Index(1), Position::Free]);
+        assert_eq!(matrix.get(&slice_mask, vec![0]), 3);
+        assert_eq!(matrix.get(&slice_mask, vec![1]), 4);
+        assert_eq!(matrix.get(&slice_mask, vec![2]), 5);
 
-        let slice_mask = m.get_slice_mask(vec![Position::Free, Position::Index(0)]);
-        assert_eq!(m.get(&slice_mask, vec![0]), 0);
-        assert_eq!(m.get(&slice_mask, vec![1]), 3);
+        let slice_mask = matrix.get_slice_mask(vec![Position::Free, Position::Index(0)]);
+        assert_eq!(matrix.get(&slice_mask, vec![0]), 0);
+        assert_eq!(matrix.get(&slice_mask, vec![1]), 3);
 
-        let slice_mask = m.get_slice_mask(vec![Position::Free, Position::Index(1)]);
-        assert_eq!(m.get(&slice_mask, vec![0]), 1);
-        assert_eq!(m.get(&slice_mask, vec![1]), 4);
+        let slice_mask = matrix.get_slice_mask(vec![Position::Free, Position::Index(1)]);
+        assert_eq!(matrix.get(&slice_mask, vec![0]), 1);
+        assert_eq!(matrix.get(&slice_mask, vec![1]), 4);
 
-        let slice_mask = m.get_slice_mask(vec![Position::Free, Position::Index(2)]);
-        assert_eq!(m.get(&slice_mask, vec![0]), 2);
-        assert_eq!(m.get(&slice_mask, vec![1]), 5);
-        
+        let slice_mask = matrix.get_slice_mask(vec![Position::Free, Position::Index(2)]);
+        assert_eq!(matrix.get(&slice_mask, vec![0]), 2);
+        assert_eq!(matrix.get(&slice_mask, vec![1]), 5);
     }
 }

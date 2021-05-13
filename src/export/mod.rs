@@ -3,8 +3,8 @@ use crate::waveguide::EletricField;
 
 pub fn hdf5(title: &str, eletric_field: &EletricField) {
    
-    let shape = &eletric_field.shape;
-    let deltas = &eletric_field.deltas;
+    let shape = eletric_field.shape();
+    let deltas = eletric_field.grid_steps();
     
     let intensity = eletric_field.get_intensity();
     let array = Array::from_shape_vec(shape.clone(), intensity).unwrap();

@@ -1,5 +1,5 @@
 use num::complex::Complex;	
-use crate::fp::List;
+use crate::fp::{List, Matrix};
 
 pub mod fdmbpm;
 pub mod boundary_codition;
@@ -9,9 +9,8 @@ pub mod cores;
 pub type Phasor = Complex<f64>;
 
 pub struct EletricField {
-    pub values: List<Phasor>,
-    pub shape: List<usize>,
-    pub deltas: List<f64>
+    values: Matrix<Phasor>,
+    grid_steps: List<f64>
 }
 
 const PHASOR_ZERO: Phasor = Complex::new(0.0, 0.0);

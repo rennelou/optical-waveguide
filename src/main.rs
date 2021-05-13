@@ -14,7 +14,7 @@ fn main() -> Result<(), std::io::Error> {
     let xdelta = dx/1024.0;
     
     let zdelta = 0.5e-6 * k0;
-    let dz = zdelta * 1000.0;
+    let dz = zdelta * 100.0;
 
     let position = dx/2.0;
     let width = 35e-6 * k0;
@@ -24,7 +24,7 @@ fn main() -> Result<(), std::io::Error> {
 
     let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
     
-    let p = 200.0;
+    let p = 100.0;
     let eta = 120.0 * PI; // eta usa eps e mi do meio
     let w = 10e-6 * k0;
     let e0 = p*eta / (w.powf(2.0)*PI);
