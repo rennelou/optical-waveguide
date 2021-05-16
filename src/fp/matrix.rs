@@ -1,3 +1,4 @@
+use crate::fp;
 use super::*;
 
 #[derive(Clone, Copy)]
@@ -6,7 +7,8 @@ pub enum Position {
     Index(usize)
 }
 
-pub struct SliceMask {
+pub struct MatrixView<'a, T: Copy> {
+    matrix: &'a Matrix<T>,
     shape_mask: List<usize>,
     position_mask: List<usize>
 }
@@ -32,8 +34,22 @@ pub fn new_3d<T: Clone + Copy>(values: List<List<List<T>>>, shape: &List<usize>)
     new_raw(raw_values, shape)
 }
 
-pub fn new_single<T: Clone + Copy>(value: T) -> Matrix<T> {
-    new_raw(vec![value], &vec![1])
+pub fn list_from_matrix<T: Clone + Copy>(m: &Matrix<T>) -> List<T> {
+    if m.dimension() != 1 {
+        panic!("matrix must have be unidimensional to be converted in list")
+    }
+
+    m.raw().clone()
+}
+
+pub fn list_from_matrix_view<'a, T: Clone + Copy>(m: MatrixView<T>) -> List<T> {
+    if m.dimension() != 1 {
+        panic!("matrix must have be unidimensional to be converted in list")
+    }
+
+    let &depht = m.shape_mask.iter().find(|&&d| d > 1).unwrap();
+
+    (0..depht).map(|i| m.get(vec![i])).collect()
 }
 
 impl<T: Clone + Copy> Matrix<T> {
@@ -41,19 +57,22 @@ impl<T: Clone + Copy> Matrix<T> {
         &self.values
     }
 
+    fn taken_raw(self) -> List<T> {
+        self.values
+    }
+
     pub fn shape(&self) -> &List<usize> {
         &self.shape
     }
 
     pub fn dimension(&self) -> usize {
-        if self.is_single() || self.is_empty() {
-            0usize
-        } else {
-            self.shape().len()
-        }
+        self.shape.iter().copied().fold(
+            0, 
+            |dim, depht|{ if depht > 1 {dim + 1} else {dim} }
+        )
     }
 
-    pub fn is_single(&self) -> bool {
+    pub fn is_dimensionless(&self) -> bool {
         self.values.len() == 1
     }
 
@@ -61,18 +80,11 @@ impl<T: Clone + Copy> Matrix<T> {
         self.values.is_empty()
     }
 
-    pub fn get_at(&self, position: List<usize>) -> T {
+    pub fn get(&self, position: List<usize>) -> T {
         self.values[hash(position, &self.shape)]
     }
 
-    pub fn get(&self, slice_mask: &SliceMask, masked_position: List<usize>) -> T {
-        let id = hash(masked_position, &self.shape);
-        let position = list::sum(&unhash(id, &slice_mask.shape_mask), &slice_mask.position_mask);
-
-        self.get_at(position)
-    }
-
-    pub fn get_slice_mask(&self, slice: List<Position>) -> SliceMask {
+    pub fn get_view(&self, slice: List<Position>) -> MatrixView<T> {
         if self.shape.len() > slice.len() {
             panic!("position to get needs has the same matrix dimension")
         }
@@ -101,7 +113,24 @@ impl<T: Clone + Copy> Matrix<T> {
             }
         );
 
-        SliceMask { shape_mask, position_mask }
+        MatrixView {matrix: &self, shape_mask, position_mask }
+    }
+}
+
+impl<'a, T: Copy> MatrixView<'a, T> {
+
+    pub fn get(&self, masked_position: List<usize>) -> T {
+        let id = hash(masked_position, self.matrix.shape());
+        let position = list::sum(&unhash(id, &self.shape_mask), &self.position_mask);
+
+        self.matrix.get(position)
+    }
+
+    pub fn dimension(&self) -> usize {
+        self.shape_mask.iter().copied().fold(
+            0, 
+            |dim, depht|{ if depht > 1 {dim + 1} else {dim} }
+        )
     }
 }
 
@@ -130,12 +159,29 @@ fn hash(position: List<usize>, shape: &List<usize>) -> usize {
     })
 }
 
-pub fn single<T: Clone + Copy>(m: Matrix<T>) -> Option<T> {
-    if m.values.len() == 1 {
-        head(m.values.into_iter())
-    } else {
-        None
+pub fn zip<T>(matrixs: List<Matrix<T>>) -> Matrix<T> 
+where T: Copy {
+    let all_shapes_equals = (0..matrixs.len()-1).any(
+        |i| matrixs[i].shape() != matrixs[i+1].shape()
+    );
+    
+    if all_shapes_equals {
+        panic!("all matrixs must have the sames shapes")
     }
+    
+    let shape = fp::head(matrixs.iter()).unwrap().shape().clone();
+
+    let new_depht = matrixs.len();
+    let new_shape = list::concat(list::new(new_depht), shape);
+
+    let new_values = matrixs.into_iter().fold(
+        list::empty(),
+        |result, m| {
+            list::concat(result, m.taken_raw())
+        }
+    );
+
+    new_raw(new_values, &new_shape)
 }
 
 #[cfg(test)]
@@ -146,60 +192,59 @@ mod tests {
     fn acess_position() {
         let matrix = new_raw(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
 
-        assert_eq!(matrix.get_at(vec![0,0]), 0);
-        assert_eq!(matrix.get_at(vec![0,1]), 1);
-        assert_eq!(matrix.get_at(vec![0,2]), 2);
-        assert_eq!(matrix.get_at(vec![1,0]), 3);
-        assert_eq!(matrix.get_at(vec![1,1]), 4);
-        assert_eq!(matrix.get_at(vec![1,2]), 5);
+        assert_eq!(matrix.get(vec![0,0]), 0);
+        assert_eq!(matrix.get(vec![0,1]), 1);
+        assert_eq!(matrix.get(vec![0,2]), 2);
+        assert_eq!(matrix.get(vec![1,0]), 3);
+        assert_eq!(matrix.get(vec![1,1]), 4);
+        assert_eq!(matrix.get(vec![1,2]), 5);
     }
 
     #[test]
-    fn unhash_test() {
-        let shape = vec![2usize, 3usize];
-        assert_eq!(unhash(0, &shape), vec![0,0]);
-        assert_eq!(unhash(1, &shape), vec![0,1]);
-        assert_eq!(unhash(2, &shape), vec![0,2]);
-        assert_eq!(unhash(3, &shape), vec![1,0]);
-        assert_eq!(unhash(4, &shape), vec![1,1]);
-        assert_eq!(unhash(5, &shape), vec![1,2]);
-    }
-
-    #[test]
-    fn hash_test() {
-        let shape = vec![2usize, 3usize];
-        assert_eq!(hash(vec![0,0], &shape), 0);
-        assert_eq!(hash(vec![0,1], &shape), 1);
-        assert_eq!(hash(vec![0,2], &shape), 2);
-        assert_eq!(hash(vec![1,0], &shape), 3);
-        assert_eq!(hash(vec![1,1], &shape), 4);
-        assert_eq!(hash(vec![1,2], &shape), 5);
-    }
-
-    #[test]
-    fn concat() {
+    fn mask_test() {
         let matrix = new_raw(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
 
-        let slice_mask = matrix.get_slice_mask(vec![Position::Index(0), Position::Free]);
-        assert_eq!(matrix.get(&slice_mask, vec![0]), 0);
-        assert_eq!(matrix.get(&slice_mask, vec![1]), 1);
-        assert_eq!(matrix.get(&slice_mask, vec![2]), 2);
+        let sub_matrix = matrix.get_view(vec![Position::Index(0), Position::Free]);
+        assert_eq!(sub_matrix.get(vec![0]), 0);
+        assert_eq!(sub_matrix.get(vec![1]), 1);
+        assert_eq!(sub_matrix.get(vec![2]), 2);
 
-        let slice_mask = matrix.get_slice_mask(vec![Position::Index(1), Position::Free]);
-        assert_eq!(matrix.get(&slice_mask, vec![0]), 3);
-        assert_eq!(matrix.get(&slice_mask, vec![1]), 4);
-        assert_eq!(matrix.get(&slice_mask, vec![2]), 5);
+        let sub_matrix = matrix.get_view(vec![Position::Index(1), Position::Free]);
+        assert_eq!(sub_matrix.get(vec![0]), 3);
+        assert_eq!(sub_matrix.get(vec![1]), 4);
+        assert_eq!(sub_matrix.get(vec![2]), 5);
 
-        let slice_mask = matrix.get_slice_mask(vec![Position::Free, Position::Index(0)]);
-        assert_eq!(matrix.get(&slice_mask, vec![0]), 0);
-        assert_eq!(matrix.get(&slice_mask, vec![1]), 3);
+        let sub_matrix = matrix.get_view(vec![Position::Free, Position::Index(0)]);
+        assert_eq!(sub_matrix.get(vec![0]), 0);
+        assert_eq!(sub_matrix.get(vec![1]), 3);
 
-        let slice_mask = matrix.get_slice_mask(vec![Position::Free, Position::Index(1)]);
-        assert_eq!(matrix.get(&slice_mask, vec![0]), 1);
-        assert_eq!(matrix.get(&slice_mask, vec![1]), 4);
+        let sub_matrix = matrix.get_view(vec![Position::Free, Position::Index(1)]);
+        assert_eq!(sub_matrix.get(vec![0]), 1);
+        assert_eq!(sub_matrix.get(vec![1]), 4);
 
-        let slice_mask = matrix.get_slice_mask(vec![Position::Free, Position::Index(2)]);
-        assert_eq!(matrix.get(&slice_mask, vec![0]), 2);
-        assert_eq!(matrix.get(&slice_mask, vec![1]), 5);
+        let sub_matrix = matrix.get_view(vec![Position::Free, Position::Index(2)]);
+        assert_eq!(sub_matrix.get(vec![0]), 2);
+        assert_eq!(sub_matrix.get(vec![1]), 5);
+    }
+
+    #[test]
+    fn zip_test() {
+        let m1 = new_raw(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
+        let m2 = new_raw(vec![6,7,8,9,10,11], &vec![2usize, 3usize]);
+
+        let ziped = matrix::zip(vec![m1, m2]);
+        
+        assert_eq!(ziped.get(vec![0,0,0]), 0);
+        assert_eq!(ziped.get(vec![0,0,1]), 1);
+        assert_eq!(ziped.get(vec![0,0,2]), 2);
+        assert_eq!(ziped.get(vec![0,1,0]), 3);
+        assert_eq!(ziped.get(vec![0,1,1]), 4);
+        assert_eq!(ziped.get(vec![0,1,2]), 5);
+        assert_eq!(ziped.get(vec![1,0,0]), 6);
+        assert_eq!(ziped.get(vec![1,0,1]), 7);
+        assert_eq!(ziped.get(vec![1,0,2]), 8);
+        assert_eq!(ziped.get(vec![1,1,0]), 9);
+        assert_eq!(ziped.get(vec![1,1,1]), 10);
+        assert_eq!(ziped.get(vec![1,1,2]), 11);
     }
 }

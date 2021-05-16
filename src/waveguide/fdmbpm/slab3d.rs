@@ -6,7 +6,7 @@ use fp::{matrix, Matrix};
 
 pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
 	let shape = core.get_shape();
-	let deltas = core.get_deltas();
+	let grid_steps = core.get_deltas().clone();
 	let zsteps = shape[0];
 
 	let (s, S, q, Q) = get_initialized_params_3d(core, k, alpha);
@@ -15,7 +15,7 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 		vec![e_input], 
 		|result, i| {
 			
-			let last_es = fp::last_or_default(&result, list::empty());
+			let last_es = fp::last_or_default(result.iter(), list::empty());
 			let last_q = q[i-1].clone();
 			
 			let ds = get_ds(last_es, last_q);
@@ -28,8 +28,8 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 		}
 	);
 
-	let values = flat(es);
-	return EletricField { values, shape, deltas };
+	let values = matrix::new_3d(es, &shape);
+	return EletricField { values, grid_steps };
 }
 
 pub fn get_initialized_params_3d(core: &impl Core, k: f64, alpha: f64) 
@@ -76,11 +76,11 @@ pub fn get_initialized_params_3d(core: &impl Core, k: f64, alpha: f64)
 fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -> List<Phasor>{
 	
 	let head = list::new({
-		let es_head = fp::head_or_default(&es, one());
+		let es_head = fp::head_or_default(es.iter(), one());
 		es_head*boundary_codition()
 	});
 	let last = list::new({
-		let es_last = fp::last_or_default(&es, one());
+		let es_last = fp::last_or_default(es.iter(), one());
 		es_last*boundary_codition()
 	});
 	

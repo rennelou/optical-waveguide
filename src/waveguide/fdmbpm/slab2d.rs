@@ -1,13 +1,11 @@
 use super::*;
 use Phasor;
 use cores::Core;
-use crate::fp;
+use crate::fp::{self, matrix::Position};
 use crate::fp::{comprehension, list, List};
 use crate::fp::matrix;
 
-static PHASOR_EMPTY_LIST: List<Phasor> = vec![];
-
-pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: List<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
+pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
 	let shape = core.get_shape().clone();
 	let grid_steps = core.get_deltas().clone();
 	let zsteps = shape[0];
@@ -18,27 +16,36 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: List<Phasor>, boundary
 		vec![e_input], 
 		|result, i| {
 			
-			let last_es = fp::last_or_default(result.iter(), &PHASOR_EMPTY_LIST);
-			let last_q = &q[i-1];
+			let last_es = fp::last(result.iter()).unwrap();
+			let last_es= matrix::list_from_matrix(last_es);
+
+			let last_q = q.get_view(vec![Position::Index(i-1), Position::Free]);
+			let last_q = matrix::list_from_matrix_view(last_q);
+
+			let s_view = s.get_view(vec![Position::Index(i), Position::Free]);
+			let s_list = matrix::list_from_matrix_view(s_view);
 			
-			let ds = get_ds(last_es, last_q);
+			let ds = get_ds(&last_es, &last_q);
 			let new_es = insert_boundary_values(
-				get_recurrence_form(get_alphas_betas(&s[i], &ds, boundary_codition)),
+				get_recurrence_form(get_alphas_betas(&s_list, &ds, boundary_codition)),
 				boundary_codition
 			);
+			let shape = vec![new_es.len()];
+			let new_es = matrix::new_raw(new_es, &shape);
 
 			return list::append(result, new_es);
 		}
 	);
 
-	let values = matrix::new_2d(es, &shape);
+	let values = matrix::zip(es);
 	return EletricField { values, grid_steps };
 }
 
-pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (List<List<Phasor>>, List<List<Phasor>>) {
-	let mut shape_delta = core.get_shape().clone().into_iter().zip(core.get_deltas().clone().into_iter());
-	let (zdepht, zdelta) = shape_delta.next().unwrap();
-	let (xdepht, xdelta) = shape_delta.next().unwrap();
+pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (Matrix<Phasor>, Matrix<Phasor>) {
+	let shape = core.get_shape().clone();
+	let mut shape_delta = shape.iter().zip(core.get_deltas().clone().into_iter());
+	let (&zdepht, zdelta) = shape_delta.next().unwrap();
+	let (&xdepht, xdelta) = shape_delta.next().unwrap();
 	
 	let n0 = core.get_n0();
 
@@ -64,7 +71,7 @@ pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (List<
 		).collect()
     ).collect();
     
-    (s, q)
+    (matrix::new_2d(s,&shape), matrix::new_2d(q, &shape))
 }
 
 fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -> List<Phasor>{
