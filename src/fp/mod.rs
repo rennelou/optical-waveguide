@@ -26,7 +26,7 @@ pub fn new_3d<T: Clone + Copy>(values: Vec<Vec<Vec<T>>>, shape: &Vec<usize>) -> 
     matrix::new(raw_values, shape)
 }
 
-pub fn head_or_default<T>(l: impl DoubleEndedIterator<Item = T>, default: T) -> T {
+pub fn head_or_default<T>(l: impl Iterator<Item = T>, default: T) -> T {
 	return unwrap_or_default(
 		head(l), 
 		default
@@ -40,25 +40,25 @@ pub fn last_or_default<T>(l: impl DoubleEndedIterator<Item = T>, default: T) -> 
 	);
 }
 
-pub fn head<T>(mut l: impl DoubleEndedIterator<Item = T>) -> Option<T> {
+pub fn head<T>(mut l: impl Iterator<Item = T>) -> Option<T> {
 	l.next()
 }
 
-pub fn last<T>(l: impl DoubleEndedIterator<Item = T>) -> Option<T> {
-	l.last()
+pub fn last<T>(mut l: impl DoubleEndedIterator<Item = T>) -> Option<T> {
+	l.next_back()
 }
 
-pub fn init<T: Clone>(mut l: impl DoubleEndedIterator<Item = T>) -> impl DoubleEndedIterator<Item = T> {
+pub fn init<T: Clone>(mut l: impl DoubleEndedIterator<Item = T>) -> impl Iterator<Item = T> {
 	l.next_back();
 	l
 }
 
-pub fn tail<T: Clone>(mut l: impl DoubleEndedIterator<Item = T>) -> impl DoubleEndedIterator<Item = T> {
+pub fn tail<T: Clone>(mut l: impl Iterator<Item = T>) -> impl Iterator<Item = T> {
 	l.next();
 	l
 }
 
-pub fn middle<T: Clone>(l: impl DoubleEndedIterator<Item = T>) -> impl DoubleEndedIterator<Item = T> {
+pub fn middle<T: Clone>(l: impl DoubleEndedIterator<Item = T>) -> impl Iterator<Item = T> {
 	return tail(init(l));
 }
 
