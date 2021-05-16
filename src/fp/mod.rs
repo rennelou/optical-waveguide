@@ -48,11 +48,9 @@ pub fn last<T>(l: impl DoubleEndedIterator<Item = T>) -> Option<T> {
 	l.last()
 }
 
-pub fn init<T: Clone>(l: impl DoubleEndedIterator<Item = T>) -> impl DoubleEndedIterator<Item = T> {
-	let mut rev_iter = l.rev();
-	rev_iter.next();
-	rev_iter.rev()
-
+pub fn init<T: Clone>(mut l: impl DoubleEndedIterator<Item = T>) -> impl DoubleEndedIterator<Item = T> {
+	l.next_back();
+	l
 }
 
 pub fn tail<T: Clone>(mut l: impl DoubleEndedIterator<Item = T>) -> impl DoubleEndedIterator<Item = T> {
