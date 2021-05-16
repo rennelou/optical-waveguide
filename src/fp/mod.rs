@@ -10,6 +10,24 @@ pub struct Matrix<T: Clone + Copy> {
     shape: List<usize>
 }
 
+pub struct MatrixView<'a, T: Copy> {
+    matrix: &'a Matrix<T>,
+    shape_mask: List<usize>,
+    position_mask: List<usize>
+}
+
+pub fn new_2d<T: Clone + Copy>(values: List<List<T>>, shape: &List<usize>) -> Matrix<T> {
+    let raw_values = values.into_iter().flatten().collect::<List<T>>();
+
+    matrix::new(raw_values, shape)
+}
+
+pub fn new_3d<T: Clone + Copy>(values: List<List<List<T>>>, shape: &List<usize>) -> Matrix<T> {
+    let raw_values = values.into_iter().flatten().flatten().collect::<List<T>>();
+
+    matrix::new(raw_values, shape)
+}
+
 pub fn head_or_default<T>(l: impl DoubleEndedIterator<Item = T>, default: T) -> T {
 	return unwrap_or_default(
 		head(l), 

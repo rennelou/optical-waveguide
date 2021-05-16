@@ -40,7 +40,7 @@ fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Phasor> {
 	);
 }
 
-fn get_alphas_betas(ss: &List<Phasor>, ds: &List<Phasor>, boundary_codition: fn()->Phasor) -> List<AlphaBeta> {
+fn get_alphas_betas(ss: List<Phasor>, ds: List<Phasor>, boundary_codition: fn()->Phasor) -> List<AlphaBeta> {
 	
 	if ss.len() != ds.len() + 2 {
 		panic!("ss array need has 2 more elements than ds array");
@@ -82,7 +82,7 @@ fn get_alphas_betas(ss: &List<Phasor>, ds: &List<Phasor>, boundary_codition: fn(
 	return list::append(alpha_betas, alpha_beta_n);
 }
 
-fn get_ds(es: &List<Phasor>, qs: &List<Phasor>) -> List<Phasor> {
+fn get_ds(es: List<Phasor>, qs: List<Phasor>) -> List<Phasor> {
 	
 	if es.len() == qs.len() {
 		return fp::middle(qs.iter()).enumerate().map(

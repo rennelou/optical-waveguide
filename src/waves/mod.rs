@@ -21,5 +21,5 @@ fn beam_as_phasor(l: List<f64>) -> Matrix<waveguide::Phasor> {
     let phasors: Vec<Phasor> = l.into_iter().map(|x| waveguide::to_phasor(x)).collect();
 
     let shape = vec![phasors.len()];
-    matrix::new_raw(phasors, &shape)
+    matrix::new(phasors, &shape)
 }

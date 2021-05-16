@@ -1,7 +1,7 @@
 use super::*;
 use Phasor;
 use cores::Core;
-use crate::fp::{self, matrix::Position};
+use crate::fp::{self, matrix::Index};
 use crate::fp::{comprehension, list, List};
 use crate::fp::matrix;
 
@@ -16,22 +16,18 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 		vec![e_input], 
 		|result, i| {
 			
-			let last_es = fp::last(result.iter()).unwrap();
-			let last_es= matrix::list_from_matrix(last_es);
+			let last_es= fp::last(result.iter()).unwrap().to_vec();
+			let last_q = q.view(&[Index::Value(i-1), Index::Free]).to_vec();
 
-			let last_q = q.get_view(vec![Position::Index(i-1), Position::Free]);
-			let last_q = matrix::list_from_matrix_view(last_q);
-
-			let s_view = s.get_view(vec![Position::Index(i), Position::Free]);
-			let s_list = matrix::list_from_matrix_view(s_view);
+			let s_list = s.view(&[Index::Value(i), Index::Free]).to_vec();
 			
-			let ds = get_ds(&last_es, &last_q);
+			let ds = get_ds(last_es, last_q);
 			let new_es = insert_boundary_values(
-				get_recurrence_form(get_alphas_betas(&s_list, &ds, boundary_codition)),
+				get_recurrence_form(get_alphas_betas(s_list, ds, boundary_codition)),
 				boundary_codition
 			);
 			let shape = vec![new_es.len()];
-			let new_es = matrix::new_raw(new_es, &shape);
+			let new_es = matrix::new(new_es, &shape);
 
 			return list::append(result, new_es);
 		}
@@ -71,7 +67,7 @@ pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (Matri
 		).collect()
     ).collect();
     
-    (matrix::new_2d(s,&shape), matrix::new_2d(q, &shape))
+    (fp::new_2d(s,&shape), fp::new_2d(q, &shape))
 }
 
 fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -> List<Phasor>{
