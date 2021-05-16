@@ -2,28 +2,26 @@ pub mod list;
 pub mod matrix;
 pub mod comprehension;
 
-pub type List<T> = Vec<T>;
-
 #[derive(Clone)]
 pub struct Matrix<T: Clone + Copy> {
-    values: List<T>,
-    shape: List<usize>
+    values: Vec<T>,
+    shape: Vec<usize>
 }
 
 pub struct MatrixView<'a, T: Copy> {
     matrix: &'a Matrix<T>,
-    shape_mask: List<usize>,
-    position_mask: List<usize>
+    shape_mask: Vec<usize>,
+    position_mask: Vec<usize>
 }
 
-pub fn new_2d<T: Clone + Copy>(values: List<List<T>>, shape: &List<usize>) -> Matrix<T> {
-    let raw_values = values.into_iter().flatten().collect::<List<T>>();
+pub fn new_2d<T: Clone + Copy>(values: Vec<Vec<T>>, shape: &Vec<usize>) -> Matrix<T> {
+    let raw_values = values.into_iter().flatten().collect::<Vec<T>>();
 
     matrix::new(raw_values, shape)
 }
 
-pub fn new_3d<T: Clone + Copy>(values: List<List<List<T>>>, shape: &List<usize>) -> Matrix<T> {
-    let raw_values = values.into_iter().flatten().flatten().collect::<List<T>>();
+pub fn new_3d<T: Clone + Copy>(values: Vec<Vec<Vec<T>>>, shape: &Vec<usize>) -> Matrix<T> {
+    let raw_values = values.into_iter().flatten().flatten().collect::<Vec<T>>();
 
     matrix::new(raw_values, shape)
 }

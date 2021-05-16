@@ -1,8 +1,8 @@
 use super::*;
 
 pub struct Rectilinear {
-    pub shape: List<usize>,
-    pub deltas: List<f64>,
+    pub shape: Vec<usize>,
+    pub deltas: Vec<f64>,
     pub position: f64,
     n: f64,
     n0: f64,
@@ -29,11 +29,11 @@ pub fn new_2d(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, posit
 
 impl Core for Rectilinear {
     
-    fn get_shape(&self) -> &List<usize> {
+    fn get_shape(&self) -> &Vec<usize> {
         &self.shape
     }
 
-    fn get_deltas(&self) -> &List<f64> {
+    fn get_deltas(&self) -> &Vec<f64> {
         &self.deltas
     }
 

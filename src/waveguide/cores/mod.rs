@@ -1,5 +1,3 @@
-use crate::fp::List;
-
 pub mod rectilinear;
 
 pub trait Core {
@@ -7,9 +5,9 @@ pub trait Core {
         self.get_shape().len()
     }
 
-    fn get_shape(&self) -> &List<usize>;
+    fn get_shape(&self) -> &Vec<usize>;
 
-    fn get_deltas(&self) -> &List<f64>;
+    fn get_deltas(&self) -> &Vec<f64>;
 
     fn get_n(&self, z: f64, y: f64, x: f64, n0: f64) -> f64;
 

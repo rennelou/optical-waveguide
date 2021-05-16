@@ -1,4 +1,4 @@
-use crate::fp::{List, Matrix, matrix};
+use crate::fp::{Matrix, matrix};
 use crate::{waveguide, waveguide::Phasor};
 
 pub fn gaussian(grid_width: f64, delta: f64, position: f64, amplitude: f64, core_width: f64) -> Matrix<waveguide::Phasor> {
@@ -17,7 +17,7 @@ pub fn gaussian(grid_width: f64, delta: f64, position: f64, amplitude: f64, core
     return beam_as_phasor(beam);
 }
 
-fn beam_as_phasor(l: List<f64>) -> Matrix<waveguide::Phasor> {
+fn beam_as_phasor(l: Vec<f64>) -> Matrix<waveguide::Phasor> {
     let phasors: Vec<Phasor> = l.into_iter().map(|x| waveguide::to_phasor(x)).collect();
 
     let shape = vec![phasors.len()];

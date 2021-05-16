@@ -1,33 +1,23 @@
 use std::ops::Add;
 
-use super::List;
-
-pub fn new<T>(v: T) -> List<T> {
-    return append(empty(), v);
-}
-
-pub fn empty<T>() -> List<T> {
-    return vec![];
-}
-
-pub fn append<T>(mut list: List<T>, value: T) -> List<T> {
+pub fn append<T>(mut list: Vec<T>, value: T) -> Vec<T> {
     list.push(value);
     
     return list;
 }
 
-pub fn concat<T>(mut init: List<T>, mut tail: List<T>) -> List<T> {
+pub fn concat<T>(mut init: Vec<T>, mut tail: Vec<T>) -> Vec<T> {
     init.append(&mut tail);
     
     return init;
 }
 
-pub fn sum<T>(l1: &List<T>, l2: &List<T>) -> List<T> 
+pub fn sum<T>(l1: &Vec<T>, l2: &Vec<T>) -> Vec<T> 
 where T: Copy + Add<T, Output = T> {
     l1.iter().zip(l2.iter()).map(|(&x, &y)| x + y).collect()
 }
 
-pub fn drop_at<T: Clone>(l: &List<T>, i: usize) -> List<T> {
+pub fn drop_at<T: Clone>(l: &Vec<T>, i: usize) -> Vec<T> {
     let l_as_slice = l.as_slice();
     [&l_as_slice[0..i], &l_as_slice[i+1..l_as_slice.len()]].concat().to_vec()
 }

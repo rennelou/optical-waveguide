@@ -2,7 +2,7 @@ use super::*;
 use Phasor;
 use cores::Core;
 use crate::fp::{self, matrix::Index};
-use crate::fp::{comprehension, list, List};
+use crate::fp::{comprehension, list};
 use crate::fp::matrix;
 
 pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
@@ -70,16 +70,16 @@ pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (Matri
     (fp::new_2d(s,&shape), fp::new_2d(q, &shape))
 }
 
-fn insert_boundary_values(es: List<Phasor>, boundary_codition: fn() -> Phasor) -> List<Phasor>{
+fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn() -> Phasor) -> Vec<Phasor>{
 	
-	let head = list::new({
+	let head = vec![{
 		let es_head = fp::head_or_default(es.iter(), one());
 		es_head*boundary_codition()
-	});
-	let last = list::new({
+	}];
+	let last = vec![{
 		let es_last = fp::last_or_default(es.iter(), one());
 		es_last*boundary_codition()
-	});
+	}];
 	
 	return list::concat(list::concat(head, es),last);
 }

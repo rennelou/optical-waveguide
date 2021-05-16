@@ -24,10 +24,10 @@ impl AlphaBeta {
 
 }
 
-fn get_recurrence_form(alpha_betas:  List<AlphaBeta>) -> List<Phasor> {
+fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {
 	
 	return alpha_betas.into_iter().rev().fold(
-		list::empty(),
+		vec![],
 		|es, alpha_beta| {
 			
 			let last_value = fp::head_or_default(es.iter(), one());
@@ -35,19 +35,19 @@ fn get_recurrence_form(alpha_betas:  List<AlphaBeta>) -> List<Phasor> {
 			// okamoto 7.110
 			let new_value= last_value * alpha_beta.alpha + alpha_beta.beta;
 			
-			return list::concat(list::new(new_value),es);
+			return list::concat(vec![new_value],es);
 		}
 	);
 }
 
-fn get_alphas_betas(ss: List<Phasor>, ds: List<Phasor>, boundary_codition: fn()->Phasor) -> List<AlphaBeta> {
+fn get_alphas_betas(ss: Vec<Phasor>, ds: Vec<Phasor>, boundary_codition: fn()->Phasor) -> Vec<AlphaBeta> {
 	if ss.len() != ds.len() + 2 {
 		panic!("ss array need has 2 more elements than ds array");
 	}
 
 	let len = ds.len();
 	fp::middle(ss.iter()).zip(ds.iter()).enumerate().fold(
-		list::empty(), 
+		vec![], 
 		|alpha_betas, (i, (s, d))| {
 
 			let last_value = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
@@ -74,7 +74,7 @@ fn get_alphas_betas(ss: List<Phasor>, ds: List<Phasor>, boundary_codition: fn()-
 	)
 }
 
-fn get_ds(es: List<Phasor>, qs: List<Phasor>) -> List<Phasor> {
+fn get_ds(es: Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
 	
 	if es.len() == qs.len() {
 		return fp::middle(qs.iter()).enumerate().map(

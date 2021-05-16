@@ -9,7 +9,7 @@ pub enum Index {
     Value(usize)
 }
 
-pub fn new<T: Clone + Copy>(values: List<T>, shape_ref: &List<usize>) -> Matrix<T> {
+pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &Vec<usize>) -> Matrix<T> {
     if shape_ref.iter().product::<usize>() != values.len() {
         panic!("shape dosent match with values")
     }
@@ -19,15 +19,15 @@ pub fn new<T: Clone + Copy>(values: List<T>, shape_ref: &List<usize>) -> Matrix<
 }
 
 impl<T: Clone + Copy> Matrix<T> {
-    pub fn raw(&self) -> &List<T> {
+    pub fn raw(&self) -> &Vec<T> {
         &self.values
     }
 
-    fn taken_raw(self) -> List<T> {
+    fn taken_raw(self) -> Vec<T> {
         self.values
     }
 
-    pub fn shape(&self) -> &List<usize> {
+    pub fn shape(&self) -> &Vec<usize> {
         &self.shape
     }
 
@@ -46,15 +46,15 @@ impl<T: Clone + Copy> Matrix<T> {
         self.values.is_empty()
     }
 
-    pub fn to_vec(&self) -> List<T> {
+    pub fn to_vec(&self) -> Vec<T> {
         if self.dimension() != 1 {
-            panic!("matrix must have be unidimensional to be converted in list")
+            panic!("matrix must have be unidimensional to be converted in Vec")
         }
     
         self.raw().clone()
     }
 
-    pub fn get(&self, position: List<usize>) -> T {
+    pub fn get(&self, position: Vec<usize>) -> T {
         self.values[hash(position, &self.shape)]
     }
 
@@ -91,14 +91,14 @@ impl<T: Clone + Copy> Matrix<T> {
     }
 }
 
-fn unhash(id: usize, shape: &List<usize>) -> List<usize> {
+fn unhash(id: usize, shape: &Vec<usize>) -> Vec<usize> {
     let (position, _) = shape.iter().rev().fold(
         (vec![], id), 
         |(position, quocient), depht| {
             let new_depht = quocient % depht;
             let new_quocient = quocient/depht;
             
-            let new_position = list::concat(list::new(new_depht), position);
+            let new_position = list::concat(vec![new_depht], position);
             (new_position, new_quocient)
         }
     );
@@ -106,7 +106,7 @@ fn unhash(id: usize, shape: &List<usize>) -> List<usize> {
     position
 }
 
-fn hash(position: List<usize>, shape: &List<usize>) -> usize {
+fn hash(position: Vec<usize>, shape: &Vec<usize>) -> usize {
     if position.len() > shape.len() {
         panic!("position to get needs has the same matrix dimension")
     }
@@ -116,7 +116,7 @@ fn hash(position: List<usize>, shape: &List<usize>) -> usize {
     })
 }
 
-pub fn zip<T>(matrixs: List<Matrix<T>>) -> Matrix<T> 
+pub fn zip<T>(matrixs: Vec<Matrix<T>>) -> Matrix<T> 
 where T: Copy {
     let all_shapes_equals = (0..matrixs.len()-1).any(
         |i| matrixs[i].shape() != matrixs[i+1].shape()
@@ -129,10 +129,10 @@ where T: Copy {
     let shape = fp::head(matrixs.iter()).unwrap().shape().clone();
 
     let new_depht = matrixs.len();
-    let new_shape = list::concat(list::new(new_depht), shape);
+    let new_shape = list::concat(vec![new_depht], shape);
 
     let new_values = matrixs.into_iter().fold(
-        list::empty(),
+        vec![],
         |result, m| {
             list::concat(result, m.taken_raw())
         }
