@@ -24,7 +24,7 @@ impl AlphaBeta {
 
 }
 
-fn get_recurrence_form(alpha_betas: List<AlphaBeta>) -> List<Phasor> {
+fn get_recurrence_form(alpha_betas:  List<AlphaBeta>) -> List<Phasor> {
 	
 	return alpha_betas.into_iter().rev().fold(
 		list::empty(),
@@ -46,40 +46,43 @@ fn get_alphas_betas(ss: List<Phasor>, ds: List<Phasor>, boundary_codition: fn()-
 		panic!("ss array need has 2 more elements than ds array");
 	}
 
-	let s1 = fp::head_or_default(fp::middle(ss.iter()), zero());
-	let d1 = fp::head_or_default(ds.iter(), zero());
-	
-	let alpha_beta_one = AlphaBeta {
-		alpha: 1.0/(s1-boundary_codition()),
-		beta: d1/(s1-boundary_codition()) 
-	};
+	let len = ds.len();
 
-	let alpha_betas = fp::middle(fp::middle(ss.iter())).zip(fp::middle(ds.iter())).fold(
-		list::new(alpha_beta_one), 
-		|alpha_betas, (s, d)| {
-		
-			let last_alpha_beta = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
-		
-			let new_alpha_beta = AlphaBeta {
-				// okamoto 7.112a
-				alpha: 1.0 / (s - last_alpha_beta.alpha),
-				// okamoto 7.112b     		
-				beta: (d + last_alpha_beta.beta) / (s - last_alpha_beta.alpha),
-			};
-			return list::append(alpha_betas, new_alpha_beta);
+	fp::middle(ss.iter()).zip(ds.iter()).enumerate().fold(
+		list::empty(), 
+		|alpha_betas, (i, (s, d))| {
+
+			if i == 0 {
+			
+				let new_alpha_beta = AlphaBeta {
+					alpha: 1.0/(s-boundary_codition()),
+					beta: d/(s-boundary_codition()) 
+				};
+				return list::append(alpha_betas, new_alpha_beta);
+
+			} else if i == len - 1 {
+				
+				let last_alpha_beta = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
+				let new_alpha_beta = AlphaBeta {
+					alpha: *zero(),
+					beta: (d + last_alpha_beta.beta) / (s-boundary_codition()-last_alpha_beta.alpha) 
+				};
+				return list::append(alpha_betas, new_alpha_beta);
+
+			} else {
+				
+				let last_alpha_beta = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
+				let new_alpha_beta = AlphaBeta {
+					// okamoto 7.112a
+					alpha: 1.0 / (s - last_alpha_beta.alpha),
+					// okamoto 7.112b     		
+					beta: (d + last_alpha_beta.beta) / (s - last_alpha_beta.alpha),
+				};
+				return list::append(alpha_betas, new_alpha_beta);
+				
+			}
 		}
-	);
-
-	let sn = fp::last_or_default(fp::middle(ss.iter()), zero());
-	let dn = fp::last_or_default(ds.iter(), zero());
-	let alpha_beta_n_less_one = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
-
-	let alpha_beta_n = AlphaBeta {
-		alpha: *zero(),
-		beta: (dn + alpha_beta_n_less_one.beta) / (sn-boundary_codition()-alpha_beta_n_less_one.alpha) 
-	};
-
-	return list::append(alpha_betas, alpha_beta_n);
+	)
 }
 
 fn get_ds(es: List<Phasor>, qs: List<Phasor>) -> List<Phasor> {
