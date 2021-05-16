@@ -8,12 +8,6 @@ pub struct Matrix<T: Clone + Copy> {
     shape: Vec<usize>
 }
 
-pub struct MatrixView<'a, T: Copy> {
-    matrix: &'a Matrix<T>,
-    shape_mask: Vec<usize>,
-    position_mask: Vec<usize>
-}
-
 pub fn new_2d<T: Clone + Copy>(values: Vec<Vec<T>>, shape: &Vec<usize>) -> Matrix<T> {
     let raw_values = values.into_iter().flatten().collect::<Vec<T>>();
 

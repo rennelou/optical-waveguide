@@ -1,12 +1,18 @@
 use crate::fp;
 use super::*;
 
-pub mod matrix_view;
+pub mod view;
 
 #[derive(Clone, Copy)]
 pub enum Index {
     Free,
     Value(usize)
+}
+
+pub struct MatrixView<'a, T: Copy, const D: usize> {
+    matrix: &'a Matrix<T>,
+    shape_mask: Vec<usize>,
+    position_mask: Vec<usize>
 }
 
 pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &Vec<usize>) -> Matrix<T> {
@@ -32,10 +38,7 @@ impl<T: Clone + Copy> Matrix<T> {
     }
 
     pub fn dimension(&self) -> usize {
-        self.shape.iter().copied().fold(
-            0, 
-            |dim, depht|{ if depht > 1 {dim + 1} else {dim} }
-        )
+        dimension(self.shape())
     }
 
     pub fn is_dimensionless(&self) -> bool {
@@ -55,14 +58,18 @@ impl<T: Clone + Copy> Matrix<T> {
     }
 
     pub fn get(&self, position: Vec<usize>) -> T {
-        self.values[hash(position, &self.shape)]
+        self.values[hash(position.as_slice(), &self.shape)]
     }
 
-    pub fn view(&self, slice: &[Index]) -> MatrixView<T> {
+    pub fn view<const D: usize>(&self, slice: &[Index]) -> MatrixView<T, D> {
         if self.shape.len() > slice.len() {
             panic!("position to get needs has the same matrix dimension")
         }
         
+        if slice_dimension(slice) != D {
+            panic!("slice dosent match with dimension of view")
+        }
+    
         let (shape_mask, position_mask) = slice.into_iter().zip(self.shape.clone().into_iter()).fold( 
             (vec![],vec![]), 
             |(mut shape_mask, mut position_mask), (&position, depht )| {
@@ -86,12 +93,30 @@ impl<T: Clone + Copy> Matrix<T> {
                 }
             }
         );
-
+    
         MatrixView {matrix: &self, shape_mask, position_mask }
     }
 }
 
-fn unhash(id: usize, shape: &Vec<usize>) -> Vec<usize> {
+fn dimension(shape: &Vec<usize>) -> usize {
+    shape.iter().copied().fold(
+        0, 
+        |dim, depht|{ if depht > 1 {dim + 1} else {dim} }
+    )
+}
+
+fn slice_dimension(shape: &[Index]) -> usize {
+    shape.iter().copied().fold(
+        0, 
+        |dim, index|
+            match index {
+                Index::Value(_) => { dim }
+                Index::Free => { dim + 1 }
+            }
+    )
+}
+
+fn unhash(id: usize, shape: &[usize]) -> Vec<usize> {
     let (position, _) = shape.iter().rev().fold(
         (vec![], id), 
         |(position, quocient), depht| {
@@ -106,7 +131,7 @@ fn unhash(id: usize, shape: &Vec<usize>) -> Vec<usize> {
     position
 }
 
-fn hash(position: Vec<usize>, shape: &Vec<usize>) -> usize {
+fn hash(position: &[usize], shape: &[usize]) -> usize {
     if position.len() > shape.len() {
         panic!("position to get needs has the same matrix dimension")
     }
@@ -155,33 +180,6 @@ mod tests {
         assert_eq!(matrix.get(vec![1,0]), 3);
         assert_eq!(matrix.get(vec![1,1]), 4);
         assert_eq!(matrix.get(vec![1,2]), 5);
-    }
-
-    #[test]
-    fn mask_test() {
-        let matrix = new(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
-
-        let sub_matrix = matrix.view(&[Index::Value(0), Index::Free]);
-        assert_eq!(sub_matrix.get(vec![0]), 0);
-        assert_eq!(sub_matrix.get(vec![1]), 1);
-        assert_eq!(sub_matrix.get(vec![2]), 2);
-
-        let sub_matrix = matrix.view(&[Index::Value(1), Index::Free]);
-        assert_eq!(sub_matrix.get(vec![0]), 3);
-        assert_eq!(sub_matrix.get(vec![1]), 4);
-        assert_eq!(sub_matrix.get(vec![2]), 5);
-
-        let sub_matrix = matrix.view(&[Index::Free, Index::Value(0)]);
-        assert_eq!(sub_matrix.get(vec![0]), 0);
-        assert_eq!(sub_matrix.get(vec![1]), 3);
-
-        let sub_matrix = matrix.view(&[Index::Free, Index::Value(1)]);
-        assert_eq!(sub_matrix.get(vec![0]), 1);
-        assert_eq!(sub_matrix.get(vec![1]), 4);
-
-        let sub_matrix = matrix.view(&[Index::Free, Index::Value(2)]);
-        assert_eq!(sub_matrix.get(vec![0]), 2);
-        assert_eq!(sub_matrix.get(vec![1]), 5);
     }
 
     #[test]

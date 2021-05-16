@@ -1,9 +1,8 @@
 use super::*;
 use Phasor;
 use cores::Core;
-use crate::fp::{self, matrix::Index};
+use crate::fp::matrix::{self, Index};
 use crate::fp::{comprehension, list};
-use crate::fp::matrix;
 
 pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
 	let shape = core.get_shape().clone();
@@ -17,9 +16,9 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 		|result, i| {
 			
 			let last_es= fp::last(result.iter()).unwrap().to_vec();
-			let last_q = q.view(&[Index::Value(i-1), Index::Free]).to_vec();
+			let last_q = q.view::<1usize>(&[Index::Value(i-1), Index::Free]).to_vec();
 
-			let s_list = s.view(&[Index::Value(i), Index::Free]).to_vec();
+			let s_list = s.view::<1usize>(&[Index::Value(i), Index::Free]).to_vec();
 			
 			let ds = get_ds(last_es, last_q);
 			let new_es = insert_boundary_values(
