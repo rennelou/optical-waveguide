@@ -41,46 +41,35 @@ fn get_recurrence_form(alpha_betas:  List<AlphaBeta>) -> List<Phasor> {
 }
 
 fn get_alphas_betas(ss: List<Phasor>, ds: List<Phasor>, boundary_codition: fn()->Phasor) -> List<AlphaBeta> {
-	
 	if ss.len() != ds.len() + 2 {
 		panic!("ss array need has 2 more elements than ds array");
 	}
 
 	let len = ds.len();
-
 	fp::middle(ss.iter()).zip(ds.iter()).enumerate().fold(
 		list::empty(), 
 		|alpha_betas, (i, (s, d))| {
 
-			if i == 0 {
-			
-				let new_alpha_beta = AlphaBeta {
+			let last_value = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
+
+			let new_value = if i == 0 {
+				AlphaBeta {
 					alpha: 1.0/(s-boundary_codition()),
 					beta: d/(s-boundary_codition()) 
-				};
-				return list::append(alpha_betas, new_alpha_beta);
-
+				}
 			} else if i == len - 1 {
-				
-				let last_alpha_beta = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
-				let new_alpha_beta = AlphaBeta {
+				AlphaBeta {
 					alpha: *zero(),
-					beta: (d + last_alpha_beta.beta) / (s-boundary_codition()-last_alpha_beta.alpha) 
-				};
-				return list::append(alpha_betas, new_alpha_beta);
+					beta: (d + last_value.beta)/(s-boundary_codition()-last_value.alpha) 
+				}
+			} else {	
+				AlphaBeta {
+					alpha: 1.0 / (s - last_value.alpha), // okamoto 7.112a
+					beta: (d + last_value.beta) / (s - last_value.alpha), // okamoto 7.112b
+				}
+			};
 
-			} else {
-				
-				let last_alpha_beta = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
-				let new_alpha_beta = AlphaBeta {
-					// okamoto 7.112a
-					alpha: 1.0 / (s - last_alpha_beta.alpha),
-					// okamoto 7.112b     		
-					beta: (d + last_alpha_beta.beta) / (s - last_alpha_beta.alpha),
-				};
-				return list::append(alpha_betas, new_alpha_beta);
-				
-			}
+			return list::append(alpha_betas, new_value);
 		}
 	)
 }
