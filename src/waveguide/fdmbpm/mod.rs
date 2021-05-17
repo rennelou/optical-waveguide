@@ -1,6 +1,7 @@
 use super::*;
 use crate::fp;
 use crate::fp::list;
+use crate::fp::matrix::MatrixView;
 
 pub mod slab2d;
 //pub mod slab3d;
@@ -40,15 +41,15 @@ fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {
 	);
 }
 
-fn get_alphas_betas(ss: Vec<Phasor>, ds: Vec<Phasor>, boundary_codition: fn()->Phasor) -> Vec<AlphaBeta> {
-	if ss.len() != ds.len() + 2 {
+fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: Vec<Phasor>, boundary_codition: fn()->Phasor) -> Vec<AlphaBeta> {
+	if ss.depht() != ds.len() + 2 {
 		panic!("ss array need has 2 more elements than ds array");
 	}
 
-	let len = ds.len();
+	let depht = ds.len();
 	fp::middle(ss.iter()).zip(ds.iter()).enumerate().fold(
 		vec![], 
-		|alpha_betas, (i, (s, d))| {
+		|alpha_betas, (i, (&s, d))| {
 
 			let last_value = fp::last_or_default(alpha_betas.iter(),AlphaBeta::empty());
 
@@ -57,7 +58,7 @@ fn get_alphas_betas(ss: Vec<Phasor>, ds: Vec<Phasor>, boundary_codition: fn()->P
 					alpha: 1.0/(s-boundary_codition()),
 					beta: d/(s-boundary_codition()) 
 				}
-			} else if i == len - 1 {
+			} else if i == depht - 1 {
 				AlphaBeta {
 					alpha: *zero(),
 					beta: (d + last_value.beta)/(s-boundary_codition()-last_value.alpha) 
@@ -74,12 +75,13 @@ fn get_alphas_betas(ss: Vec<Phasor>, ds: Vec<Phasor>, boundary_codition: fn()->P
 	)
 }
 
-fn get_ds(es: Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
+fn get_ds(es: MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Vec<Phasor> {
 	
-	if es.len() == qs.len() {
+	if es.depht() == qs.depht() {
+		let es_vec: Vec<_> = es.iter().map(|x|x).collect();
 		return fp::middle(qs.iter()).enumerate().map(
 			// okamoto 7.97
-			|(i, q)| es[i]+q*es[i+1]+es[i+2]
+			|(i, q)| es_vec[i]+q*es_vec[i+1]+es_vec[i+2]
 		).collect();
 	}
 

@@ -57,17 +57,20 @@ impl<T: Clone + Copy> Matrix<T> {
         self.raw().clone()
     }
 
-    pub fn get(&self, position: Vec<usize>) -> T {
-        self.values[hash(position.as_slice(), &self.shape)]
+    pub fn get(&self, position: Vec<usize>) -> &T {
+        &self.values[hash(position.as_slice(), &self.shape)]
     }
 
     pub fn view<const D: usize>(&self, slice: &[Index]) -> MatrixView<T, D> {
-        if self.shape.len() > slice.len() {
-            panic!("position to get needs has the same matrix dimension")
-        }
+        let slice_dimension = slice_dimension(slice);
         
-        if slice_dimension(slice) != D {
+        if slice_dimension != D {
             panic!("slice dosent match with dimension of view")
+        }
+
+        let _self_dimension = self.dimension();
+        if self.dimension() < slice_dimension {
+            panic!("slice dimension must be less or equal than dimension matrix")
         }
     
         let (shape_mask, position_mask) = slice.into_iter().zip(self.shape.clone().into_iter()).fold( 
@@ -132,10 +135,6 @@ fn unhash(id: usize, shape: &[usize]) -> Vec<usize> {
 }
 
 fn hash(position: &[usize], shape: &[usize]) -> usize {
-    if position.len() > shape.len() {
-        panic!("position to get needs has the same matrix dimension")
-    }
-
     (0..position.len()).fold(0, |id, index| {
         id*shape[index]+position[index]
     })
@@ -174,12 +173,12 @@ mod tests {
     fn acess_position() {
         let matrix = new(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
 
-        assert_eq!(matrix.get(vec![0,0]), 0);
-        assert_eq!(matrix.get(vec![0,1]), 1);
-        assert_eq!(matrix.get(vec![0,2]), 2);
-        assert_eq!(matrix.get(vec![1,0]), 3);
-        assert_eq!(matrix.get(vec![1,1]), 4);
-        assert_eq!(matrix.get(vec![1,2]), 5);
+        assert_eq!(matrix.get(vec![0,0]), &0);
+        assert_eq!(matrix.get(vec![0,1]), &1);
+        assert_eq!(matrix.get(vec![0,2]), &2);
+        assert_eq!(matrix.get(vec![1,0]), &3);
+        assert_eq!(matrix.get(vec![1,1]), &4);
+        assert_eq!(matrix.get(vec![1,2]), &5);
     }
 
     #[test]
@@ -189,17 +188,17 @@ mod tests {
 
         let ziped = matrix::zip(vec![m1, m2]);
         
-        assert_eq!(ziped.get(vec![0,0,0]), 0);
-        assert_eq!(ziped.get(vec![0,0,1]), 1);
-        assert_eq!(ziped.get(vec![0,0,2]), 2);
-        assert_eq!(ziped.get(vec![0,1,0]), 3);
-        assert_eq!(ziped.get(vec![0,1,1]), 4);
-        assert_eq!(ziped.get(vec![0,1,2]), 5);
-        assert_eq!(ziped.get(vec![1,0,0]), 6);
-        assert_eq!(ziped.get(vec![1,0,1]), 7);
-        assert_eq!(ziped.get(vec![1,0,2]), 8);
-        assert_eq!(ziped.get(vec![1,1,0]), 9);
-        assert_eq!(ziped.get(vec![1,1,1]), 10);
-        assert_eq!(ziped.get(vec![1,1,2]), 11);
+        assert_eq!(ziped.get(vec![0,0,0]), &0);
+        assert_eq!(ziped.get(vec![0,0,1]), &1);
+        assert_eq!(ziped.get(vec![0,0,2]), &2);
+        assert_eq!(ziped.get(vec![0,1,0]), &3);
+        assert_eq!(ziped.get(vec![0,1,1]), &4);
+        assert_eq!(ziped.get(vec![0,1,2]), &5);
+        assert_eq!(ziped.get(vec![1,0,0]), &6);
+        assert_eq!(ziped.get(vec![1,0,1]), &7);
+        assert_eq!(ziped.get(vec![1,0,2]), &8);
+        assert_eq!(ziped.get(vec![1,1,0]), &9);
+        assert_eq!(ziped.get(vec![1,1,1]), &10);
+        assert_eq!(ziped.get(vec![1,1,2]), &11);
     }
 }
