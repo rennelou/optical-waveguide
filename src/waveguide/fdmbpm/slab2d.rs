@@ -19,10 +19,12 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 			let last_q = q.view::<1>(&[Index::Value(i-1), Index::Free]);
 
 			let s_list = s.view::<1>(&[Index::Value(i), Index::Free]);
-			
+
 			let ds = get_ds(last_es, last_q);
+			let d_list = ds.view(&[Index::Free]);
+
 			let new_es = insert_boundary_values(
-				get_recurrence_form(get_alphas_betas(s_list, ds, boundary_codition)),
+				get_recurrence_form(get_alphas_betas(s_list, d_list, boundary_codition)),
 				boundary_codition
 			);
 			let shape = vec![new_es.len()];

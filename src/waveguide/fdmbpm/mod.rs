@@ -1,5 +1,5 @@
 use super::*;
-use crate::fp;
+use crate::fp::{self, matrix};
 use crate::fp::list;
 use crate::fp::matrix::MatrixView;
 
@@ -41,12 +41,12 @@ fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {
 	);
 }
 
-fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: Vec<Phasor>, boundary_codition: fn()->Phasor) -> Vec<AlphaBeta> {
-	if ss.depht() != ds.len() + 2 {
+fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: MatrixView<Phasor, 1usize>, boundary_codition: fn()->Phasor) -> Vec<AlphaBeta> {
+	if ss.depht() != ds.depht() + 2 {
 		panic!("ss array need has 2 more elements than ds array");
 	}
 
-	let depht = ds.len();
+	let depht = ds.depht();
 	fp::middle(ss.iter()).zip(ds.iter()).enumerate().fold(
 		vec![], 
 		|alpha_betas, (i, (&s, d))| {
@@ -75,14 +75,17 @@ fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: Vec<Phasor>, boundary_co
 	)
 }
 
-fn get_ds(es: MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Vec<Phasor> {
+fn get_ds(es: MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Matrix<Phasor> {
 	
 	if es.depht() == qs.depht() {
 		let es: Vec<_> = es.iter().map(|x|x).collect();
-		return fp::middle(qs.iter()).enumerate().map(
+		let values: Vec<_> = fp::middle(qs.iter()).enumerate().map(
 			// okamoto 7.97
 			|(i, q)| es[i]+q*es[i+1]+es[i+2]
 		).collect();
+
+		let shape = vec![values.len()];
+		return matrix::new(values, &shape);
 	}
 
 	panic!("es array and qs array dosent have the same size");
