@@ -12,9 +12,10 @@ impl<'a, T: 'a + Copy, const D: usize> MatrixView<'a, T, D> {
 
     pub fn get(&self, p: [usize;D]) -> &T {
         let id = hash(&p, self.matrix.shape());
-        let position = list::sum(&unhash(id, &self.shape_mask), &self.position_mask.to_vec());
+        let mut position = unhash(id, &self.shape_mask);
+        (0..position.len()).for_each(|i| position[i] += self.position_mask[i]);
 
-        self.matrix.get(position)
+        self.matrix.get(position.as_slice())
     }
 
     pub fn dimension(&self) -> usize {

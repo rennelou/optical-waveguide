@@ -57,8 +57,8 @@ impl<T: Clone + Copy> Matrix<T> {
         self.raw().clone()
     }
 
-    pub fn get(&self, position: Vec<usize>) -> &T {
-        &self.values[hash(position.as_slice(), &self.shape)]
+    pub fn get(&self, position: &[usize]) -> &T {
+        &self.values[hash(position, self.shape())]
     }
 
     pub fn view<const D: usize>(&self, slice: &[Index]) -> MatrixView<T, D> {
@@ -120,16 +120,16 @@ fn slice_dimension(shape: &[Index]) -> usize {
 }
 
 fn unhash(id: usize, shape: &[usize]) -> Vec<usize> {
-    let (position, _) = shape.iter().rev().fold(
-        (vec![], id), 
-        |(position, quocient), depht| {
-            let new_depht = quocient % depht;
-            let new_quocient = quocient/depht;
-            
-            let new_position = list::concat(vec![new_depht], position);
-            (new_position, new_quocient)
-        }
-    );
+    let len = shape.len();
+    
+    let mut position = vec![0usize;len];
+    let mut quocient = id;
+    for i in 1..=len {
+        let rev_i = len - i;
+        let depht = shape[rev_i];
+        position[rev_i] = quocient%depht;
+        quocient = quocient/depht;
+    }
 
     position
 }
@@ -173,12 +173,12 @@ mod tests {
     fn acess_position() {
         let matrix = new(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
 
-        assert_eq!(matrix.get(vec![0,0]), &0);
-        assert_eq!(matrix.get(vec![0,1]), &1);
-        assert_eq!(matrix.get(vec![0,2]), &2);
-        assert_eq!(matrix.get(vec![1,0]), &3);
-        assert_eq!(matrix.get(vec![1,1]), &4);
-        assert_eq!(matrix.get(vec![1,2]), &5);
+        assert_eq!(matrix.get(&[0,0]), &0);
+        assert_eq!(matrix.get(&[0,1]), &1);
+        assert_eq!(matrix.get(&[0,2]), &2);
+        assert_eq!(matrix.get(&[1,0]), &3);
+        assert_eq!(matrix.get(&[1,1]), &4);
+        assert_eq!(matrix.get(&[1,2]), &5);
     }
 
     #[test]
@@ -188,17 +188,17 @@ mod tests {
 
         let ziped = matrix::zip(vec![m1, m2]);
         
-        assert_eq!(ziped.get(vec![0,0,0]), &0);
-        assert_eq!(ziped.get(vec![0,0,1]), &1);
-        assert_eq!(ziped.get(vec![0,0,2]), &2);
-        assert_eq!(ziped.get(vec![0,1,0]), &3);
-        assert_eq!(ziped.get(vec![0,1,1]), &4);
-        assert_eq!(ziped.get(vec![0,1,2]), &5);
-        assert_eq!(ziped.get(vec![1,0,0]), &6);
-        assert_eq!(ziped.get(vec![1,0,1]), &7);
-        assert_eq!(ziped.get(vec![1,0,2]), &8);
-        assert_eq!(ziped.get(vec![1,1,0]), &9);
-        assert_eq!(ziped.get(vec![1,1,1]), &10);
-        assert_eq!(ziped.get(vec![1,1,2]), &11);
+        assert_eq!(ziped.get(&[0,0,0]), &0);
+        assert_eq!(ziped.get(&[0,0,1]), &1);
+        assert_eq!(ziped.get(&[0,0,2]), &2);
+        assert_eq!(ziped.get(&[0,1,0]), &3);
+        assert_eq!(ziped.get(&[0,1,1]), &4);
+        assert_eq!(ziped.get(&[0,1,2]), &5);
+        assert_eq!(ziped.get(&[1,0,0]), &6);
+        assert_eq!(ziped.get(&[1,0,1]), &7);
+        assert_eq!(ziped.get(&[1,0,2]), &8);
+        assert_eq!(ziped.get(&[1,1,0]), &9);
+        assert_eq!(ziped.get(&[1,1,1]), &10);
+        assert_eq!(ziped.get(&[1,1,2]), &11);
     }
 }

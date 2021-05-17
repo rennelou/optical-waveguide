@@ -78,10 +78,10 @@ fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: Vec<Phasor>, boundary_co
 fn get_ds(es: MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Vec<Phasor> {
 	
 	if es.depht() == qs.depht() {
-		let es_vec: Vec<_> = es.iter().map(|x|x).collect();
+		let es: Vec<_> = es.iter().map(|x|x).collect();
 		return fp::middle(qs.iter()).enumerate().map(
 			// okamoto 7.97
-			|(i, q)| es_vec[i]+q*es_vec[i+1]+es_vec[i+2]
+			|(i, q)| es[i]+q*es[i+1]+es[i+2]
 		).collect();
 	}
 
