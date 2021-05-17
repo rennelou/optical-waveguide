@@ -41,22 +41,6 @@ impl<T: Clone + Copy> Matrix<T> {
         dimension(self.shape())
     }
 
-    pub fn is_dimensionless(&self) -> bool {
-        self.values.len() == 1
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.values.is_empty()
-    }
-
-    pub fn to_vec(&self) -> Vec<T> {
-        if self.dimension() != 1 {
-            panic!("matrix must have be unidimensional to be converted in Vec")
-        }
-    
-        self.raw().clone()
-    }
-
     pub fn get(&self, position: &[usize]) -> &T {
         &self.values[hash(position, self.shape())]
     }
@@ -68,7 +52,6 @@ impl<T: Clone + Copy> Matrix<T> {
             panic!("slice dosent match with dimension of view")
         }
 
-        let _self_dimension = self.dimension();
         if self.dimension() < slice_dimension {
             panic!("slice dimension must be less or equal than dimension matrix")
         }
@@ -97,8 +80,33 @@ impl<T: Clone + Copy> Matrix<T> {
             }
         );
     
-        MatrixView {matrix: &self, shape_mask, position_mask }
+        MatrixView { matrix: &self, shape_mask, position_mask }
     }
+}
+
+pub fn zip<T>(matrixs: Vec<Matrix<T>>) -> Matrix<T> 
+where T: Copy {
+    let all_shapes_equals = (0..matrixs.len()-1).any(
+        |i| matrixs[i].shape() != matrixs[i+1].shape()
+    );
+    
+    if all_shapes_equals {
+        panic!("all matrixs must have the sames shapes")
+    }
+    
+    let shape = fp::head(matrixs.iter()).unwrap().shape().clone();
+
+    let new_depht = matrixs.len();
+    let new_shape = list::concat(vec![new_depht], shape);
+
+    let new_values = matrixs.into_iter().fold(
+        vec![],
+        |result, m| {
+            list::concat(result, m.taken_raw())
+        }
+    );
+
+    new(new_values, &new_shape)
 }
 
 fn dimension(shape: &Vec<usize>) -> usize {
@@ -138,31 +146,6 @@ fn hash(position: &[usize], shape: &[usize]) -> usize {
     (0..position.len()).fold(0, |id, index| {
         id*shape[index]+position[index]
     })
-}
-
-pub fn zip<T>(matrixs: Vec<Matrix<T>>) -> Matrix<T> 
-where T: Copy {
-    let all_shapes_equals = (0..matrixs.len()-1).any(
-        |i| matrixs[i].shape() != matrixs[i+1].shape()
-    );
-    
-    if all_shapes_equals {
-        panic!("all matrixs must have the sames shapes")
-    }
-    
-    let shape = fp::head(matrixs.iter()).unwrap().shape().clone();
-
-    let new_depht = matrixs.len();
-    let new_shape = list::concat(vec![new_depht], shape);
-
-    let new_values = matrixs.into_iter().fold(
-        vec![],
-        |result, m| {
-            list::concat(result, m.taken_raw())
-        }
-    );
-
-    new(new_values, &new_shape)
 }
 
 #[cfg(test)]
