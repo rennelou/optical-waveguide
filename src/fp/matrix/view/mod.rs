@@ -11,11 +11,19 @@ pub struct IterViewOndDimensional<'a, T: 'a + Copy> {
 impl<'a, T: 'a + Copy, const D: usize> MatrixView<'a, T, D> {
 
     pub fn get(&self, p: [usize;D]) -> &T {
+        self.matrix.get(self.convert(p).as_slice())
+    }
+
+    pub fn get_transposed(&self, p: [usize;D]) -> &T {
+        self.matrix.get_transposed(self.convert(p).as_slice())
+    }
+
+    fn convert(&self, p: [usize;D]) -> Vec<usize> {
         let id = hash(&p, self.matrix.shape());
         let mut position = unhash(id, &self.shape_mask);
         (0..position.len()).for_each(|i| position[i] += self.position_mask[i]);
 
-        self.matrix.get(position.as_slice())
+        position
     }
 
     pub fn dimension(&self) -> usize {
@@ -24,6 +32,43 @@ impl<'a, T: 'a + Copy, const D: usize> MatrixView<'a, T, D> {
 
     pub fn shape(&self) -> Vec<usize> {
         self.shape_mask.to_vec()
+    }
+
+    pub fn view<const C: usize>(&self, slice: &[Index]) -> MatrixView<T, C> {
+        let slice_dimension = slice_dimension(slice);
+        
+        if slice_dimension != C {
+            panic!("slice dosent match with dimension of view")
+        }
+
+        if self.dimension() < slice_dimension {
+            panic!("slice dimension must be less or equal than dimension matrix")
+        }
+        
+        let mut shape_mask = self.shape_mask.clone();
+        let mut position_mask = self.position_mask.clone();
+        
+        let mut free_indexes = self.shape_mask.iter().enumerate().filter(|(_i, &d)| d > 1);
+        for &position in slice {
+            let (index, &depht) = free_indexes.next().unwrap();
+            match position {
+                Index::Value(value) => {
+                    if value >= depht {
+                        panic!("position out of the range")
+                    }
+                    
+                    shape_mask[index] = 1;
+                    position_mask[index] = value;
+                },
+                Index::Free => {
+                    shape_mask[index] = depht;
+                    position_mask[index] = 0;
+                }
+            }
+        }
+        
+    
+        MatrixView { matrix: &self.matrix, shape_mask, position_mask }
     }
 }
 
@@ -72,5 +117,34 @@ mod tests {
         let sub_matrix = matrix.view::<1usize>(&[Index::Free, Index::Value(2)]);
         assert_eq!(sub_matrix.get([0]), &2);
         assert_eq!(sub_matrix.get([1]), &5);
+    }
+
+    #[test]
+    fn viwe_of_view_test() {
+        let matrix = matrix::new(vec![0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], &vec![2usize, 3usize, 3usize]);
+
+        let sub_matrix = matrix.view::<2usize>(&[Index::Value(0), Index::Free, Index::Free]);
+        
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Value(1), Index::Free]);
+        assert_eq!(sub_matrix1.get([0]), &3);
+        assert_eq!(sub_matrix1.get([1]), &4);
+        assert_eq!(sub_matrix1.get([2]), &5);
+
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Value(2), Index::Free]);
+        assert_eq!(sub_matrix1.get([0]), &6);
+        assert_eq!(sub_matrix1.get([1]), &7);
+        assert_eq!(sub_matrix1.get([2]), &8);
+
+        let sub_matrix = matrix.view::<2usize>(&[Index::Value(1), Index::Free, Index::Free]);
+        
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Free, Index::Value(0)]);
+        assert_eq!(sub_matrix1.get([0]), &9);
+        assert_eq!(sub_matrix1.get([1]), &12);
+        assert_eq!(sub_matrix1.get([2]), &15);
+
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Free, Index::Value(2)]);
+        assert_eq!(sub_matrix1.get([0]), &11);
+        assert_eq!(sub_matrix1.get([1]), &14);
+        assert_eq!(sub_matrix1.get([2]), &17);
     }
 }

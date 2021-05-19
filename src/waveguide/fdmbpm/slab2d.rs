@@ -4,9 +4,9 @@ use cores::Core;
 use crate::fp::matrix::{self, Index};
 use crate::fp::{comprehension, list};
 
-pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
+pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
 	let shape = core.get_shape().clone();
-	let grid_steps = core.get_deltas().clone();
+	let grid_steps = core.get_deltas().to_vec();
 	let zsteps = shape[0];
 
 	let (s, q) = get_initialized_params_2d(core, k, alpha);
@@ -38,11 +38,9 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 	return EletricField { values, grid_steps };
 }
 
-pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (Matrix<Phasor>, Matrix<Phasor>) {
-	let shape = core.get_shape().clone();
-	let mut shape_delta = shape.iter().zip(core.get_deltas().clone().into_iter());
-	let (&zdepht, zdelta) = shape_delta.next().unwrap();
-	let (&xdepht, xdelta) = shape_delta.next().unwrap();
+pub fn get_initialized_params_2d(core: &impl Core<2>, k: f64, alpha: f64) -> (Matrix<Phasor>, Matrix<Phasor>) {
+	let [zdepht, xdepht] = core.get_shape().clone();
+	let [zdelta, xdelta] = core.get_deltas().clone();
 	
 	let n0 = core.get_n0();
 
@@ -68,6 +66,7 @@ pub fn get_initialized_params_2d(core: &impl Core, k: f64, alpha: f64) -> (Matri
 		).collect()
     ).collect();
     
+	let shape = core.get_shape().to_vec();
     (fp::new_2d(s,&shape), fp::new_2d(q, &shape))
 }
 

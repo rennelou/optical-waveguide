@@ -1,13 +1,12 @@
 pub mod rectilinear;
-
-pub trait Core {
+pub trait Core<const D: usize> {
     fn get_dimension(&self) -> usize {
         self.get_shape().len()
     }
 
-    fn get_shape(&self) -> &Vec<usize>;
+    fn get_shape(&self) -> &[usize;D];
 
-    fn get_deltas(&self) -> &Vec<f64>;
+    fn get_deltas(&self) -> &[f64;D];
 
     fn get_n(&self, z: f64, y: f64, x: f64, n0: f64) -> f64;
 

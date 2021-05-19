@@ -11,5 +11,8 @@ num = "0.3"
 hdf5 = "0.7.1"
 ndarray = "0.14"
 
+[profile.release]
+debug = true
+
 [profile.bench]
 debug = true
