@@ -6,23 +6,20 @@ use Phasor;
 use fp::{comprehension, list};
 use fp::Matrix;
 
-pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
-	let shape = core.get_shape();
-	let grid_steps = core.get_deltas().clone();
-	let zdepht = shape[0];
-	let ydepht = shape[1];
-	let xdepht = shape[2];
+pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
+	let grid_steps = core.get_deltas().to_vec();
+	let [zdepht, ydepht, xdepht] = core.get_shape().clone();
 
 	let (s, S, q, Q) = get_initialized_params_3d(core, k, alpha);
 
 	let es = (1usize..zdepht).fold(
 		vec![e_input], 
-		|mut result, z| {
+		|result, z| {
 			
 			let mut d_list = vec![];
-			for x in 0..xdepht {
+			for x in 1..(xdepht-1) {
 				let last_es= fp::last(result.iter()).unwrap().view(&[Index::Free, Index::Value(x)]);
-				let last_Q = Q.view::<1>(&[Index::Value(z-1), Index::Free, Index::Value(x)]);
+				let last_Q = Q.view(&[Index::Value(z-1), Index::Free, Index::Value(x)]);
 				
 				// multiplicar d pelo fator para 3 dimensões
 				let d = get_ds(last_es, last_Q);
@@ -31,22 +28,64 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 			}
 			let transposed_d_plane = matrix::zip(d_list);
 
-			for y in 0..ydepht {
-				let s_list = s.view::<1>(&[Index::Value(z), Index::Value(y), Index::Free]);
-				let d_list = transposed_d_plane.view::<1>(&[Index::Free, Index::Value(y)]);
+			let mut es_list = vec![];
+			for y in 1..(ydepht-1) {
+				let s_list = s.view(&[Index::Value(z-1), Index::Value(y), Index::Free]);
+				let d_list = transposed_d_plane.view(&[Index::Free, Index::Value(y-1)]);
 
 				let new_es = insert_boundary_values(
 					get_recurrence_form(get_alphas_betas(s_list, d_list, boundary_codition)),
 					boundary_codition
 				);
 
-				let shape = vec![new_es.len()];
+				let shape = vec![xdepht];
 				let new_es = matrix::new(new_es, &shape);
 
-				result = list::append(result, new_es);
+				es_list = list::append(es_list, new_es);
 			}
+			let es_intermediate = matrix::zip(es_list);
+			
+//----------------------- segunda parte -----------------------------------------------
 
-			result
+			let mut d_list = vec![];
+			for y in 1..(ydepht-1) {
+				let last_es = es_intermediate.view(&[Index::Value(y-1), Index::Free]);
+				let last_q = q.view(&[Index::Value(z-1), Index::Value(y), Index::Free]);
+
+				let d = get_ds(last_es, last_q);
+				d_list = list::append(d_list, d);
+			}
+			let h_plane = matrix::zip(d_list);
+			
+			let mut es_list = vec![];
+			for x in 1..(xdepht-1) {
+				let S_list = S.view(&[Index::Value(z-1), Index::Free, Index::Value(x)]);
+				let h_list = h_plane.view(&[Index::Free, Index::Value(x-1)]);
+
+				let new_es = insert_boundary_values(
+					get_recurrence_form(get_alphas_betas(S_list, h_list, boundary_codition)),
+					boundary_codition
+				);
+
+				let shape = vec![ydepht];
+				let new_es = matrix::new(new_es, &shape);
+
+				es_list = list::append(es_list, new_es);
+			}
+			let es_transposed = matrix::zip(es_list);
+			
+			let mut es_list = vec![];
+			for y in 0..ydepht {
+				let es_to_insert_boundary_x = es_transposed.view::<1>(&[Index::Free, Index::Value(y)]).iter().cloned().collect();
+
+				let new_es = insert_boundary_values(es_to_insert_boundary_x, boundary_codition);
+				let shape = vec![xdepht];
+				let new_es = matrix::new(new_es, &shape);
+				es_list = list::append(es_list, new_es);
+			}
+			let es = matrix::zip(es_list);
+
+			list::append(result, es)
 		}
 	);
 
@@ -54,13 +93,10 @@ pub fn run(core: &impl Core, k: f64, alpha: f64, e_input: Matrix<Phasor>, bounda
 	return EletricField { values, grid_steps };
 }
 
-pub fn get_initialized_params_3d(core: &impl Core, k: f64, alpha: f64) 
+pub fn get_initialized_params_3d(core: &impl Core<3>, k: f64, alpha: f64) 
 -> (Matrix<Phasor>, Matrix<Phasor>, Matrix<Phasor>, Matrix<Phasor>) {
-	let shape = core.get_shape();
-	let mut shape_delta = shape.clone().into_iter().zip(core.get_deltas().clone().into_iter());
-	let (zdepht, zdelta) = shape_delta.next().unwrap();
-	let (ydepht, ydelta) = shape_delta.next().unwrap();
-	let (xdepht, xdelta) = shape_delta.next().unwrap();
+	let [zdepht, ydepht, xdepht] = core.get_shape().clone();
+	let [zdelta, ydelta, xdelta] = core.get_deltas().clone();
 	let n0 = core.get_n0();
 
     let guiding_space = |x: f64, y:f64, z: f64, delta: f64| k.powf(2.0)*delta.powf(2.0)*(core.get_half_n(z, y, x, n0).powf(2.0)-n0.powf(2.0));
@@ -87,10 +123,11 @@ pub fn get_initialized_params_3d(core: &impl Core, k: f64, alpha: f64)
 		).collect()
 	};
 
-    let s = fp::new_3d(s_params(xdelta), shape) ;
-    let S = fp::new_3d(s_params(ydelta), shape);
-    let q = fp::new_3d(q_params(xdelta), shape);
-    let Q = fp::new_3d(q_params(ydelta), shape);
+	let shape = core.get_shape().to_vec();
+    let s = fp::new_3d(s_params(xdelta), &shape) ;
+    let S = fp::new_3d(s_params(ydelta), &shape);
+    let q = fp::new_3d(q_params(xdelta), &shape);
+    let Q = fp::new_3d(q_params(ydelta), &shape);
     
     (s, S, q, Q)
 }
@@ -119,18 +156,18 @@ mod tests {
 	fn slab2() -> Result<(), Box<dyn Error>> {
 		let k0 = (2.0*PI)/1.55e-6_f64;
 
-		let xdepht = 1024usize;
-		let ydepht = 500usize;
+		let xdepht = 124usize;
+		let ydepht = 50usize;
 		let total_depht = xdepht * ydepht;
 
     	let dx = 260e-6 * k0;
     	let xdelta = dx/(xdepht as f64);
 
 		let ydelta = xdelta;
-		//let dy = ydelta * (ydepht as f64);
+		let dy = ydelta * (ydepht as f64);
 		
     	let zdelta = 0.5e-6 * k0;
-    	let dz = zdelta * 1000.0;
+    	let dz = zdelta * 100.0;
 
     	let position = dx/2.0;
     	let width = 35e-6 * k0;
@@ -138,7 +175,7 @@ mod tests {
     	let n0 = 3.0;
     	let n = 3.3;
 
-    	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
+    	let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position, width);
 		
     	//let p = 200.0;
     	//let eta = 120.0 * PI; // eta usa eps e mi do meio

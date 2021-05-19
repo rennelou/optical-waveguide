@@ -10,7 +10,7 @@ pub struct Rectilinear<const D: usize> {
     core_right: f64
 }
 
-pub fn new_2d(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, position: f64, core_width: f64) -> Rectilinear<2usize> {
+pub fn new_2d(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, position: f64, core_width: f64) -> Rectilinear<2> {
     if position >= dx|| core_width >= dx {
         panic!("percent parameters need be less than 1");
     }
@@ -20,6 +20,24 @@ pub fn new_2d(dx: f64, xdelta: f64, dz: f64, zdelta: f64, n: f64, n0: f64, posit
     let shape = [zsteps, xsteps];
 
     let deltas = [zdelta, xdelta];
+
+    let core_left = position - (core_width/2.0);
+    let core_right = position + (core_width/2.0);
+    
+    Rectilinear { shape, deltas, position, n, n0, core_left, core_right }
+}
+
+pub fn new_3d(dx: f64, xdelta: f64, dy: f64, ydelta: f64,dz: f64, zdelta: f64, n: f64, n0: f64, position: f64, core_width: f64) -> Rectilinear<3> {
+    if position >= dx|| core_width >= dx {
+        panic!("percent parameters need be less than 1");
+    }
+
+    let zdepht = (dz/zdelta).round() as usize;
+    let ydepht = (dy/ydelta).round() as usize;
+    let xdepht = (dx/xdelta).round() as usize;
+    
+    let shape = [zdepht, ydepht, xdepht];
+    let deltas = [zdelta, ydelta, xdelta];
 
     let core_left = position - (core_width/2.0);
     let core_right = position + (core_width/2.0);

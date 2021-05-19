@@ -4,7 +4,7 @@ use crate::fp::list;
 use crate::fp::matrix::MatrixView;
 
 pub mod slab2d;
-//pub mod slab3d;
+pub mod slab3d;
 
 #[derive(Clone, Copy)]
 struct AlphaBeta {
@@ -75,6 +75,7 @@ fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: MatrixView<Phasor, 1usiz
 	)
 }
 
+// TODO: lembrar de multiplicar pelo fator usado em 3 dimensões
 fn get_ds(es: MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Matrix<Phasor> {
 	
 	if es.depht() == qs.depht() {
