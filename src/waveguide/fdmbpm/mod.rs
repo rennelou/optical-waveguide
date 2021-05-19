@@ -25,6 +25,13 @@ impl AlphaBeta {
 
 }
 
+fn get_es(ss: MatrixView<Phasor, 1usize>, ds: MatrixView<Phasor, 1usize>, boundary_codition: fn()->Phasor) -> Matrix<Phasor> {
+	insert_boundary_values(
+		get_recurrence_form(get_alphas_betas(ss, ds, boundary_codition)),
+		boundary_codition
+	)
+}
+
 fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {
 	
 	return alpha_betas.into_iter().rev().fold(
@@ -92,7 +99,7 @@ fn get_ds(es: MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Mat
 	panic!("es array and qs array dosent have the same size");
 }
 
-fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn() -> Phasor) -> Matrix<Phasor>{
+fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn() -> Phasor) -> Matrix<Phasor> {
 	
 	let head = vec![{
 		let es_head = fp::head_or_default(es.iter(), one());

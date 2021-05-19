@@ -23,10 +23,7 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 			let ds = get_ds(last_es, last_q);
 			let d_list = ds.view(&[Idx::Free]);
 
-			let new_es = insert_boundary_values(
-				get_recurrence_form(get_alphas_betas(s_list, d_list, boundary_codition)),
-				boundary_codition
-			);
+			let new_es = get_es(s_list, d_list, boundary_codition);
 
 			return list::append(result, new_es);
 		}
