@@ -19,8 +19,8 @@ impl<'a, T: 'a + Copy, const D: usize> MatrixView<'a, T, D> {
     }
 
     fn convert(&self, p: [usize;D]) -> Vec<usize> {
-        let id = hash(&p, self.matrix.shape());
-        let mut position = unhash(id, &self.shape_mask);
+        let id = position_to_id(&p, self.matrix.shape());
+        let mut position = id_to_position(id, &self.shape_mask);
         (0..position.len()).for_each(|i| position[i] += self.position_mask[i]);
 
         position

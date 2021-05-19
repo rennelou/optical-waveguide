@@ -12,14 +12,21 @@ mod tests {
    	fn slab() -> Result<(), Box<dyn Error>> {
 		let k0 = (2.0*PI)/1.55e-6_f64;
 
+		let xdepht = 1024usize;
+		let zdepht = 1000usize;
+
     	let dx = 260e-6 * k0;
-    	let xdelta = dx/1024.0;
+    	let xdelta = dx/(xdepht as f64);
 		
     	let zdelta = 0.5e-6 * k0;
-    	let dz = zdelta * 1000.0;
+    	let dz = zdelta * (zdepht as f64);
 
     	let position = dx/2.0;
     	let width = 35e-6 * k0;
+
+		let shape = [xdepht];
+		let deltas = [xdelta];
+		let center = [position];
 
     	let n0 = 3.0;
     	let n = 3.3;
@@ -30,7 +37,7 @@ mod tests {
     	let eta = 120.0 * PI; // eta usa eps e mi do meio
     	let w = 10e-6 * k0;
     	let e0 = p*eta / (w.powf(2.0)*PI);
-    	let gaussian = waves::gaussian(dx, xdelta, core.position, e0, w);
+    	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
 
     	let e = fdmbpm::slab2d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
 		// para gerar seria so exportar e -- export::hdf5("example.h5", &e);

@@ -42,12 +42,12 @@ impl<T: Clone + Copy> Matrix<T> {
     }
 
     pub fn get(&self, position: &[usize]) -> &T {
-        &self.values[hash(position, self.shape())]
+        &self.values[position_to_id(position, self.shape())]
     }
 
     pub fn get_transposed(&self, position: &[usize]) -> &T {
         let reversed_position: Vec<_> = position.iter().rev().copied().collect();
-        let id = hash(reversed_position.as_slice(), self.shape());
+        let id = position_to_id(reversed_position.as_slice(), self.shape());
         &self.values[id]
     }
 
@@ -133,7 +133,7 @@ fn slice_dimension(shape: &[Idx]) -> usize {
     )
 }
 
-fn unhash(id: usize, shape: &[usize]) -> Vec<usize> {
+pub fn id_to_position(id: usize, shape: &[usize]) -> Vec<usize> {
     let len = shape.len();
     
     let mut position = vec![0usize;len];
@@ -148,7 +148,7 @@ fn unhash(id: usize, shape: &[usize]) -> Vec<usize> {
     position
 }
 
-fn hash(position: &[usize], shape: &[usize]) -> usize {
+pub fn position_to_id(position: &[usize], shape: &[usize]) -> usize {
     (0..position.len()).fold(0, |id, index| {
         id*shape[index]+position[index]
     })

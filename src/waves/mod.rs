@@ -1,25 +1,23 @@
 use crate::fp::{Matrix, matrix};
-use crate::{waveguide, waveguide::Phasor};
+use crate::waveguide;
 
-pub fn gaussian(grid_width: f64, delta: f64, position: f64, amplitude: f64, core_width: f64) -> Matrix<waveguide::Phasor> {
+pub fn gaussian(shape: &[usize], deltas: &[f64], center: &[f64], amplitude: f64, width: f64) -> Matrix<waveguide::Phasor> {
 
-    let steps = (grid_width / delta) as usize;
-    let position_normalized = position / delta;
-
-    let beam = (0..steps).map(|i| i as f64).map(
-        |x| {
-            let r = x - position_normalized;
-            
-            amplitude*(- (r.powf(2.0) / core_width.powf(2.0)) ).exp()
-        }
+    let center_normalized: Vec<_> = center.iter().zip(deltas.iter()).map(
+        |(&p, &d)| p/d
     ).collect();
 
-    return beam_as_phasor(beam);
-}
+    let values = (0..shape.iter().product()).map(|id| {
+        let position = matrix::id_to_position(id, shape);
+        let v = position.iter().zip(center_normalized.iter()).map(
+            |(&p, p0)| (p as f64) - p0
+        );
+        let r = v.map(|x| x.powf(2.0)).sum::<f64>().sqrt();
+        let e = amplitude*(- (r.powf(2.0) / width.powf(2.0)) ).exp();
+            
+        waveguide::to_phasor(e)
 
-fn beam_as_phasor(l: Vec<f64>) -> Matrix<waveguide::Phasor> {
-    let phasors: Vec<Phasor> = l.into_iter().map(|x| waveguide::to_phasor(x)).collect();
+    }).collect();
 
-    let shape = vec![phasors.len()];
-    matrix::new(phasors, &shape)
+    matrix::new(values, &shape.to_vec())
 }

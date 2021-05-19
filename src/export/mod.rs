@@ -12,7 +12,7 @@ pub fn hdf5(title: &str, eletric_field: &EletricField) {
     let file = hdf5::File::create(title).unwrap();
     let group = file.create_group("dir").unwrap();
     
-    let deltas_hdf5 = group.new_dataset::<f64>().create("deltas", 2).unwrap();
+    let deltas_hdf5 = group.new_dataset::<f64>().create("deltas", deltas.len()).unwrap();
     deltas_hdf5.write(deltas).unwrap();
     
     let dataset = group.new_dataset::<f64>().create("intensity", shape.clone()).unwrap();
