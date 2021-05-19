@@ -34,7 +34,7 @@ impl<'a, T: 'a + Copy, const D: usize> MatrixView<'a, T, D> {
         self.shape_mask.to_vec()
     }
 
-    pub fn view<const C: usize>(&self, slice: &[Index]) -> MatrixView<T, C> {
+    pub fn view<const C: usize>(&self, slice: &[Idx]) -> MatrixView<T, C> {
         let slice_dimension = slice_dimension(slice);
         
         if slice_dimension != C {
@@ -52,7 +52,7 @@ impl<'a, T: 'a + Copy, const D: usize> MatrixView<'a, T, D> {
         for &position in slice {
             let (index, &depht) = free_indexes.next().unwrap();
             match position {
-                Index::Value(value) => {
+                Idx::Value(value) => {
                     if value >= depht {
                         panic!("position out of the range")
                     }
@@ -60,7 +60,7 @@ impl<'a, T: 'a + Copy, const D: usize> MatrixView<'a, T, D> {
                     shape_mask[index] = 1;
                     position_mask[index] = value;
                 },
-                Index::Free => {
+                Idx::Free => {
                     shape_mask[index] = depht;
                     position_mask[index] = 0;
                 }
@@ -96,25 +96,25 @@ mod tests {
     fn mask_test() {
         let matrix = matrix::new(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
 
-        let sub_matrix = matrix.view::<1usize>(&[Index::Value(0), Index::Free]);
+        let sub_matrix = matrix.view::<1usize>(&[Idx::Value(0), Idx::Free]);
         assert_eq!(sub_matrix.get([0]), &0);
         assert_eq!(sub_matrix.get([1]), &1);
         assert_eq!(sub_matrix.get([2]), &2);
 
-        let sub_matrix = matrix.view::<1usize>(&[Index::Value(1), Index::Free]);
+        let sub_matrix = matrix.view::<1usize>(&[Idx::Value(1), Idx::Free]);
         assert_eq!(sub_matrix.get([0]), &3);
         assert_eq!(sub_matrix.get([1]), &4);
         assert_eq!(sub_matrix.get([2]), &5);
 
-        let sub_matrix = matrix.view::<1usize>(&[Index::Free, Index::Value(0)]);
+        let sub_matrix = matrix.view::<1usize>(&[Idx::Free, Idx::Value(0)]);
         assert_eq!(sub_matrix.get([0]), &0);
         assert_eq!(sub_matrix.get([1]), &3);
 
-        let sub_matrix = matrix.view::<1usize>(&[Index::Free, Index::Value(1)]);
+        let sub_matrix = matrix.view::<1usize>(&[Idx::Free, Idx::Value(1)]);
         assert_eq!(sub_matrix.get([0]), &1);
         assert_eq!(sub_matrix.get([1]), &4);
 
-        let sub_matrix = matrix.view::<1usize>(&[Index::Free, Index::Value(2)]);
+        let sub_matrix = matrix.view::<1usize>(&[Idx::Free, Idx::Value(2)]);
         assert_eq!(sub_matrix.get([0]), &2);
         assert_eq!(sub_matrix.get([1]), &5);
     }
@@ -123,26 +123,26 @@ mod tests {
     fn viwe_of_view_test() {
         let matrix = matrix::new(vec![0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], &vec![2usize, 3usize, 3usize]);
 
-        let sub_matrix = matrix.view::<2usize>(&[Index::Value(0), Index::Free, Index::Free]);
+        let sub_matrix = matrix.view::<2usize>(&[Idx::Value(0), Idx::Free, Idx::Free]);
         
-        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Value(1), Index::Free]);
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Idx::Value(1), Idx::Free]);
         assert_eq!(sub_matrix1.get([0]), &3);
         assert_eq!(sub_matrix1.get([1]), &4);
         assert_eq!(sub_matrix1.get([2]), &5);
 
-        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Value(2), Index::Free]);
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Idx::Value(2), Idx::Free]);
         assert_eq!(sub_matrix1.get([0]), &6);
         assert_eq!(sub_matrix1.get([1]), &7);
         assert_eq!(sub_matrix1.get([2]), &8);
 
-        let sub_matrix = matrix.view::<2usize>(&[Index::Value(1), Index::Free, Index::Free]);
+        let sub_matrix = matrix.view::<2usize>(&[Idx::Value(1), Idx::Free, Idx::Free]);
         
-        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Free, Index::Value(0)]);
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Idx::Free, Idx::Value(0)]);
         assert_eq!(sub_matrix1.get([0]), &9);
         assert_eq!(sub_matrix1.get([1]), &12);
         assert_eq!(sub_matrix1.get([2]), &15);
 
-        let sub_matrix1 = sub_matrix.view::<1usize>(&[Index::Free, Index::Value(2)]);
+        let sub_matrix1 = sub_matrix.view::<1usize>(&[Idx::Free, Idx::Value(2)]);
         assert_eq!(sub_matrix1.get([0]), &11);
         assert_eq!(sub_matrix1.get([1]), &14);
         assert_eq!(sub_matrix1.get([2]), &17);

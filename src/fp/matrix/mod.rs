@@ -4,7 +4,7 @@ use super::*;
 pub mod view;
 
 #[derive(Clone, Copy)]
-pub enum Index {
+pub enum Idx {
     Free,
     Value(usize)
 }
@@ -51,7 +51,7 @@ impl<T: Clone + Copy> Matrix<T> {
         &self.values[id]
     }
 
-    pub fn view<const D: usize>(&self, slice: &[Index]) -> MatrixView<T, D> {
+    pub fn view<const D: usize>(&self, slice: &[Idx]) -> MatrixView<T, D> {
         let slice_dimension = slice_dimension(slice);
         
         if slice_dimension != D {
@@ -66,7 +66,7 @@ impl<T: Clone + Copy> Matrix<T> {
             (vec![],vec![]), 
             |(mut shape_mask, mut position_mask), (&position, depht )| {
                 match position {
-                    Index::Value(index) => {
+                    Idx::Value(index) => {
                         if index >= depht {
                             panic!("position out of the range")
                         }
@@ -76,7 +76,7 @@ impl<T: Clone + Copy> Matrix<T> {
     
                         (shape_mask, position_mask)
                     },
-                    Index::Free => {
+                    Idx::Free => {
                         shape_mask.push(depht);
                         position_mask.push(0);
     
@@ -122,13 +122,13 @@ fn dimension(shape: &Vec<usize>) -> usize {
     )
 }
 
-fn slice_dimension(shape: &[Index]) -> usize {
+fn slice_dimension(shape: &[Idx]) -> usize {
     shape.iter().copied().fold(
         0, 
         |dim, index|
             match index {
-                Index::Value(_) => { dim }
-                Index::Free => { dim + 1 }
+                Idx::Value(_) => { dim }
+                Idx::Free => { dim + 1 }
             }
     )
 }

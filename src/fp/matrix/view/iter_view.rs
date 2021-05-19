@@ -34,7 +34,7 @@ mod tests {
     fn iter_test() {
         let matrix = matrix::new(vec![0,1,2,3,4,5,6,7,8,9,10,11], &vec![2usize, 6usize]);
 
-        let sub_matrix = matrix.view::<1usize>(&[Index::Value(0), Index::Free]);
+        let sub_matrix = matrix.view::<1usize>(&[Idx::Value(0), Idx::Free]);
         let mut iter = sub_matrix.iter();
         
         assert_eq!(iter.next(), Some(&0));
@@ -47,7 +47,7 @@ mod tests {
         assert_eq!(iter.next(), None);
         assert_eq!(iter.next_back(), None);
 
-        let sub_matrix = matrix.view::<1usize>(&[Index::Value(1), Index::Free]);
+        let sub_matrix = matrix.view::<1usize>(&[Idx::Value(1), Idx::Free]);
         let mut iter = sub_matrix.iter();
         
         assert_eq!(iter.next(), Some(&6));

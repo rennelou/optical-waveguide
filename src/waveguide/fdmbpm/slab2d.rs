@@ -1,7 +1,7 @@
 use super::*;
 use Phasor;
 use cores::Core;
-use crate::fp::matrix::{self, Index};
+use crate::fp::matrix::{self, Idx};
 use crate::fp::{comprehension, list};
 
 pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
@@ -15,20 +15,18 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 		vec![e_input], 
 		|result, i| {
 			
-			let last_es= fp::last(result.iter()).unwrap().view(&[Index::Free]);
-			let last_q = q.view::<1>(&[Index::Value(i-1), Index::Free]);
+			let last_es= fp::last(result.iter()).unwrap().view(&[Idx::Free]);
+			let last_q = q.view(&[Idx::Value(i-1), Idx::Free]);
 
-			let s_list = s.view::<1>(&[Index::Value(i-1), Index::Free]);
+			let s_list = s.view(&[Idx::Value(i-1), Idx::Free]);
 
 			let ds = get_ds(last_es, last_q);
-			let d_list = ds.view(&[Index::Free]);
+			let d_list = ds.view(&[Idx::Free]);
 
 			let new_es = insert_boundary_values(
 				get_recurrence_form(get_alphas_betas(s_list, d_list, boundary_codition)),
 				boundary_codition
 			);
-			let shape = vec![new_es.len()];
-			let new_es = matrix::new(new_es, &shape);
 
 			return list::append(result, new_es);
 		}
@@ -68,18 +66,4 @@ pub fn get_initialized_params_2d(core: &impl Core<2>, k: f64, alpha: f64) -> (Ma
     
 	let shape = core.get_shape().to_vec();
     (fp::new_2d(s,&shape), fp::new_2d(q, &shape))
-}
-
-fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn() -> Phasor) -> Vec<Phasor>{
-	
-	let head = vec![{
-		let es_head = fp::head_or_default(es.iter(), one());
-		es_head*boundary_codition()
-	}];
-	let last = vec![{
-		let es_last = fp::last_or_default(es.iter(), one());
-		es_last*boundary_codition()
-	}];
-	
-	return list::concat(list::concat(head, es),last);
 }

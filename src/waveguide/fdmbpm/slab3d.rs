@@ -1,4 +1,4 @@
-use crate::fp::matrix::Index;
+use crate::fp::matrix::Idx;
 
 use super::*;
 use cores::Core;
@@ -18,8 +18,8 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 			
 			let mut d_list = vec![];
 			for x in 1..(xdepht-1) {
-				let last_es= fp::last(result.iter()).unwrap().view(&[Index::Free, Index::Value(x)]);
-				let last_Q = Q.view(&[Index::Value(z-1), Index::Free, Index::Value(x)]);
+				let last_es= fp::last(result.iter()).unwrap().view(&[Idx::Free, Idx::Value(x)]);
+				let last_Q = Q.view(&[Idx::Value(z-1), Idx::Free, Idx::Value(x)]);
 				
 				// multiplicar d pelo fator para 3 dimensões
 				let d = get_ds(last_es, last_Q);
@@ -30,16 +30,13 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 
 			let mut es_list = vec![];
 			for y in 1..(ydepht-1) {
-				let s_list = s.view(&[Index::Value(z-1), Index::Value(y), Index::Free]);
-				let d_list = transposed_d_plane.view(&[Index::Free, Index::Value(y-1)]);
+				let s_list = s.view(&[Idx::Value(z-1), Idx::Value(y), Idx::Free]);
+				let d_list = transposed_d_plane.view(&[Idx::Free, Idx::Value(y-1)]);
 
 				let new_es = insert_boundary_values(
 					get_recurrence_form(get_alphas_betas(s_list, d_list, boundary_codition)),
 					boundary_codition
 				);
-
-				let shape = vec![xdepht];
-				let new_es = matrix::new(new_es, &shape);
 
 				es_list = list::append(es_list, new_es);
 			}
@@ -47,28 +44,26 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 			
 //----------------------- segunda parte -----------------------------------------------
 
-			let mut d_list = vec![];
+			let mut h_list = vec![];
 			for y in 1..(ydepht-1) {
-				let last_es = es_intermediate.view(&[Index::Value(y-1), Index::Free]);
-				let last_q = q.view(&[Index::Value(z-1), Index::Value(y), Index::Free]);
+				let last_es = es_intermediate.view(&[Idx::Value(y-1), Idx::Free]);
+				let last_q = q.view(&[Idx::Value(z-1), Idx::Value(y), Idx::Free]);
 
-				let d = get_ds(last_es, last_q);
-				d_list = list::append(d_list, d);
+				// multiplicar d pelo fator para 3 dimensões
+				let h = get_ds(last_es, last_q);
+				h_list = list::append(h_list, h);
 			}
-			let h_plane = matrix::zip(d_list);
+			let h_plane = matrix::zip(h_list);
 			
 			let mut es_list = vec![];
 			for x in 1..(xdepht-1) {
-				let S_list = S.view(&[Index::Value(z-1), Index::Free, Index::Value(x)]);
-				let h_list = h_plane.view(&[Index::Free, Index::Value(x-1)]);
+				let S_list = S.view(&[Idx::Value(z-1), Idx::Free, Idx::Value(x)]);
+				let h_list = h_plane.view(&[Idx::Free, Idx::Value(x-1)]);
 
 				let new_es = insert_boundary_values(
 					get_recurrence_form(get_alphas_betas(S_list, h_list, boundary_codition)),
 					boundary_codition
 				);
-
-				let shape = vec![ydepht];
-				let new_es = matrix::new(new_es, &shape);
 
 				es_list = list::append(es_list, new_es);
 			}
@@ -76,11 +71,9 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 			
 			let mut es_list = vec![];
 			for y in 0..ydepht {
-				let es_to_insert_boundary_x = es_transposed.view::<1>(&[Index::Free, Index::Value(y)]).iter().cloned().collect();
+				let es_to_insert_boundary_x = es_transposed.view::<1>(&[Idx::Free, Idx::Value(y)]).iter().cloned().collect();
 
 				let new_es = insert_boundary_values(es_to_insert_boundary_x, boundary_codition);
-				let shape = vec![xdepht];
-				let new_es = matrix::new(new_es, &shape);
 				es_list = list::append(es_list, new_es);
 			}
 			let es = matrix::zip(es_list);
@@ -130,20 +123,6 @@ pub fn get_initialized_params_3d(core: &impl Core<3>, k: f64, alpha: f64)
     let Q = fp::new_3d(q_params(ydelta), &shape);
     
     (s, S, q, Q)
-}
-
-fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn() -> Phasor) -> Vec<Phasor>{
-	
-	let head = vec![{
-		let es_head = fp::head_or_default(es.iter(), one());
-		es_head*boundary_codition()
-	}];
-	let last = vec![{
-		let es_last = fp::last_or_default(es.iter(), one());
-		es_last*boundary_codition()
-	}];
-	
-	return list::concat(list::concat(head, es),last);
 }
 
 #[cfg(test)]

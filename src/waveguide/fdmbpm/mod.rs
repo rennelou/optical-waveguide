@@ -91,3 +91,20 @@ fn get_ds(es: MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Mat
 
 	panic!("es array and qs array dosent have the same size");
 }
+
+fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn() -> Phasor) -> Matrix<Phasor>{
+	
+	let head = vec![{
+		let es_head = fp::head_or_default(es.iter(), one());
+		es_head*boundary_codition()
+	}];
+	let last = vec![{
+		let es_last = fp::last_or_default(es.iter(), one());
+		es_last*boundary_codition()
+	}];
+	
+	let values = list::concat(list::concat(head, es),last);
+
+	let shape = vec![values.len()];
+	matrix::new(values, &shape)
+}
