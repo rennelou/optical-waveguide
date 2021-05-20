@@ -114,21 +114,21 @@ use super::*;
 		let k0 = (2.0*PI)/1.55e-6_f64;
 
 		let xdepht = 124usize;
-		let ydepht = 50usize;
+		let ydepht = 124usize;
 		let zdepht = 100usize;
 
-    	let dx = 260e-6 * k0;
+    	let dx = 26e-6 * k0;
     	let xdelta = dx/(xdepht as f64);
 
 		let ydelta = xdelta;
 		let dy = ydelta * (ydepht as f64);
 		
-    	let zdelta = 0.5e-6 * k0;
+    	let zdelta = 0.1e-6 * k0;
     	let dz = zdelta * (zdepht as f64);
 
     	let position_x = dx/2.0;
 		let position_y = dy/2.0;
-    	let width = 35e-6 * k0;
+    	let width = 20e-6 * k0; // experimente diminuir o nucleo para ver modos de propagação
 
 		let shape = [ydepht, xdepht];
 		let deltas = [ydelta, xdelta];
@@ -139,9 +139,9 @@ use super::*;
 
     	let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 		
-    	let p = 200.0;
+    	let p = 10.0;
     	let eta = 120.0 * PI; // eta usa eps e mi do meio
-    	let w = 10e-6 * k0;
+    	let w = 6e-6 * k0;
     	let e0 = p*eta / (w.powf(2.0)*PI);
     	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
 
