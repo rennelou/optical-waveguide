@@ -3,7 +3,7 @@ use crate::fp::matrix::Idx;
 use super::*;
 use cores::Core;
 use Phasor;
-use fp::{comprehension, list};
+use fp::list;
 use fp::Matrix;
 
 pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
@@ -68,39 +68,35 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 
 pub fn get_initialized_params_3d(core: &impl Core<3>, k: f64, alpha: f64) 
 -> (Matrix<Phasor>, Matrix<Phasor>, Matrix<Phasor>, Matrix<Phasor>) {
-	let [zdepht, ydepht, xdepht] = core.get_shape().clone();
+	let shape = core.get_shape().clone();
 	let [zdelta, ydelta, xdelta] = core.get_deltas().clone();
 	let n0 = core.get_n0();
 
-    let guiding_space = |x: f64, y:f64, z: f64, delta: f64| k.powf(2.0)*delta.powf(2.0)*(core.get_half_n(z, y, x, n0).powf(2.0)-n0.powf(2.0));
+    let guiding_space = |position: Vec<_>, delta: f64| k.powf(2.0)*delta.powf(2.0)*(core.get_half_n(position.as_slice(), n0).powf(2.0)-n0.powf(2.0));
     let free_space = |delta: f64| 4.0*k*n0*delta.powf(2.0)/zdelta;
-    let loss = |_, _, _, delta: f64| 2.0*k*n0*delta.powf(2.0)*alpha;
+    let loss = |delta: f64| 2.0*k*n0*delta.powf(2.0)*alpha;
     
-	let s_params = |delta: f64| -> Vec<Vec<Vec<Phasor>>> {
-		comprehension::arange(zdepht, zdelta).map(|z| 
-        	comprehension::arange(ydepht, ydelta).map(|y| 
-            	comprehension::arange(xdepht, xdelta).map(|x| 
-                	Complex::new(2.0 - guiding_space(x, y, z, delta), free_space(delta) + loss(x, y, z, delta))
-            	).collect()
-			).collect()
-    	).collect()
+	let get_params = |delta: f64| -> (Vec<Phasor>,Vec<Phasor>) {
+		(0..shape.iter().product()).map(|id| -> (Complex<f64>, Complex<f64>) {
+        	let position = matrix::id_to_position(id, &shape);
+        	(
+				// okamoto 7.126/7.127
+				Complex::new(2.0 - guiding_space(position.clone(), delta), free_space(delta) + loss(delta)),
+				// okamoto 7.128/7.129
+				Complex::new(-2.0 + guiding_space(position.clone(), delta), free_space(delta) - loss(delta))
+			)
+
+		}).unzip()
 	};
 
-	let q_params = |delta: f64| -> Vec<Vec<Vec<Phasor>>> {
-		comprehension::arange(zdepht, zdelta).map(|z|
-			comprehension::arange(ydepht, ydelta).map(|y|
-				comprehension::arange(xdepht, xdelta).map(|x| 
-					Complex::new(-2.0 + guiding_space(x, y, z, delta), free_space(delta) - loss(x, y, z, delta))
-				).collect()
-			).collect()
-		).collect()
-	};
+	let (s_x, q_x) = get_params(xdelta);
+	let (s_y, q_y) = get_params(ydelta);
 
-	let shape = core.get_shape().to_vec();
-    let s_x = fp::new_3d(s_params(xdelta), &shape) ;
-    let s_y = fp::new_3d(s_params(ydelta), &shape);
-    let q_x = fp::new_3d(q_params(xdelta), &shape);
-    let q_y = fp::new_3d(q_params(ydelta), &shape);
+	let shape_vec = shape.to_vec();
+    let s_x = matrix::new(s_x, &shape_vec);
+    let s_y = matrix::new(s_y, &shape_vec);
+    let q_x = matrix::new(q_x, &shape_vec);
+    let q_y = matrix::new(q_y, &shape_vec);
     
     (s_x, s_y, q_x, q_y)
 }

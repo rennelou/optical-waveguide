@@ -7,18 +7,6 @@ pub struct Matrix<T: Clone + Copy> {
     shape: Vec<usize>
 }
 
-pub fn new_2d<T: Clone + Copy>(values: Vec<Vec<T>>, shape: &Vec<usize>) -> Matrix<T> {
-    let raw_values = values.into_iter().flatten().collect::<Vec<T>>();
-
-    matrix::new(raw_values, shape)
-}
-
-pub fn new_3d<T: Clone + Copy>(values: Vec<Vec<Vec<T>>>, shape: &Vec<usize>) -> Matrix<T> {
-    let raw_values = values.into_iter().flatten().flatten().collect::<Vec<T>>();
-
-    matrix::new(raw_values, shape)
-}
-
 pub fn head_or_default<T>(l: impl Iterator<Item = T>, default: T) -> T {
 	return unwrap_or_default(
 		head(l), 

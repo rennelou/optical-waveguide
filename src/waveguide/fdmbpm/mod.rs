@@ -4,7 +4,7 @@ use crate::fp::list;
 use crate::fp::matrix::MatrixView;
 
 pub mod slab2d;
-//pub mod slab3d;
+pub mod slab3d;
 
 #[derive(Clone, Copy)]
 struct AlphaBeta {
