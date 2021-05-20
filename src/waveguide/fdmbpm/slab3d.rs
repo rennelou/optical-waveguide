@@ -115,7 +115,7 @@ use super::*;
 
 		let xdepht = 124usize;
 		let ydepht = 124usize;
-		let zdepht = 100usize;
+		let zdepht = 200usize;
 
     	let dx = 26e-6 * k0;
     	let xdelta = dx/(xdepht as f64);
@@ -123,12 +123,12 @@ use super::*;
 		let ydelta = xdelta;
 		let dy = ydelta * (ydepht as f64);
 		
-    	let zdelta = 0.1e-6 * k0;
+    	let zdelta = 0.5e-6 * k0;
     	let dz = zdelta * (zdepht as f64);
 
     	let position_x = dx/2.0;
 		let position_y = dy/2.0;
-    	let width = 20e-6 * k0; // experimente diminuir o nucleo para ver modos de propagação
+    	let width = 16e-6 * k0; // experimente diminuir o nucleo para ver modos de propagação
 
 		let shape = [ydepht, xdepht];
 		let deltas = [ydelta, xdelta];
@@ -141,7 +141,7 @@ use super::*;
 		
     	let p = 10.0;
     	let eta = 120.0 * PI; // eta usa eps e mi do meio
-    	let w = 6e-6 * k0;
+    	let w = 3e-6 * k0;
     	let e0 = p*eta / (w.powf(2.0)*PI);
     	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
 
