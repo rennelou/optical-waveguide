@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 
 filename = "../main.h5"
 lines = 50
+
+origin = 'lower'
+
 with h5py.File(filename, "r") as f:
 
     for key in f.keys():
@@ -12,22 +15,31 @@ with h5py.File(filename, "r") as f:
     group = f['dir']
     print("Group: %s" % group)
     
-    [zdelta, xdelta] = group['deltas'][()]
+    [ydelta, xdelta] = group['deltas'][()]
     data = group['intensity'][()]
 
     xlen = data[0].size
-    zlen = data.size / xlen
+    ylen = data.size / xlen
 
     x = np.arange(0.0, xlen*xdelta, xdelta)
+    y = np.arange(0.0, ylen*ydelta, ydelta)
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
-    fig.subplots_adjust(hspace=0.5)
+    X, Y = np.meshgrid(x, y)
 
-    throttle = int(zlen * zdelta / lines)
-    for i, line in enumerate(data):
-        if i % throttle == 0:
-            y = line + (i*zdelta)
-            ax1.plot(x, y)
+    fig, (ax1, ax2) = plt.subplots(2, 1)
+    #fig.subplots_adjust(hspace=0.5)
+
+    cs1 =  ax1.contour(X, Y, data, origin=origin)
+    cbar = fig.colorbar(cs1, ax=ax1)  #barra lateral de intensidade
+    cbar.ax.set_ylabel('intensity')
+    cbar.add_lines(cs1)
+
+    core = group['core'][()]
+    cs2 = ax2.contourf(X, Y, core, 10, cmap=plt.cm.bone, origin=origin)
+    cs3 =  ax2.contour(cs2, levels=cs2.levels[::2], origin=origin)
+    cbar = fig.colorbar(cs3, ax=ax2)  #barra lateral de intensidade
+    cbar.ax.set_ylabel('refractive index')
+    cbar.add_lines(cs3)
     
     plt.show()
 
