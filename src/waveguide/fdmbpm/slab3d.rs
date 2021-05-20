@@ -146,7 +146,7 @@ use super::*;
     	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
 
     	let e = fdmbpm::slab3d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
-		// para gerar seria so exportar e -- export::hdf5("slab3d.h5", &e);
+		// para gerar seria so exportar e -- export::hdf5("slab3d.h5", &e, &core);
 
 		let intensity = e.get_intensity();
     	let array = Array::from_shape_vec(e.shape().clone(), intensity)?;

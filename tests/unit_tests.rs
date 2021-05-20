@@ -40,7 +40,7 @@ mod tests {
     	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
 
     	let e = fdmbpm::slab2d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
-		// para gerar seria so exportar e -- export::hdf5("example.h5", &e);
+		// para gerar seria so exportar e -- export::hdf5("example.h5", &e, &core);
 
 		let intensity = e.get_intensity();
     	let array = Array::from_shape_vec(e.shape().clone(), intensity)?;
