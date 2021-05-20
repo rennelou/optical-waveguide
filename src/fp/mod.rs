@@ -1,6 +1,5 @@
 pub mod list;
 pub mod matrix;
-pub mod comprehension;
 
 #[derive(Clone)]
 pub struct Matrix<T: Clone + Copy> {

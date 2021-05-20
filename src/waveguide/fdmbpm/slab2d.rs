@@ -2,7 +2,7 @@ use super::*;
 use Phasor;
 use cores::Core;
 use crate::fp::matrix::{self, Idx};
-use crate::fp::{comprehension, list};
+use crate::fp::list;
 
 pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
 	let shape = core.get_shape().clone();
@@ -34,33 +34,26 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 }
 
 pub fn get_initialized_params_2d(core: &impl Core<2>, k: f64, alpha: f64) -> (Matrix<Phasor>, Matrix<Phasor>) {
-	let [zdepht, xdepht] = core.get_shape().clone();
+	let shape = core.get_shape().clone();
 	let [zdelta, xdelta] = core.get_deltas().clone();
 	
 	let n0 = core.get_n0();
 
-    let guiding_space = |x: f64, z: f64| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(z,0.0, x, n0).powf(2.0)-n0.powf(2.0));
+    let guiding_space = |position: &[usize]| k.powf(2.0)*xdelta.powf(2.0)*(core.get_half_n(position, n0).powf(2.0)-n0.powf(2.0));
     let free_space = || 4.0*k*n0*xdelta.powf(2.0)/zdelta;
-    let loss = |_, _| 2.0*k*n0*xdelta.powf(2.0)*alpha;
+    let loss = || 2.0*k*n0*xdelta.powf(2.0)*alpha;
     
-    let s = comprehension::arange(zdepht, zdelta).map(
-        |z| comprehension::arange(xdepht, xdelta).map(
-            
+    let (s,q) = (0..shape.iter().product()).map(|id| {
+        let position = matrix::id_to_position(id, &shape);
+		let position_slice = position.as_slice();
+        (
 			// okamoto 7.98
-            |x| Complex::new(2.0 - guiding_space(x, z), free_space() + loss(x, z))
-        
-		).collect()
-    ).collect();
-    
-    let q = comprehension::arange(zdepht, zdelta).map(
-        |z| comprehension::arange(xdepht, xdelta).map(
-            
+			Complex::new(2.0 - guiding_space(&position_slice), free_space() + loss()),
 			// okamoto 7.99
-            |x| Complex::new(-2.0 + guiding_space(x, z), free_space() - loss(x, z))
-        
-		).collect()
-    ).collect();
+			Complex::new(-2.0 + guiding_space(&position_slice), free_space() - loss())
+		)
+
+	}).unzip();
     
-	let shape = core.get_shape().to_vec();
-    (fp::new_2d(s,&shape), fp::new_2d(q, &shape))
+    (matrix::new(s,&shape.to_vec()), matrix::new(q, &shape.to_vec()))
 }

@@ -55,18 +55,27 @@ impl<const D: usize> Core<D> for Rectilinear<D> {
         &self.deltas
     }
 
-    fn get_n(&self, _: f64, y: f64, x: f64, n0: f64) -> f64 {
+    fn get_n(&self, position: &[usize], n0: f64) -> f64 {
+        let new_shape = &position[1..];
+        let new_deltas = &self.get_deltas()[1..];
         match self.get_dimension() {
-            2 => if x > self.core_left && x < self.core_right {
+            2 => {
+                let x = new_shape[0] as f64 * new_deltas[0];
+                if x > self.core_left && x < self.core_right {
                     self.n
                 } else {
                     n0
-                },
-            3 => if x > self.core_left && x < self.core_right && y > self.core_left && y < self.core_right {
+                }
+            },
+            3 => {
+                let y = new_shape[0] as f64 * new_deltas[0];
+                let x = new_shape[1] as f64 * new_deltas[1];
+                if y > self.core_left && y < self.core_right && x > self.core_left && x < self.core_right {
                     self.n
                 } else {
                    n0
-                },
+                }
+            },
             _ => panic!("core must be 2 or 3 dimensions")
         }
     }
