@@ -2,7 +2,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = "../main.h5"
+filename = "main.h5"
 lines = 50
 
 origin = 'lower'
