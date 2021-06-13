@@ -103,7 +103,7 @@ pub fn get_initialized_params_3d(core: &impl Core<3>, k: f64, alpha: f64)
 
 #[cfg(test)]
 mod tests {
-	use crate::waves;
+	use crate::{export, waves};
 
 use super::*;
 	use std::{error::Error, f64::consts::PI};
@@ -111,13 +111,13 @@ use super::*;
 
 	#[test]
 	fn slab3d() -> Result<(), Box<dyn Error>> {
-		let k0 = (2.0*PI)/1.55e-6_f64;
+		let k0 = (2.0*PI)/1.15e-6_f64;
 
 		let xdepht = 124usize;
 		let ydepht = 124usize;
 		let zdepht = 200usize;
 
-    	let dx = 26e-6 * k0;
+    	let dx = 40e-6 * k0;
     	let xdelta = dx/(xdepht as f64);
 
 		let ydelta = xdelta;
@@ -128,34 +128,35 @@ use super::*;
 
     	let position_x = dx/2.0;
 		let position_y = dy/2.0;
-    	let width = 16e-6 * k0; // experimente diminuir o nucleo para ver modos de propagação
+    	let width = 8e-6 * k0; // experimente diminuir o nucleo para ver modos de propagação
 
 		let shape = [ydepht, xdepht];
 		let deltas = [ydelta, xdelta];
 		let center = [position_y, position_x];
 
-    	let n0 = 3.0;
-    	let n = 3.3;
+    	let n0 = 3.377;
+    	let n = 3.38;
 
     	let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 		
     	let p = 10.0;
     	let eta = 120.0 * PI; // eta usa eps e mi do meio
-    	let w = 3e-6 * k0;
+    	let w = 4e-6 * k0;
     	let e0 = p*eta / (w.powf(2.0)*PI);
     	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
 
     	let e = fdmbpm::slab3d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
-		// para gerar seria so exportar e -- export::hdf5("slab3d.h5", &e, &core);
+		// para gerar seria so exportar e -- 
+		export::hdf5("slab3d.h5", &e, &core);
 
-		let intensity = e.get_intensity();
-    	let array = Array::from_shape_vec(e.shape().clone(), intensity)?;
+		//let intensity = e.get_intensity();
+    	//let array = Array::from_shape_vec(e.shape().clone(), intensity)?;
 
-    	let file = hdf5::File::open("slab3d.h5")?;
-		let dir = file.group("dir")?;
-		let values = dir.dataset("intensity")?;
+    	//let file = hdf5::File::open("slab3d.h5")?;
+		//let dir = file.group("dir")?;
+		//let values = dir.dataset("intensity")?;
 
-		assert_eq!(values.read_dyn::<f64>()?, array);
+		//assert_eq!(values.read_dyn::<f64>()?, array);
 
 		Ok(())
    	}

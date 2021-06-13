@@ -1,4 +1,5 @@
 import h5py
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -18,6 +19,14 @@ with h5py.File(filename, "r") as f:
     [ydelta, xdelta] = group['deltas'][()]
     data = group['intensity'][()]
 
+     # trazer K no HDF5
+    k0 = (2.0* math.pi)/1.15e-6
+    xdelta = xdelta / k0
+    ydelta = ydelta / k0
+
+    xdelta = xdelta * 1000000
+    ydelta = ydelta * 1000000
+
     xlen = data[0].size
     ylen = data.size / xlen
 
@@ -29,11 +38,10 @@ with h5py.File(filename, "r") as f:
     fig, (ax1, ax2) = plt.subplots(2, 1)
     #fig.subplots_adjust(hspace=0.5)
 
-    cs1 =  ax1.contour(X, Y, data, origin=origin)
+    cs1 =  ax1.contourf(X, Y, data, origin=origin)
     cbar = fig.colorbar(cs1, ax=ax1)  #barra lateral de intensidade
     cbar.ax.set_ylabel('intensity')
-    cbar.add_lines(cs1)
-
+    
     core = group['core'][()]
     cs2 = ax2.contourf(X, Y, core, 10, cmap=plt.cm.bone, origin=origin)
     cs3 =  ax2.contour(cs2, levels=cs2.levels[::2], origin=origin)
