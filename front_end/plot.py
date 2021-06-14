@@ -19,14 +19,6 @@ with h5py.File(filename, "r") as f:
     [ydelta, xdelta] = group['deltas'][()]
     data = group['intensity'][()]
 
-     # trazer K no HDF5
-    k0 = (2.0* math.pi)/1.15e-6
-    xdelta = xdelta / k0
-    ydelta = ydelta / k0
-
-    xdelta = xdelta * 1000000
-    ydelta = ydelta * 1000000
-
     xlen = data[0].size
     ylen = data.size / xlen
 
@@ -39,6 +31,7 @@ with h5py.File(filename, "r") as f:
     #fig.subplots_adjust(hspace=0.5)
 
     cs1 =  ax1.contourf(X, Y, data, origin=origin)
+    #cs1 =  ax1.pcolormesh(X, Y, data, shading='auto')
     cbar = fig.colorbar(cs1, ax=ax1)  #barra lateral de intensidade
     cbar.ax.set_ylabel('intensity')
     

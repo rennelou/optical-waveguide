@@ -8,19 +8,19 @@ use core::f64::consts::PI;
 
 fn main() -> Result<(), std::io::Error> {
     
-    let k0 = (2.0*PI)/1.15e-6_f64;
+    let k0 = 2.0*PI/1.15;
 
 	let xdepht = 2000usize;
-	let zdepht = 1100usize;
+	let zdepht = 1500usize;
     
-	let dx = 40e-6 * k0;
+	let dx = 40.0;
     let xdelta = dx/(xdepht as f64);
 	
-    let zdelta = 0.5e-6 * k0;
+    let zdelta = 0.5;
     let dz = zdelta * (zdepht as f64);
     
 	let position = dx/2.0;
-    let width = 4e-6 * k0;
+    let width = 8.0;
 	
 	let shape = [xdepht];
 	let deltas = [xdelta];
@@ -31,14 +31,14 @@ fn main() -> Result<(), std::io::Error> {
 
     let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 	
-    let p = 100.0;
+    let p = 1.0;
     let eta = 120.0 * PI; // eta usa eps e mi do meio
-    let w = 8e-6 * k0;
+    let w = 4.0_f64;
     let e0 = p*eta / (w.powf(2.0)*PI);
     
-	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
+	let gaussian = waves::gaussian(&shape, &deltas, &center, 10.0, w);
     
-	let e = fdmbpm::slab2d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
+	let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::dirichlet);
     export::hdf5("main.h5", &e, &core);
 
     Ok(())
