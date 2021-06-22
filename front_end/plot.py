@@ -27,22 +27,11 @@ with h5py.File(filename, "r") as f:
 
     X, Y = np.meshgrid(x, y)
 
-    fig, (ax1, ax2) = plt.subplots(2, 1)
-    #fig.subplots_adjust(hspace=0.5)
-
-    cs1 =  ax1.contourf(X, Y, data, origin=origin)
-    #cs1 =  ax1.pcolormesh(X, Y, data, shading='auto')
-    cbar = fig.colorbar(cs1, ax=ax1)  #barra lateral de intensidade
+    cs1 = plt.contourf(X, Y, data, origin=origin)
+    cbar = plt.colorbar(cs1)  #barra lateral de intensidade
     cbar.ax.set_ylabel('intensity')
     
     core = group['core'][()]
-    cs2 = ax2.contourf(X, Y, core, 10, cmap=plt.cm.bone, origin=origin)
-    cs3 =  ax2.contour(cs2, levels=cs2.levels[::2], origin=origin)
-    cbar = fig.colorbar(cs3, ax=ax2)  #barra lateral de intensidade
-    cbar.ax.set_ylabel('refractive index')
-    cbar.add_lines(cs3)
+    cs3 = plt.contour(X, Y, core, origin=origin)
     
     plt.show()
-
-    
-    

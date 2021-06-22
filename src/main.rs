@@ -9,15 +9,13 @@ use core::f64::consts::PI;
 fn main() -> Result<(), std::io::Error> {
     
     let k0 = 2.0*PI/1.15;
-
-	let xdepht = 2000usize;
-	let zdepht = 1500usize;
     
+	let xdepht = 2000usize;
 	let dx = 40.0;
     let xdelta = dx/(xdepht as f64);
 	
+    let dz = 750.0;
     let zdelta = 0.5;
-    let dz = zdelta * (zdepht as f64);
     
 	let position = dx/2.0;
     let width = 8.0;
@@ -31,10 +29,10 @@ fn main() -> Result<(), std::io::Error> {
 
     let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 	
-    let p = 1.0;
-    let eta = 120.0 * PI; // eta usa eps e mi do meio
-    let w = 4.0_f64;
-    let e0 = p*eta / (w.powf(2.0)*PI);
+    //let p = 1.0;
+    //let eta = 120.0 * PI; // eta usa eps e mi do meio
+    let w = 2.0_f64;
+    //let e0 = p*eta / (w.powf(2.0)*PI);
     
 	let gaussian = waves::gaussian(&shape, &deltas, &center, 10.0, w);
     

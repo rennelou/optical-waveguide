@@ -56,11 +56,11 @@ impl<const D: usize> Core<D> for Rectilinear<D> {
     }
 
     fn get_n(&self, position: &[usize], n0: f64) -> f64 {
-        let new_shape = &position[1..];
-        let new_deltas = &self.get_deltas()[1..];
+        let position = &position[1..];
+        let deltas = &self.get_deltas()[1..];
         match self.get_dimension() {
             2 => {
-                let x = new_shape[0] as f64 * new_deltas[0];
+                let x = position[0] as f64 * deltas[0];
                 if x > self.core_left && x < self.core_right {
                     self.n
                 } else {
@@ -68,8 +68,8 @@ impl<const D: usize> Core<D> for Rectilinear<D> {
                 }
             },
             3 => {
-                let y = new_shape[0] as f64 * new_deltas[0];
-                let x = new_shape[1] as f64 * new_deltas[1];
+                let y = position[0] as f64 * deltas[0];
+                let x = position[1] as f64 * deltas[1];
                 if y > self.core_left && y < self.core_right && x > self.core_left && x < self.core_right {
                     self.n
                 } else {

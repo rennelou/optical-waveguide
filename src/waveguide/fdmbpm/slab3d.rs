@@ -72,7 +72,7 @@ pub fn get_initialized_params_3d(core: &impl Core<3>, k: f64, alpha: f64)
 	let [zdelta, ydelta, xdelta] = core.get_deltas().clone();
 	let n0 = core.get_n0();
 
-    let guiding_space = |position: Vec<_>, delta: f64| k.powf(2.0)*delta.powf(2.0)*(core.get_half_n(position.as_slice(), n0).powf(2.0)-n0.powf(2.0));
+    let guiding_space = |position: Vec<_>, delta: f64| ((k.powf(2.0)*delta.powf(2.0))/2.0)*(core.get_half_n(position.as_slice(), n0).powf(2.0)-n0.powf(2.0));
     let free_space = |delta: f64| 4.0*k*n0*delta.powf(2.0)/zdelta;
     let loss = |delta: f64| 2.0*k*n0*delta.powf(2.0)*alpha;
     
@@ -107,28 +107,27 @@ mod tests {
 
 use super::*;
 	use std::{error::Error, f64::consts::PI};
-	use ndarray::Array;
 
 	#[test]
 	fn slab3d() -> Result<(), Box<dyn Error>> {
-		let k0 = (2.0*PI)/1.15e-6_f64;
+		let k0 = (2.0*PI)/1.15;
 
-		let xdepht = 124usize;
-		let ydepht = 124usize;
-		let zdepht = 200usize;
+		let xdepht = 2000usize;
+		let ydepht = 2000usize;
+		let zdepht = 500usize;
 
-    	let dx = 40e-6 * k0;
+    	let dx = 40.0;
     	let xdelta = dx/(xdepht as f64);
 
 		let ydelta = xdelta;
 		let dy = ydelta * (ydepht as f64);
 		
-    	let zdelta = 0.5e-6 * k0;
+    	let zdelta = 0.5;
     	let dz = zdelta * (zdepht as f64);
 
     	let position_x = dx/2.0;
 		let position_y = dy/2.0;
-    	let width = 8e-6 * k0; // experimente diminuir o nucleo para ver modos de propagação
+    	let width = 8.0; // experimente diminuir o nucleo para ver modos de propagação
 
 		let shape = [ydepht, xdepht];
 		let deltas = [ydelta, xdelta];
@@ -139,13 +138,13 @@ use super::*;
 
     	let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 		
-    	let p = 10.0;
-    	let eta = 120.0 * PI; // eta usa eps e mi do meio
-    	let w = 4e-6 * k0;
-    	let e0 = p*eta / (w.powf(2.0)*PI);
-    	let gaussian = waves::gaussian(&shape, &deltas, &center, e0, w);
+    	//let p = 10.0;
+    	//let eta = 120.0 * PI; // eta usa eps e mi do meio
+    	let w = 4.0;
+    	//let e0 = p*eta / (w.powf(2.0)*PI);
+    	let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
 
-    	let e = fdmbpm::slab3d::run(&core, 1.0, 0.0, gaussian, boundary_codition::dirichlet);
+    	let e = fdmbpm::slab3d::run(&core, k0, 0.0, gaussian, boundary_codition::dirichlet);
 		// para gerar seria so exportar e -- 
 		export::hdf5("slab3d.h5", &e, &core);
 
