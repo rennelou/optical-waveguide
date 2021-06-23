@@ -6,20 +6,21 @@ pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField, core: &im
     let shape = eletric_field.shape();
     let deltas = eletric_field.grid_steps();
     
-    let intensity = eletric_field.get_intensity();
-    let array = Array::from_shape_vec(shape.clone(), intensity).unwrap();
-    
     let file = hdf5::File::create(title).unwrap();
-    let group = file.create_group("dir").unwrap();
     
-    let deltas_dataset = group.new_dataset::<f64>().create("deltas", deltas.len()).unwrap();
+    let deltas_dataset = file.new_dataset::<f64>().create("deltas", deltas.len()).unwrap();
     deltas_dataset.write(deltas).unwrap();
     
-    let dataset = group.new_dataset::<f64>().create("intensity", shape.clone()).unwrap();
-    dataset.write(&array).unwrap();
+    let eletric_field_array = Array::from_shape_vec(shape.clone(), eletric_field.get_values()).unwrap();
+    let eletric_field_dataset = file.new_dataset::<f64>().create("eletric_field", shape.clone()).unwrap();
+    eletric_field_dataset.write(&eletric_field_array).unwrap();
+
+    let intensity_array = Array::from_shape_vec(shape.clone(), eletric_field.get_intensity()).unwrap();
+    let dataset = file.new_dataset::<f64>().create("intensity", shape.clone()).unwrap();
+    dataset.write(&intensity_array).unwrap();
 
     let core_values = Array::from_shape_vec(shape.clone(), get_core_matrix(core)).unwrap();
-    let core_dataset = group.new_dataset::<f64>().create("core", shape.clone()).unwrap();
+    let core_dataset = file.new_dataset::<f64>().create("core", shape.clone()).unwrap();
     core_dataset.write(&core_values).unwrap();
 }
 

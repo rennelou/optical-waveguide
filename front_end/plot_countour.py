@@ -10,13 +10,10 @@ with h5py.File(filename, "r") as f:
 
     for key in f.keys():
         print("Key %s" % key)
-
-    group = f['dir']
-    print("Group: %s" % group)
     
-    [zdelta, ydelta, xdelta] = group['deltas'][()]
-    data = group['intensity'][()]
-    core = group['core'][()]
+    [zdelta, ydelta, xdelta] = f['deltas'][()]
+    data = f['intensity'][()]
+    core = f['core'][()]
 
     xdepht = data[0][0].size
     ydepht = data[0].size / xdepht

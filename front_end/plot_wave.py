@@ -9,11 +9,8 @@ with h5py.File(filename, "r") as f:
     for key in f.keys():
         print("Key %s" % key)
 
-    group = f['dir']
-    print("Group: %s" % group)
-
-    [zdelta, xdelta] = group['deltas'][()]
-    data = group['intensity'][()]
+    [zdelta, xdelta] = f['deltas'][()]
+    data = f['intensity'][()]
 
     xlen = data[0].size
     zlen = data.size / xlen

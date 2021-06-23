@@ -12,12 +12,9 @@ with h5py.File(filename, "r") as f:
 
     for key in f.keys():
         print("Key %s" % key)
-
-    group = f['dir']
-    print("Group: %s" % group)
     
-    [ydelta, xdelta] = group['deltas'][()]
-    data = group['intensity'][()]
+    [ydelta, xdelta] = f['deltas'][()]
+    data = f['intensity'][()]
 
     xlen = data[0].size
     ylen = data.size / xlen
@@ -31,7 +28,7 @@ with h5py.File(filename, "r") as f:
     cbar = plt.colorbar(cs1)  #barra lateral de intensidade
     cbar.ax.set_ylabel('intensity')
     
-    core = group['core'][()]
+    core = f['core'][()]
     cs3 = plt.contour(X, Y, core, origin=origin)
     
     plt.show()
