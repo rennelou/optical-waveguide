@@ -2,3 +2,4 @@
 *.png
 *.data
 *.old
+Cargo.lock
