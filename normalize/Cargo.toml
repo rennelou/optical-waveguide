@@ -7,4 +7,5 @@ edition = "2018"
 
 [dependencies]
 structopt = "0.3.13"
+ndarray = "0.14"
 hdf5 = "0.7.1"
