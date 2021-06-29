@@ -6,7 +6,7 @@ use Phasor;
 use fp::list;
 use fp::Matrix;
 
-pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
+pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn(s: Side, es: MatrixView<Phasor, 1usize>)-> Phasor) -> EletricField {
 	let grid_steps = core.get_deltas().to_vec();
 	let [zdepht, ydepht, xdepht] = core.get_shape().clone();
 
@@ -29,7 +29,7 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 				let sx_list = s_x.view(&[Idx::Value(z-1), Idx::Value(y), Idx::Free]);
 				let d_list = transposed_d_plane.view(&[Idx::Free, Idx::Value(y-1)]);
 
-				get_es(sx_list, d_list, boundary_codition)
+				get_es(sx_list, d_list, last_es, boundary_codition)
 			}).collect();
 			let es_intermediate = matrix::zip(es_list);
 			
@@ -40,7 +40,7 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 				let last_qx = q_x.view(&[Idx::Value(z-1), Idx::Value(y), Idx::Free]);
 
 				// multiplicar d pelo fator para 3 dimensões
-				get_ds(last_es, last_qx)
+				get_ds(&last_es, last_qx)
 			}).collect();
 			let h_plane = matrix::zip(h_list);
 			
@@ -48,7 +48,7 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 				let sy_list = s_y.view(&[Idx::Value(z-1), Idx::Free, Idx::Value(x)]);
 				let h_list = h_plane.view(&[Idx::Free, Idx::Value(x-1)]);
 
-				get_es(sy_list, h_list, boundary_codition)
+				get_es(sy_list, h_list, last_es, boundary_codition)
 			}).collect();
 			let es_transposed = matrix::zip(es_list);
 			

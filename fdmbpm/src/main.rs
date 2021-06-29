@@ -36,7 +36,7 @@ fn main() -> Result<(), std::io::Error> {
     
 	let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
     
-	let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::dirichlet);
+	let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
     export::hdf5("main.h5", &e, &core);
 
     Ok(())

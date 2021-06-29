@@ -4,7 +4,7 @@ use cores::Core;
 use crate::fp::matrix::{self, Idx};
 use crate::fp::list;
 
-pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn()-> Phasor) -> EletricField {
+pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn(s: Side, es: &MatrixView<Phasor, 1usize>)-> Phasor) -> EletricField {
 	let shape = core.get_shape().clone();
 	let grid_steps = core.get_deltas().to_vec();
 	let zsteps = shape[0];
@@ -20,10 +20,10 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 
 			let s_list = s.view(&[Idx::Value(i-1), Idx::Free]);
 
-			let ds = get_ds(last_es, last_q);
+			let ds = get_ds(&last_es, last_q);
 			let d_list = ds.view(&[Idx::Free]);
 
-			let new_es = get_es(s_list, d_list, boundary_codition);
+			let new_es = get_es(s_list, d_list, last_es, boundary_codition);
 
 			return list::append(result, new_es);
 		}
