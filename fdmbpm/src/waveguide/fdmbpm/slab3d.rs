@@ -6,7 +6,7 @@ use Phasor;
 use fp::list;
 use fp::Matrix;
 
-pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn(s: Side, es: MatrixView<Phasor, 1usize>)-> Phasor) -> EletricField {
+pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn(s: Side, es: &MatrixView<Phasor, 1usize>) -> Phasor) -> EletricField {
 	let grid_steps = core.get_deltas().to_vec();
 	let [zdepht, ydepht, xdepht] = core.get_shape().clone();
 
@@ -21,11 +21,13 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 				let last_qy = q_y.view(&[Idx::Value(z-1), Idx::Free, Idx::Value(x)]);
 				
 				// multiplicar d pelo fator para 3 dimensões
-				get_ds(last_es, last_qy)
+				get_ds(&last_es, last_qy)
 			}).collect();
 			let transposed_d_plane = matrix::zip(d_list);
 
 			let es_list = (1..ydepht-1).map(|y| {
+				let last_es= fp::last(result.iter()).unwrap().view(&[ Idx::Value(y),Idx::Free]);
+
 				let sx_list = s_x.view(&[Idx::Value(z-1), Idx::Value(y), Idx::Free]);
 				let d_list = transposed_d_plane.view(&[Idx::Free, Idx::Value(y-1)]);
 
@@ -45,6 +47,8 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 			let h_plane = matrix::zip(h_list);
 			
 			let es_list = (1..xdepht-1).map(|x|{
+				let last_es= fp::last(result.iter()).unwrap().view(&[Idx::Free,Idx::Value(x)]);
+
 				let sy_list = s_y.view(&[Idx::Value(z-1), Idx::Free, Idx::Value(x)]);
 				let h_list = h_plane.view(&[Idx::Free, Idx::Value(x-1)]);
 
@@ -103,32 +107,33 @@ pub fn get_initialized_params_3d(core: &impl Core<3>, k: f64, alpha: f64)
 
 #[cfg(test)]
 mod tests {
-	use crate::{export, waves};
 
-use super::*;
+	use ndarray::Array;
+	use crate::{waves};
+
+	use super::*;
 	use std::{error::Error, f64::consts::PI};
 
 	#[test]
 	fn slab3d() -> Result<(), Box<dyn Error>> {
 		let k0 = (2.0*PI)/1.15;
 
-		let xdepht = 2000usize;
-		let ydepht = 2000usize;
-		let zdepht = 500usize;
+		let xdepht = 100usize;
+		let ydepht = 100usize;
 
-    	let dx = 40.0;
+    	let dx = 10.0;
     	let xdelta = dx/(xdepht as f64);
 
-		let ydelta = xdelta;
-		let dy = ydelta * (ydepht as f64);
+		let dy = 10.0;
+		let ydelta = dy/(ydepht as f64);
 		
+		let dz = 200.0;
     	let zdelta = 0.5;
-    	let dz = zdelta * (zdepht as f64);
-
+    	
     	let position_x = dx/2.0;
 		let position_y = dy/2.0;
-    	let width = 8.0; // experimente diminuir o nucleo para ver modos de propagação
-
+    	let width = 8.0;
+		
 		let shape = [ydepht, xdepht];
 		let deltas = [ydelta, xdelta];
 		let center = [position_y, position_x];
@@ -138,24 +143,20 @@ use super::*;
 
     	let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 		
-    	//let p = 10.0;
-    	//let eta = 120.0 * PI; // eta usa eps e mi do meio
-    	let w = 4.0;
-    	//let e0 = p*eta / (w.powf(2.0)*PI);
+    	let w = 2.0;
     	let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
 
-    	let e = fdmbpm::slab3d::run(&core, k0, 0.0, gaussian, boundary_codition::dirichlet);
-		// para gerar seria so exportar e -- 
-		export::hdf5("slab3d.h5", &e, &core);
+    	let e = fdmbpm::slab3d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
+		// para gerar seria so exportar e -- export::hdf5("slab3d.h5", &e, &core);
 
-		//let intensity = e.get_intensity();
-    	//let array = Array::from_shape_vec(e.shape().clone(), intensity)?;
+		let intensity = e.get_intensity();
+    	let array = Array::from_shape_vec(e.shape().clone(), intensity)?;
 
-    	//let file = hdf5::File::open("slab3d.h5")?;
-		//let dir = file.group("dir")?;
-		//let values = dir.dataset("intensity")?;
+    	let file = hdf5::File::open("slab3d.h5")?;
+		let dir = file.group("dir")?;
+		let values = dir.dataset("intensity")?;
 
-		//assert_eq!(values.read_dyn::<f64>()?, array);
+		assert_eq!(values.read_dyn::<f64>()?, array);
 
 		Ok(())
    	}

@@ -29,11 +29,7 @@ fn main() -> Result<(), std::io::Error> {
 
     let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 	
-    //let p = 1.0;
-    //let eta = 120.0 * PI; // eta usa eps e mi do meio
     let w = 2.0_f64;
-    //let e0 = p*eta / (w.powf(2.0)*PI);
-    
 	let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
     
 	let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
