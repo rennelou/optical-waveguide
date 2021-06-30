@@ -11,6 +11,10 @@ pub fn dirichlet(_: Side, _: &MatrixView<waveguide::Phasor, 1usize>) -> waveguid
 }
 
 pub fn transparent(s: Side, es: &MatrixView<waveguide::Phasor, 1usize>) -> waveguide::Phasor {
+    
+    // forma mais simples que considera que a frente de onda é transversal ao eixo z. 
+    // caso implemente semi vector ou full vector algoritmo é interessante ver os mais casos
+    // do Hadley 1992 pra garantir que passos muito grandes em Z não cause problemas
     match s {
         Side::Left => {
             let mut es_it = es.iter();
@@ -18,20 +22,8 @@ pub fn transparent(s: Side, es: &MatrixView<waveguide::Phasor, 1usize>) -> waveg
             let x1 = es_it.next().unwrap();
 
             let eta = x0/x1;
-            
-            let eta = if eta.re < 0.0 || eta.re.is_nan() {
-                Complex::new(0.0, eta.im)
-            } else {
-                eta   
-            };
 
-            let eta = if eta.im.is_nan() {
-                Complex::new(eta.re, 0.0)    
-            } else {
-                eta
-            };
-
-            eta
+            valid_eta(eta)
         },
         Side::Right => {
             let mut es_it = es.iter();
@@ -40,19 +32,24 @@ pub fn transparent(s: Side, es: &MatrixView<waveguide::Phasor, 1usize>) -> waveg
 
             let eta = (xn*1000000.0)/(xn_less_one*1000000.0);
             
-            let eta = if eta.re < 0.0 || eta.re.is_nan() {
-                Complex::new(0.0, eta.im)
-            } else {
-                eta   
-            };
-
-            let eta = if eta.im.is_nan() {
-                Complex::new(eta.re, 0.0)    
-            } else {
-                eta
-            };
-
-            eta
+            valid_eta(eta)
         }
     }
+}
+
+fn valid_eta(eta: Complex<f64>) -> Complex<f64> {
+    
+    let tmp = if eta.re < 0.0 || eta.re.is_nan() {
+        Complex::new(0.0, eta.im)
+    } else {
+        eta   
+    };
+
+    let result = if tmp.im.is_nan() {
+        Complex::new(tmp.re, 0.0)    
+    } else {
+        tmp
+    };
+
+    result
 }
