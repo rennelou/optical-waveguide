@@ -1,9 +1,11 @@
 import h5py
 import math
 import numpy as np
+import matplotlib
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 
-filename = "main.h5"
+filename = "../fdmbpm/main.h5"
 lines = 50
 
 origin = 'lower'
