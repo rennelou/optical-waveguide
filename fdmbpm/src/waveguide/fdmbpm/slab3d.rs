@@ -121,10 +121,10 @@ mod tests {
 		let xdepht = 100usize;
 		let ydepht = 100usize;
 
-    	let dx = 10.0;
+    	let dx = 40.0;
     	let xdelta = dx/(xdepht as f64);
 
-		let dy = 10.0;
+		let dy = 40.0;
 		let ydelta = dy/(ydepht as f64);
 		
 		let dz = 200.0;
@@ -156,7 +156,7 @@ mod tests {
 		let values = file.dataset("intensity")?;
 
 		assert_eq!(values.read_dyn::<f64>()?, array);
-
+		
 		Ok(())
    	}
 }
