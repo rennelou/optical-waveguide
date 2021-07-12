@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 matplotlib.use('Qt5Agg')
 
-filename = "../tools/target/release/compared_gaussian_8.h5"
+filename = "../tools/target/release/compared_gaussian_4.h5"
 
 with h5py.File(filename, "r") as f:
 
@@ -30,10 +30,6 @@ with h5py.File(filename, "r") as f:
             reference.append(reference_areas[i])
             data.append(data_areas[i])
             diff.append(diff_areas[i])
-
-    print(reference)
-    print(data)
-    print(diff)
 
     x = range(number_of_dots)
 
