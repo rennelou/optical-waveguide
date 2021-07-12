@@ -30,7 +30,7 @@ fn main() {
                     save_line(&output, data_areas, "areas_data");
                     save_line(&output, diff_area, "areas_diff");
                     
-                    save_diff(&output, formeted_diffs(&file1, &file2));
+                    tools::save_surface(&output, formeted_diffs(&file1, &file2), "diff");
                 } Err(_) => {
                     println!("Cant open second file");    
                 }
@@ -49,21 +49,21 @@ fn areas_diff(reference: &Vec<f64>, data: &Vec<f64>) -> Vec<f64> {
     diffs
 }
 
-fn areas(file1: &hdf5::File) -> Vec<f64> {
-    let dataset1 = file1.dataset("intensity").unwrap();
+fn areas(file: &hdf5::File) -> Vec<f64> {
+    let dataset = file.dataset("intensity").unwrap();
 
-    let shape1 = dataset1.shape();
+    let shape = dataset.shape();
 
-    if shape1.len() == 2 {
-        let data1 = dataset1.read_raw::<f64>().unwrap();
+    if shape.len() == 2 {
+        let data = dataset.read_raw::<f64>().unwrap();
 
-        let depht0 = shape1[0];
-        let depht1 = shape1[1];
+        let depht0 = shape[0];
+        let depht1 = shape[1];
 
         let result: Vec<_> = (0..depht0).map(|i| {
             
             let area = (0..depht1)
-                .map(|j| data1[i*depht1 + j]).sum();
+                .map(|j| data[i*depht1 + j]).sum();
             
             area
         }).collect();
@@ -106,14 +106,6 @@ fn diffs(file1: &hdf5::File, file2: &hdf5::File) -> (Vec<Vec<f64>>, usize, usize
     } else {
         panic!("Both datasets needs has depht two");
     }   
-}
-
-fn save_diff(output: &hdf5::File, (data, depht0, depht1):(Vec<f64>, usize, usize)) {
-    let shape = vec![depht0, depht1];
-    let dataset = output.new_dataset::<f64>().create("diff", shape.clone()).unwrap();
-    let result_array = Array::from_shape_vec(shape.clone(), data).unwrap();
-
-    dataset.write(&result_array).unwrap();
 }
 
 fn save_line(output: &hdf5::File, result: Vec<f64>, title: &str) {

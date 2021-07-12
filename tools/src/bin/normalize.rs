@@ -4,58 +4,64 @@ use structopt::StructOpt;
 #[derive(StructOpt)]
 struct Cli {
     #[structopt(parse(from_os_str))]
-    path: std::path::PathBuf,
-    output_name: String,
+    input_file: std::path::PathBuf,
+    output_file: String,
 }
 
 fn main() {
     let args = Cli::from_args();
 
-    let result = hdf5::File::open(args.path);
-    match result {
-        Ok(file_input) => {
-            let intensity_dataset = file_input.dataset("intensity").unwrap();
-    
-            let intensity_values = intensity_dataset.read_raw::<f64>().unwrap();
-            let shape = intensity_dataset.shape();
+    let option_file = hdf5::File::open(args.input_file);
 
-            if shape.len() == 2 {
-                let max = intensity_values.iter().cloned().fold(f64::NAN, f64::max);
-                let min = intensity_values.iter().cloned().fold(f64::NAN, f64::min);
+    match option_file {
+        Ok(file) => {
+            let output = hdf5::File::create(args.output_file).unwrap();
+
+            let intensity_norm_surface = normalize(&file, "intensity");
+            tools::save_surface(&output, intensity_norm_surface, "intensity");
+
+            let eletric_field_norm_surface = normalize(&file, "eletric_field");
+            tools::save_surface(&output, eletric_field_norm_surface, "eletric_field");
             
-                let new_values: Vec<_> = intensity_values.into_iter().map(
-                    |x| (x-min)/(max-min)
-                ).collect();
-            
-                let new_values_array = Array::from_shape_vec(shape.clone(), new_values).unwrap();
-                let file_output = hdf5::File::create(args.output_name).unwrap();
-                let dataset = file_output.new_dataset::<f64>().create("intensity", shape.clone()).unwrap();
-                dataset.write(&new_values_array).unwrap();
-            
-                // Copy Core and Deltas
-                let deltas_dataset = file_input.dataset("deltas").unwrap();
-                let deltas_array = Array::from_shape_vec(deltas_dataset.shape(), deltas_dataset.read_raw::<f64>().unwrap()).unwrap();
-                let deltas_dataset = file_output.new_dataset::<f64>().create("deltas", deltas_dataset.shape()).unwrap();
-                deltas_dataset.write(&deltas_array).unwrap();
-            
-                let core_dataset = file_input.dataset("core");
-                match core_dataset {
-                    Ok(dataset) => {
-                        let core_array = Array::from_shape_vec(dataset.shape(), dataset.read_raw::<f64>().unwrap()).unwrap();
-                        let core_dataset = file_output.new_dataset::<f64>().create("core", dataset.shape()).unwrap();
-                        core_dataset.write(&core_array).unwrap();
-                    }
-                    Err(_) => {
-                        println!("Havent core dataset");
-                    }
-                }
-                // ------------------------------------------------------
-            } else {
-                println!("for while need be two dimensional");
-            }
+            copy_dataset(&output, &file, "deltas");
+            copy_dataset(&output, &file, "core");
+
+        } Err(_) => {
+            println!("Cant open first file");
+        }
+    }    
+}
+
+fn normalize(file: &hdf5::File, dataset_name: &str) -> (Vec<f64>, usize, usize) {
+    let dataset = file.dataset(dataset_name).unwrap();
+
+    let values = dataset.read_raw::<f64>().unwrap();
+    let shape = dataset.shape();
+
+    if shape.len() == 2 {
+        let depht0 = shape[0];
+        let depht1 = shape[1];
+
+        let area_input =(0..depht1).map(|j| values[j]).sum::<f64>();
+        let new_values = values.into_iter().map(|x| x / area_input).collect();
+
+        return (new_values, depht0, depht1);
+    } else {
+        panic!("Both datasets needs has depht two");
+    }
+}
+
+fn copy_dataset(output: &hdf5::File, file: &hdf5::File, dataset_name: &str) {
+    let dataset_option = file.dataset(dataset_name);
+    
+    match dataset_option {
+        Ok(dataset) => {
+            let array = Array::from_shape_vec(dataset.shape(), dataset.read_raw::<f64>().unwrap()).unwrap();
+            let dataset_copy = output.new_dataset::<f64>().create(dataset_name, dataset.shape()).unwrap();
+            dataset_copy.write(&array).unwrap();
         }
         Err(_) => {
-            println!("Cant find file");
+            println!("Havent {} dataset", dataset_name);
         }
     }
 }
