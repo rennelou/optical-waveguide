@@ -2,8 +2,9 @@ import h5py
 import math
 import numpy as np
 import matplotlib
-matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
+
+matplotlib.use('Qt5Agg')
 
 filename = "../tools/target/release/compared_gaussian_8.h5"
 
@@ -11,23 +12,37 @@ with h5py.File(filename, "r") as f:
 
     for key in f.keys():
         print("Key %s" % key)
-    
+
+    number_of_dots = 30
+
     reference_areas = f['areas_reference'][()]
-    reference_areas_len = reference_areas.size
-    reference_areas_x = np.arange(0.0, reference_areas_len, 1.0)
-
     data_areas = f['areas_data'][()]
-    data_areas_len = data_areas.size
-    data_areas_x = np.arange(0.0, data_areas_len, 1.0)
-
     diff_areas = f['areas_diff'][()]
-    diff_areas_len = diff_areas.size
-    diff_areas_x = np.arange(0.0, diff_areas_len, 1.0)
 
-    fig1, cs2 = plt.subplots()
-    cs2.plot(reference_areas_x, reference_areas)
-    cs2.plot(data_areas_x, data_areas)
-    cs2.plot(diff_areas_x, diff_areas)
-    cs2.set_ylabel('error')
-    
+    len = min(reference_areas.size, data_areas.size, diff_areas.size)
+
+    throttle = int(len/ number_of_dots)
+    reference = []
+    data = []
+    diff = []
+    for i in range(len):
+        if i % throttle == 0:
+            reference.append(reference_areas[i])
+            data.append(data_areas[i])
+            diff.append(diff_areas[i])
+
+    print(reference)
+    print(data)
+    print(diff)
+
+    x = range(number_of_dots)
+
+    fig1, ax = plt.subplots()
+    ax.plot(x, reference, 'b--', label='beamlab')
+    ax.plot(x, data, 'g^', label='resultados')
+    ax.plot(x, diff, 'ro', label='distância')
+    ax.set_ylabel('Área')
+    ax.set_xlabel('Passo')
+    ax.legend()
+
     plt.show()
