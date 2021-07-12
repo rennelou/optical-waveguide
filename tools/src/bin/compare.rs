@@ -24,13 +24,11 @@ fn main() {
 
                     let reference_areas = areas(&file1);
                     let data_areas = areas(&file2);
-                    let diff_area = areas_diff(&reference_areas, &data_areas);
+                    let diff_area = areas_diff(&file1, &file2);
                     
                     save_line(&output, reference_areas, "areas_reference");
                     save_line(&output, data_areas, "areas_data");
                     save_line(&output, diff_area, "areas_diff");
-                    
-                    tools::save_surface(&output, formeted_diffs(&file1, &file2), "diff");
                 } Err(_) => {
                     println!("Cant open second file");    
                 }
@@ -39,14 +37,6 @@ fn main() {
             println!("Cant open first file");
         }
     }
-}
-
-fn areas_diff(reference: &Vec<f64>, data: &Vec<f64>) -> Vec<f64> {
-    let depht = cmp::min(reference.len(), data.len());
-
-    let diffs = (0..depht).map(|i| (reference[i] - data[i]).abs()).collect();
-
-    diffs
 }
 
 fn areas(file: &hdf5::File) -> Vec<f64> {
@@ -74,10 +64,12 @@ fn areas(file: &hdf5::File) -> Vec<f64> {
     }   
 }
 
-fn formeted_diffs(file1: &hdf5::File, file2: &hdf5::File) -> (Vec<f64>, usize, usize) {
-    let (diffs, depht0, depht1) = diffs(&file1, &file2);
+fn areas_diff(file1: &hdf5::File, file2: &hdf5::File) -> Vec<f64> {
+    let (diffs, _, _) = diffs(&file1, &file2);
 
-    (diffs.into_iter().flatten().collect(), depht0, depht1)
+    let diff_sums = diffs.into_iter().map(|diffs_vec| diffs_vec.into_iter().sum()).collect();
+
+    diff_sums
 }
 
 fn diffs(file1: &hdf5::File, file2: &hdf5::File) -> (Vec<Vec<f64>>, usize, usize) {
