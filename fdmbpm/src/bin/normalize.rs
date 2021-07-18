@@ -37,10 +37,7 @@ fn main() {
 fn normalize(file: &hdf5::File, dataset_name: &str) -> (Vec<f64>, Vec<usize>) {
     let dataset = file.dataset(dataset_name).unwrap();
 
-    let values = dataset.read_raw::<f64>().unwrap();
-    let shape = dataset.shape();
-
-    tools::normalize(values, shape)
+    tools::normalize(tools::dataset_to_matrix(dataset))
 }
 
 fn copy_dataset(output: &hdf5::File, file: &hdf5::File, dataset_name: &str) {

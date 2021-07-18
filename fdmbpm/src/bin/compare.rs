@@ -69,14 +69,10 @@ fn areas_diff(file1: &hdf5::File, file2: &hdf5::File) -> Vec<f64> {
     let dataset1 = file1.dataset("intensity").unwrap();
     let dataset2 = file2.dataset("intensity").unwrap();
 
-    let data1 = dataset1.read_raw::<f64>().unwrap();
-    let data2 = dataset2.read_raw::<f64>().unwrap();
-
-    let shape1 = dataset1.shape();
-    let shape2 = dataset2.shape();
-
-
-    let diff_sums = tools::areas_diff(data1, data2, shape1, shape2);
+    let diff_sums = tools::areas_diff(
+        tools::dataset_to_matrix(dataset1),
+        tools::dataset_to_matrix(dataset2)
+    );
 
     diff_sums
 }

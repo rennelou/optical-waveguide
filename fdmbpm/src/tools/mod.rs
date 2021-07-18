@@ -1,6 +1,6 @@
 use std::cmp;
 
-pub fn normalize(values: Vec<f64>, shape: Vec<usize>) -> (Vec<f64>, Vec<usize>) {
+pub fn normalize((values, shape): (Vec<f64>, Vec<usize>)) -> (Vec<f64>, Vec<usize>) {
     
     if shape.len() == 2 {
         let depht0 = shape[0];
@@ -15,7 +15,7 @@ pub fn normalize(values: Vec<f64>, shape: Vec<usize>) -> (Vec<f64>, Vec<usize>) 
     }
 }
 
-pub fn areas_diff(data1: Vec<f64>, data2: Vec<f64>, shape1: Vec<usize>, shape2: Vec<usize>) -> Vec<f64> {
+pub fn areas_diff((data1, shape1): (Vec<f64>, Vec<usize>), (data2, shape2): (Vec<f64>, Vec<usize>)) -> Vec<f64> {
     let (diffs, _, _) = diffs(data1, data2, shape1, shape2);
 
     let diff_sums = diffs.into_iter().map(|diffs_vec| diffs_vec.into_iter().sum()).collect();
@@ -41,4 +41,11 @@ fn diffs(data1: Vec<f64>, data2: Vec<f64>, shape1: Vec<usize>, shape2: Vec<usize
     } else {
         panic!("Both datasets needs has depht two");
     }   
+}
+
+pub fn dataset_to_matrix(dataset: hdf5::Dataset) -> (Vec<f64>, Vec<usize>) {
+    let data = dataset.read_raw::<f64>().unwrap();
+    let shape = dataset.shape();
+
+    (data, shape)
 }
