@@ -1,6 +1,7 @@
 use ndarray::Array;
 use rust_fdmbpm::export;
 use structopt::StructOpt;
+use rust_fdmbpm::tools;
 
 #[derive(StructOpt)]
 struct Cli {
@@ -39,17 +40,7 @@ fn normalize(file: &hdf5::File, dataset_name: &str) -> (Vec<f64>, Vec<usize>) {
     let values = dataset.read_raw::<f64>().unwrap();
     let shape = dataset.shape();
 
-    if shape.len() == 2 {
-        let depht0 = shape[0];
-        let depht1 = shape[1];
-
-        let area_input =(0..depht1).map(|j| values[j]).sum::<f64>();
-        let new_values = values.into_iter().map(|x| x / area_input).collect();
-
-        return (new_values, vec![depht0, depht1]);
-    } else {
-        panic!("Both datasets needs has depht two");
-    }
+    tools::normalize(values, shape)
 }
 
 fn copy_dataset(output: &hdf5::File, file: &hdf5::File, dataset_name: &str) {
