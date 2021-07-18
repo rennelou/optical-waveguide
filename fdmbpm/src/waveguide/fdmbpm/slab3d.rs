@@ -152,7 +152,7 @@ mod tests {
 		let intensity = e.get_intensity();
     	let array = Array::from_shape_vec(e.shape().clone(), intensity)?;
 
-    	let file = hdf5::File::open("slab3d.h5")?;
+    	let file = hdf5::File::open("tests/datas/slab3d.h5")?;
 		let values = file.dataset("intensity")?;
 
 		assert_eq!(values.read_dyn::<f64>()?, array);
