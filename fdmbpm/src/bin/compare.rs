@@ -1,6 +1,6 @@
 use ndarray::Array;
 use structopt::StructOpt;
-use std::cmp;
+use rust_fdmbpm::tools;
 
 #[derive(StructOpt)]
 struct CompareArgs {
@@ -65,39 +65,20 @@ fn areas(file: &hdf5::File) -> Vec<f64> {
 }
 
 fn areas_diff(file1: &hdf5::File, file2: &hdf5::File) -> Vec<f64> {
-    let (diffs, _, _) = diffs(&file1, &file2);
-
-    let diff_sums = diffs.into_iter().map(|diffs_vec| diffs_vec.into_iter().sum()).collect();
-
-    diff_sums
-}
-
-fn diffs(file1: &hdf5::File, file2: &hdf5::File) -> (Vec<Vec<f64>>, usize, usize) {
+    
     let dataset1 = file1.dataset("intensity").unwrap();
     let dataset2 = file2.dataset("intensity").unwrap();
+
+    let data1 = dataset1.read_raw::<f64>().unwrap();
+    let data2 = dataset2.read_raw::<f64>().unwrap();
 
     let shape1 = dataset1.shape();
     let shape2 = dataset2.shape();
 
-    if shape1.len() == 2 && shape2.len() == 2 {
-        let data1 = dataset1.read_raw::<f64>().unwrap();
-        let data2 = dataset2.read_raw::<f64>().unwrap();
 
-        let depht0 = cmp::min(shape1[0], shape2[0]);
-        let depht1 = cmp::min(shape1[1], shape2[1]);
+    let diff_sums = tools::areas_diff(data1, data2, shape1, shape2);
 
-        let result: Vec<_> = (0..depht0).map(|i| {
-            
-            let diffs: Vec<_> = (0..depht1)
-                .map(|j| (data1[i*depht1 + j] - data2[i*depht1 + j]).abs()).collect();
-            
-            diffs
-        }).collect();
-
-        return (result, depht0, depht1);
-    } else {
-        panic!("Both datasets needs has depht two");
-    }   
+    diff_sums
 }
 
 fn save_line(output: &hdf5::File, result: Vec<f64>, title: &str) {
