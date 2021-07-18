@@ -1,4 +1,5 @@
 use ndarray::Array;
+use rust_fdmbpm::export;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -17,11 +18,11 @@ fn main() {
         Ok(file) => {
             let output = hdf5::File::create(args.output_file).unwrap();
 
-            let intensity_norm_surface = normalize(&file, "intensity");
-            tools::save_surface(&output, intensity_norm_surface, "intensity");
+            let (intensity_norm, intensity_shape) = normalize(&file, "intensity");
+            export::save_surface(&output, intensity_norm, intensity_shape, "intensity");
 
-            let eletric_field_norm_surface = normalize(&file, "eletric_field");
-            tools::save_surface(&output, eletric_field_norm_surface, "eletric_field");
+            let (eletric_field_norm, eletric_field_shape) = normalize(&file, "eletric_field");
+            export::save_surface(&output, eletric_field_norm, eletric_field_shape, "eletric_field");
             
             copy_dataset(&output, &file, "deltas");
             copy_dataset(&output, &file, "core");
@@ -32,7 +33,7 @@ fn main() {
     }    
 }
 
-fn normalize(file: &hdf5::File, dataset_name: &str) -> (Vec<f64>, usize, usize) {
+fn normalize(file: &hdf5::File, dataset_name: &str) -> (Vec<f64>, Vec<usize>) {
     let dataset = file.dataset(dataset_name).unwrap();
 
     let values = dataset.read_raw::<f64>().unwrap();
@@ -45,7 +46,7 @@ fn normalize(file: &hdf5::File, dataset_name: &str) -> (Vec<f64>, usize, usize) 
         let area_input =(0..depht1).map(|j| values[j]).sum::<f64>();
         let new_values = values.into_iter().map(|x| x / area_input).collect();
 
-        return (new_values, depht0, depht1);
+        return (new_values, vec![depht0, depht1]);
     } else {
         panic!("Both datasets needs has depht two");
     }

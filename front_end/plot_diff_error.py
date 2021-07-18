@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 matplotlib.use('Qt5Agg')
 
-filename = "../tools/target/release/compared_gaussian_4.h5"
+filename = "../fdmbpm/compared.h5"
 
 with h5py.File(filename, "r") as f:
 
