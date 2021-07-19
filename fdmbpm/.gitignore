@@ -2,4 +2,6 @@
 *.png
 *.data
 *.old
+*.h5
+*.svg
 Cargo.lock

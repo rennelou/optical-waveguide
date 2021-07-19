@@ -1,4 +1,4 @@
-use crate::{fp::{matrix::MatrixView}, waveguide};
+use crate::waveguide;
 use num::complex::Complex;
 
 pub enum Side {
@@ -6,11 +6,11 @@ pub enum Side {
     Right
 }
 
-pub fn dirichlet(_: Side, _: &MatrixView<waveguide::Phasor, 1usize>) -> waveguide::Phasor {
+pub fn dirichlet(_: Side, _: &Vec<waveguide::Phasor>) -> waveguide::Phasor {
     return *waveguide::zero();
 }
 
-pub fn transparent(s: Side, es: &MatrixView<waveguide::Phasor, 1usize>) -> waveguide::Phasor {
+pub fn transparent(s: Side, es: &Vec<waveguide::Phasor>) -> waveguide::Phasor {
     
     // forma mais simples que considera que a frente de onda é transversal ao eixo z. 
     // caso implemente semi vector ou full vector algoritmo é interessante ver os mais casos

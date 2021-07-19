@@ -1,12 +1,10 @@
 use super::*;
 use super::boundary_codition::Side;
-use crate::fp::matrix::Idx;
-use crate::fp::{self, matrix};
+use crate::fp;
 use crate::fp::list;
-use crate::fp::matrix::MatrixView;
 
 pub mod slab2d;
-pub mod slab3d;
+//spub mod slab3d;
 
 #[derive(Clone, Copy)]
 struct AlphaBeta {
@@ -27,7 +25,7 @@ impl AlphaBeta {
 
 }
 
-fn get_es(ss: MatrixView<Phasor, 1usize>, ds: MatrixView<Phasor, 1usize>, last_es: MatrixView<Phasor, 1usize>, boundary_codition: fn(s: Side, es: &MatrixView<Phasor, 1usize>)->Phasor) -> Matrix<Phasor> {
+fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Vec<Phasor> {
 	let left_boundaty = boundary_codition(Side::Left, &last_es);
 	let right_boundaty = boundary_codition(Side::Right, &last_es);
 	insert_boundary_values(
@@ -52,12 +50,12 @@ fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {
 	);
 }
 
-fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: MatrixView<Phasor, 1usize>, left_boundary: Phasor, right_boundary: Phasor) -> Vec<AlphaBeta> {
-	if ss.depht() != ds.depht() + 2 {
+fn get_alphas_betas(ss: Vec<Phasor>, ds: Vec<Phasor>, left_boundary: Phasor, right_boundary: Phasor) -> Vec<AlphaBeta> {
+	if ss.len() != ds.len() + 2 {
 		panic!("ss array need has 2 more elements than ds array");
 	}
 
-	let depht = ds.depht();
+	let depht = ds.len();
 	fp::middle(ss.iter()).zip(ds.iter()).enumerate().fold(
 		vec![], 
 		|alpha_betas, (i, (&s, d))| {
@@ -87,39 +85,34 @@ fn get_alphas_betas(ss: MatrixView<Phasor, 1usize>, ds: MatrixView<Phasor, 1usiz
 }
 
 // TODO: lembrar de multiplicar pelo fator usado em 3 dimensões
-fn get_ds(es: &MatrixView<Phasor, 1usize>, qs: MatrixView<Phasor, 1usize>) -> Matrix<Phasor> {
+fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
 	
-	if es.depht() == qs.depht() {
+	if es.len() == qs.len() {
 		let es: Vec<_> = es.iter().map(|x|x).collect();
-		let values: Vec<_> = fp::middle(qs.iter()).enumerate().map(
+		let values = fp::middle(qs.iter()).enumerate().map(
 			// okamoto 7.97
 			|(i, q)| es[i]+q*es[i+1]+es[i+2]
 		).collect();
 
-		let shape = vec![values.len()];
-		return matrix::new(values, &shape);
+		
+		return values;
 	}
 
 	panic!("es array and qs array dosent have the same size");
 }
 
-fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn(s: Side, es: &MatrixView<Phasor, 1usize>) -> Phasor) -> Matrix<Phasor> {
-	
-	let es_shape = vec![es.len()];
-	let es_matrix = matrix::new(es.clone(), &es_shape);
-	let es_view = es_matrix.view(&[Idx::Free]);
+fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>) -> Phasor) -> Vec<Phasor> {
 
 	let head = vec![{
 		let es_head = fp::head_or_default(es.iter(), one());
-		es_head*boundary_codition(Side::Left, &es_view)
+		es_head*boundary_codition(Side::Left, &es)
 	}];
 	let last = vec![{
 		let es_last = fp::last_or_default(es.iter(), one());
-		es_last*boundary_codition(Side::Right, &es_view)
+		es_last*boundary_codition(Side::Right, &es)
 	}];
 	
 	let values = list::concat(list::concat(head, es),last);
 
-	let shape = vec![values.len()];
-	matrix::new(values, &shape)
+	values
 }
