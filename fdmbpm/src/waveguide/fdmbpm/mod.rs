@@ -40,14 +40,14 @@ fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {
 		vec![],
 		|es, alpha_beta| {
 			
-			let last_value = fp::head_or_default(es.iter(), one());
+			let last_value = fp::last_or_default(es.iter(), one());
 			
 			// okamoto 7.110
 			let new_value= last_value * alpha_beta.alpha + alpha_beta.beta;
 			
-			return list::concat(vec![new_value],es);
+			list::append(es, new_value)
 		}
-	);
+	).into_iter().rev().collect();
 }
 
 fn get_alphas_betas(ss: Vec<Phasor>, ds: Vec<Phasor>, left_boundary: Phasor, right_boundary: Phasor) -> Vec<AlphaBeta> {
