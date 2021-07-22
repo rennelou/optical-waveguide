@@ -1,10 +1,10 @@
 use super::*;
 use super::boundary_codition::Side;
-use crate::fp;
+use crate::fp::{self, matrix};
 use crate::fp::list;
 
 pub mod slab2d;
-//spub mod slab3d;
+//pub mod slab3d;
 
 #[derive(Clone, Copy)]
 struct AlphaBeta {
@@ -25,13 +25,16 @@ impl AlphaBeta {
 
 }
 
-fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Vec<Phasor> {
+fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor> {
 	let left_boundaty = boundary_codition(Side::Left, &last_es);
 	let right_boundaty = boundary_codition(Side::Right, &last_es);
-	insert_boundary_values(
+	let values = insert_boundary_values(
 		get_recurrence_form(get_alphas_betas(ss, ds, left_boundaty, right_boundaty)),
 		boundary_codition
-	)
+	);
+	
+	let shape = vec![values.len()];
+	matrix::new(values, &shape)
 }
 
 fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {

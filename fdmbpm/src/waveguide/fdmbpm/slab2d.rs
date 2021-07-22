@@ -4,30 +4,31 @@ use cores::Core;
 use crate::fp::matrix;
 use crate::fp::list;
 
+// e_input precisa ser unidimensional e nada no codigo garante que não é
+// to_do criar alguma garantia no codigo de e_input ser unidimensional
 pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField {
 	let shape = core.get_shape().clone();
 	let grid_steps = core.get_deltas().to_vec();
 	let zsteps = shape[0];
 
-	// Por enquanto porque so tem uma dimensao
-	let es_array = e_input.raw().clone();
-
-	let mut es = vec![es_array];
-	for z in 1usize..zsteps {
+	let es = (1usize..zsteps).fold( 
+		vec![e_input],
+		|acc, z| {
 			
-		let last_es= fp::last(es.iter()).unwrap();
-		
-		let last_q = get_q(core, z-1, k, alpha);
-		let last_s = get_s(core, z-1, k, alpha);
+			let last_es= fp::last(acc.iter()).unwrap().raw();
+			
+			let last_q = get_q(core, z-1, k, alpha);
+			let last_s = get_s(core, z-1, k, alpha);
 
-		let ds = get_ds(last_es, last_q);
+			let ds = get_ds(last_es, last_q);
 
-		let new_es = get_es(last_s, ds, last_es, boundary_codition);
+			let new_es = get_es(last_s, ds, last_es, boundary_codition);
 
-		es = list::append(es, new_es);
-	}
+			list::append(acc, new_es)
+		}
+	);
 
-	let values = matrix::new(es.into_iter().flatten().collect(), &shape.to_vec());
+	let values = matrix::zip(es);
 	return EletricField { values, grid_steps };
 }
 
