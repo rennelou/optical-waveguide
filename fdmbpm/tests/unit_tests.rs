@@ -91,4 +91,52 @@ mod tests {
 
 		Ok(())
    	}
+
+	#[test]
+	fn slab3d() -> Result<(), Box<dyn Error>> {
+	   let k0 = (2.0*PI)/1.15;
+
+	   let xdepht = 100usize;
+	   let ydepht = 100usize;
+
+	   let dx = 40.0;
+	   let xdelta = dx/(xdepht as f64);
+
+	   let dy = 40.0;
+	   let ydelta = dy/(ydepht as f64);
+	   
+	   let dz = 200.0;
+	   let zdelta = 0.5;
+	   
+	   let position_x = dx/2.0;
+	   let position_y = dy/2.0;
+	   let width = 8.0;
+	   
+	   let shape = [ydepht, xdepht];
+	   let deltas = [ydelta, xdelta];
+	   let center = [position_y, position_x];
+
+	   let n0 = 3.377;
+	   let n = 3.38;
+
+	   let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
+	   
+	   let w = 2.0;
+	   let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
+
+	   let e = fdmbpm::slab3d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
+	   let result = (e.get_intensity(), e.shape().to_vec());
+
+	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;
+	   let reference = file.dataset("intensity").unwrap();
+	   
+	   let diffs = tools::areas_diff(
+		   tools::normalize(tools::dataset_to_matrix(reference)), 
+		   tools::normalize(result)
+	   );
+	   
+	   assert!(diffs.into_iter().all(|x| x <= 0.011)); // erro de ate 1.1%
+	   
+	   Ok(())
+	  }
 }

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 origin = 'lower'
 
-filename = "../fdmbpm/slab3d.h5"
+filename = "../fdmbpm/fdmbpm3d.h5"
 lines = 50
 with h5py.File(filename, "r") as f:
 
