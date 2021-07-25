@@ -25,7 +25,7 @@ impl AlphaBeta {
 
 }
 
-fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor,1> {
+fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor> {
 	let left_boundaty = boundary_codition(Side::Left, &last_es);
 	let right_boundaty = boundary_codition(Side::Right, &last_es);
 	let values = insert_boundary_values(

@@ -7,16 +7,16 @@ pub enum Idx {
     Value(usize)
 }
 
-pub fn new<T: Clone + Copy, const D: usize>(values: Vec<T>, shape_ref: &[usize;D]) -> Matrix<T,D> {
+pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Matrix<T> {
     if shape_ref.iter().product::<usize>() != values.len() {
         panic!("shape dosent match with values")
     }
-    let shape = shape_ref.clone();
+    let shape = shape_ref.to_vec();
     
     Matrix { values, shape }
 }
 
-pub fn new2_from_vec_vec<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T,2> {
+pub fn new2_from_vec_vec<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T> {
     let y_depht = values.len();
     let x_depht = fp::head(values.iter()).unwrap().len();
 
@@ -26,34 +26,19 @@ pub fn new2_from_vec_vec<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T,2> {
     
     let new_values = values.into_iter().flatten().collect();
 
-    Matrix { values: new_values, shape: [y_depht, x_depht] }
+    Matrix { values: new_values, shape: vec![y_depht, x_depht] }
 }
 
-pub fn new_from_vec<T, const D: usize, const N: usize>(matrixs: Vec<Matrix<T, D>>) -> Matrix<T, N> 
-where T: Copy {
-    if N != D + 1 {
-        panic!("so pode subir uma dimensão e eu to puto que to brigando com a linguagem pra isso ser garantido em tempo de compilaçao")
-    }  
-
-    let all_shapes_equals = (0..matrixs.len()-1).any(
-        |i| matrixs[i].shape() != matrixs[i+1].shape()
-    );
-    
-    if all_shapes_equals {
+pub fn new_from_vec<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
+    if (0..matrixs.len()-1).any(|i| matrixs[i].shape() != matrixs[i+1].shape()) {
         panic!("all matrixs must have the sames shapes")
     }
-    
+
     let shape = fp::head(matrixs.iter()).unwrap().shape();
 
     let new_depht = matrixs.len();
-    let mut new_shape = [0;N];
-    
-    new_shape[0] = new_depht;
-    let mut index = 1usize;
-    for &depht in shape {
-        new_shape[index] = depht;
-        index = index + 1;
-    }
+    let mut new_shape = shape.to_vec();
+    new_shape.insert(0, new_depht);
 
     let new_values = matrixs.into_iter().fold(
         vec![],
@@ -65,7 +50,7 @@ where T: Copy {
     new(new_values, &new_shape)
 }
 
-impl<T: Clone + Copy, const D: usize> Matrix<T, D> {
+impl<T: Clone + Copy> Matrix<T> {
     pub fn raw(&self) -> &Vec<T> {
         &self.values
     }
@@ -74,7 +59,7 @@ impl<T: Clone + Copy, const D: usize> Matrix<T, D> {
         self.values
     }
 
-    pub fn shape(&self) -> &[usize;D] {
+    pub fn shape(&self) -> &[usize] {
         &self.shape
     }
 
@@ -143,7 +128,7 @@ mod tests {
         let m1 = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
         let m2 = new(vec![6,7,8,9,10,11], &[2usize, 3usize]);
 
-        let ziped = matrix::new_from_vec::<i32,2,3>(vec![m1, m2]);
+        let ziped = matrix::new_from_vec(vec![m1, m2]);
         
         assert_eq!(ziped.get(&[0,0,0]), &0);
         assert_eq!(ziped.get(&[0,0,1]), &1);

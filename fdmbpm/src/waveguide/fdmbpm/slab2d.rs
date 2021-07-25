@@ -6,8 +6,6 @@ use crate::fp::list;
 use crate::waves;
 use crate::waves::Gaussian;
 
-// e_input precisa ser unidimensional e nada no codigo garante que não é
-// to_do criar alguma garantia no codigo de e_input ser unidimensional
 pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<2> {
 	let shape = core.get_shape();
 
@@ -33,7 +31,7 @@ pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side
 	);
 
 	let values = matrix::new_from_vec(es);
-	let &grid_steps = core.get_deltas();
+	let grid_steps = core.get_deltas().to_vec();
 	return EletricField { values, grid_steps };
 }
 

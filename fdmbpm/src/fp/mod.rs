@@ -2,9 +2,9 @@ pub mod list;
 pub mod matrix;
 
 #[derive(Clone)]
-pub struct Matrix<T: Clone + Copy, const D: usize> {
+pub struct Matrix<T: Clone + Copy> {
     values: Vec<T>,
-    shape: [usize;D]
+    shape: Vec<usize>
 }
 
 pub fn head_or_default<T>(l: impl Iterator<Item = T>, default: T) -> T {

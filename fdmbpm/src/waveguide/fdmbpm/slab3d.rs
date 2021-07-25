@@ -75,18 +75,22 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 	);
 
 	let values = matrix::new_from_vec(es);
-	let &grid_steps = core.get_deltas();
+	let grid_steps = core.get_deltas().to_vec();
 	return EletricField { values, grid_steps };
 }
 
-fn get_col(m: &Matrix<Phasor,2>, x: usize) -> Vec<Phasor> {
-	let &[y_depht, _] = m.shape();
+// Otimizar submatrix pra usa la
+fn get_col(m: &Matrix<Phasor>, x: usize) -> Vec<Phasor> {
+	// temporario vai usar como garantia que m tem depht 2
+	let y_depht = m.shape()[0];
 
 	(0..y_depht).map(|y| m.get(&[y, x]).clone()).collect()
 }
 
-fn get_row(m: &Matrix<Phasor,2>, y: usize) -> Vec<Phasor> {
-	let &[_, x_depht] = m.shape();
+// Otimizar submatrix pra usa la
+fn get_row(m: &Matrix<Phasor>, y: usize) -> Vec<Phasor> {
+	// temporario vai usar como garantia que m tem depht 2
+	let x_depht = m.shape()[1];
 
 	(0..x_depht).map(|x| m.get(&[y, x]).clone()).collect()
 }

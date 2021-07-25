@@ -14,11 +14,11 @@ impl<const D: usize> EletricField<D> {
         self.values.raw().iter().map(|c| intensity(c)).collect()
     }
 
-    pub fn shape(&self) -> &[usize;D] {
+    pub fn shape(&self) -> &[usize] {
         self.values.shape()
     }
 
-    pub fn grid_steps(&self) -> &[f64;D] {
+    pub fn grid_steps(&self) -> &[f64] {
         &self.grid_steps
     }
 }
