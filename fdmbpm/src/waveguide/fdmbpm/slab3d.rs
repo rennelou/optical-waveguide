@@ -1,4 +1,6 @@
 use crate::fp::matrix::Idx;
+use crate::waves;
+use crate::waves::Gaussian;
 
 use super::*;
 use cores::Core;
@@ -6,9 +8,13 @@ use Phasor;
 use fp::list;
 use fp::Matrix;
 
-pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor,2>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<3> {
+pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<3> {
 	let [zdepht, ydepht, xdepht] = core.get_shape().clone();
-	
+	let shape  = core.get_shape();
+	let deltas = core.get_deltas();
+
+	let e_input = waves::input(&[shape[1], shape[2]], &[deltas[1], deltas[2]], &beam.center, beam.amplitude, beam.width);
+
 	let &[_, ydelta, xdelta] = core.get_deltas();
 	let dy2bydx2 = Complex::new(ydelta.powf(2.0) / xdelta.powf(2.0), 0.0);
 	let dx2bydy2 = Complex::new(xdelta.powf(2.0) / ydelta.powf(2.0), 0.0);
@@ -22,7 +28,7 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor,2>, b
 			let d_list = (1..xdepht-1).map(|x| {
 				let last_es_col= get_col(last_es, x);
 				
-				let last_qy = get_qy(core, z-1, Idx::Free, Idx::Value(x), k, alpha);
+				let last_qy = get_qy(core, z-1, Idx::Free, Idx::Value(x), &beam);
 				
 				get_ds(&last_es_col, last_qy).into_iter().map(|e| e * dx2bydy2).collect()
 			}).collect();
@@ -31,7 +37,7 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor,2>, b
 			let es_list = (1..ydepht-1).map(|y| {
 				let last_es_row= get_row(last_es, y);
 
-				let sx_list = get_sx(core, z-1, Idx::Value(y), Idx::Free, k, alpha);
+				let sx_list = get_sx(core, z-1, Idx::Value(y), Idx::Free, &beam);
 				let d_list = get_col(&transposed_d_plane,y-1);
 
 				get_es(sx_list, d_list, &last_es_row, boundary_codition)
@@ -42,7 +48,7 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor,2>, b
 
 			let h_list = (1..ydepht-1).map(|y|{
 				let es_intermediate_row = get_row(&es_intermediate, y-1);
-				let last_qx = get_qx(core, z-1, Idx::Value(y), Idx::Free, k, alpha);
+				let last_qx = get_qx(core, z-1, Idx::Value(y), Idx::Free, &beam);
 
 				get_ds(&es_intermediate_row, last_qx).into_iter().map(|e| e * dy2bydx2).collect()
 			}).collect();
@@ -51,7 +57,7 @@ pub fn run(core: &impl Core<3>, k: f64, alpha: f64, e_input: Matrix<Phasor,2>, b
 			let es_list = (1..xdepht-1).map(|x|{
 				let es_intermediate_col= get_col(&es_intermediate, x);
 
-				let sy_list = get_sy(core, z-1, Idx::Free, Idx::Value(x), k, alpha);
+				let sy_list = get_sy(core, z-1, Idx::Free, Idx::Value(x), &beam);
 				let h_list = get_col(&h_plane, x-1);
 
 				get_es(sy_list, h_list, &es_intermediate_col, boundary_codition)
@@ -85,9 +91,11 @@ fn get_row(m: &Matrix<Phasor,2>, y: usize) -> Vec<Phasor> {
 	(0..x_depht).map(|x| m.get(&[y, x]).clone()).collect()
 }
 
-fn get_sx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, k: f64, alpha: f64) -> Vec<Phasor> {
+fn get_sx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let &[_, y_depht, x_depht] = core.get_shape();
 	let &[zdelta, _, xdelta] = core.get_deltas();
+	let k = beam.k;
+	let alpha = beam.alpha;
 
 	match (y_idx, x_idx) {
 		(Idx::Value(_), Idx::Value(_)) => {
@@ -117,10 +125,12 @@ fn get_sx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, k: f64, alpha: 
 	}
 }
 
-fn get_qx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, k: f64, alpha: f64) -> Vec<Phasor> {
+fn get_qx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let [_, y_depht, x_depht] = core.get_shape().clone();
 	let &[zdelta, _, xdelta] = core.get_deltas();
-	
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	match (y_idx, x_idx) {
 		(Idx::Value(_), Idx::Value(_)) => {
 			panic!("get_q result needs have one dimension")
@@ -149,9 +159,11 @@ fn get_qx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, k: f64, alpha: 
 	}
 }
 
-fn get_sy(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, k: f64, alpha: f64) -> Vec<Phasor> {
+fn get_sy(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let &[_, y_depht, x_depht] = core.get_shape();
 	let &[zdelta, ydelta, _] = core.get_deltas();
+	let k = beam.k;
+	let alpha = beam.alpha;
 
 	match (y_idx, x_idx) {
 		(Idx::Value(_), Idx::Value(_)) => {
@@ -181,10 +193,12 @@ fn get_sy(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, k: f64, alpha: 
 	}
 }
 
-fn get_qy(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, k: f64, alpha: f64) -> Vec<Phasor> {
+fn get_qy(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let [_, y_depht, x_depht] = core.get_shape().clone();
 	let &[zdelta, ydelta, _] = core.get_deltas();
-	
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	match (y_idx, x_idx) {
 		(Idx::Value(_), Idx::Value(_)) => {
 			panic!("get_q result needs have one dimension")

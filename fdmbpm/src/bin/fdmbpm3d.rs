@@ -22,16 +22,15 @@ fn main() -> Result<(), std::io::Error> {
 	let position_y = dy/2.0;
     let width = 8.0;
 	
-	let shape = [ydepht, xdepht];
-	let deltas = [ydelta, xdelta];
 	let center = [position_y, position_x];
     let n0 = 3.377;
     let n = 3.38;
     let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 	
     let w = 2.0;
-    let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
-    let e = fdmbpm::slab3d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
+    let beam = waves::new(center, 1.0, w, k0, 0.0);
+
+	let e = fdmbpm::slab3d::run(&core, beam, boundary_codition::transparent);
 	
 	export::hdf5("fdmbpm3d.h5", &e, &core);
 	

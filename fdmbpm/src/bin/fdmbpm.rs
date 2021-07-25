@@ -19,9 +19,7 @@ fn main() -> Result<(), std::io::Error> {
     
 	let position = dx/2.0;
     let width = 8.0;
-	
-	let shape = [xdepht];
-	let deltas = [xdelta];
+
 	let center = [position];
     
 	let n0 = 3.377;
@@ -30,9 +28,9 @@ fn main() -> Result<(), std::io::Error> {
     let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 	
     let w = 2.0_f64;
-	let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
-    
-	let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
+	let beam = waves::new(center, 1.0, w, k0, 0.0);
+		
+		let e = fdmbpm::slab2d::run(&core, beam, boundary_codition::transparent);
     export::hdf5("main.h5", &e, &core);
 
     Ok(())

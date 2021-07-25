@@ -3,13 +3,17 @@ use Phasor;
 use cores::Core;
 use crate::fp::matrix;
 use crate::fp::list;
+use crate::waves;
+use crate::waves::Gaussian;
 
 // e_input precisa ser unidimensional e nada no codigo garante que não é
 // to_do criar alguma garantia no codigo de e_input ser unidimensional
-pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor,1>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<2> {
-	let shape = core.get_shape().clone();
-	
+pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<2> {
+	let shape = core.get_shape();
+
 	let zsteps = shape[0];
+
+	let e_input = waves::input(&[shape[1]], &[core.get_deltas()[1]], &beam.center, beam.amplitude, beam.width);
 
 	let es = (1usize..zsteps).fold( 
 		vec![e_input],
@@ -17,8 +21,8 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor,1>, b
 			
 			let last_es= fp::last(acc.iter()).unwrap().raw();
 			
-			let last_q = get_q(core, z-1, k, alpha);
-			let last_s = get_s(core, z-1, k, alpha);
+			let last_q = get_q(core, z-1, &beam);
+			let last_s = get_s(core, z-1, &beam);
 
 			let ds = get_ds(last_es, last_q);
 
@@ -33,9 +37,11 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor,1>, b
 	return EletricField { values, grid_steps };
 }
 
-fn get_s(core: &impl Core<2>, z: usize, k: f64, alpha: f64) -> Vec<Phasor> {
+fn get_s(core: &impl Core<2>, z: usize, beam: &Gaussian<1>) -> Vec<Phasor> {
 	let [_, x_depht] = core.get_shape().clone();
-	
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	(0..x_depht).map(|x| {
 		let guiding_space = guiding_space(core, z, x, k);
 		let free_space = free_space(core, k);
@@ -45,9 +51,11 @@ fn get_s(core: &impl Core<2>, z: usize, k: f64, alpha: f64) -> Vec<Phasor> {
 	}).collect()
 }
 
-fn get_q(core: &impl Core<2>, z: usize, k: f64, alpha: f64) -> Vec<Phasor> {
+fn get_q(core: &impl Core<2>, z: usize, beam: &Gaussian<1>) -> Vec<Phasor> {
 	let [_, x_depht] = core.get_shape().clone();
-	
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	(0..x_depht).map(|x| {
 		let guiding_space = guiding_space(core, z, x, k);
 		let free_space = free_space(core, k);

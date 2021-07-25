@@ -22,8 +22,6 @@ mod tests {
 		let position = dx/2.0;
     	let width = 8.0;
 		
-		let shape = [xdepht];
-		let deltas = [xdelta];
 		let center = [position];
 		
 		let n0 = 3.377;
@@ -32,9 +30,9 @@ mod tests {
     	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 		
     	let w = 2.0_f64;
-		let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
+		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
-		let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
+		let e = fdmbpm::slab2d::run(&core, beam, boundary_codition::transparent);
 		let result = (e.get_intensity(), e.shape().to_vec());
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
@@ -64,8 +62,6 @@ mod tests {
 		let position = dx/2.0;
     	let width = 8.0;
 		
-		let shape = [xdepht];
-		let deltas = [xdelta];
 		let center = [position];
 		
 		let n0 = 3.377;
@@ -74,9 +70,9 @@ mod tests {
     	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 		
     	let w = 4.0_f64;
-		let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
+		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
-		let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
+		let e = fdmbpm::slab2d::run(&core, beam, boundary_codition::transparent);
 		let result = (e.get_intensity(), e.shape().to_vec());
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
@@ -112,8 +108,6 @@ mod tests {
 	   let position_y = dy/2.0;
 	   let width = 8.0;
 	   
-	   let shape = [ydepht, xdepht];
-	   let deltas = [ydelta, xdelta];
 	   let center = [position_y, position_x];
 
 	   let n0 = 3.377;
@@ -122,9 +116,9 @@ mod tests {
 	   let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 	   
 	   let w = 2.0;
-	   let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
+	   let beam = waves::new(center, 1.0, w, k0, 0.0);
 
-	   let e = fdmbpm::slab3d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
+	   let e = fdmbpm::slab3d::run(&core, beam, boundary_codition::transparent);
 	   let result = (e.get_intensity(), e.shape().to_vec());
 
 	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;
