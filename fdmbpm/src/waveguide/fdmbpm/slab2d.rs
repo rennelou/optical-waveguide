@@ -29,7 +29,7 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor,1>, b
 	);
 
 	let values = matrix::new_from_vec(es);
-	let grid_steps = core.get_deltas().clone();
+	let &grid_steps = core.get_deltas();
 	return EletricField { values, grid_steps };
 }
 

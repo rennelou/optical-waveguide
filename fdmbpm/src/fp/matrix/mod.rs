@@ -16,6 +16,19 @@ pub fn new<T: Clone + Copy, const D: usize>(values: Vec<T>, shape_ref: &[usize;D
     Matrix { values, shape }
 }
 
+pub fn new2_from_vec_vec<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T,2> {
+    let y_depht = values.len();
+    let x_depht = fp::head(values.iter()).unwrap().len();
+
+    if values.iter().any(|v| v.len() != x_depht) {
+        panic!("all lines needs have the same lenght")
+    }
+    
+    let new_values = values.into_iter().flatten().collect();
+
+    Matrix { values: new_values, shape: [y_depht, x_depht] }
+}
+
 pub fn new_from_vec<T, const D: usize, const N: usize>(matrixs: Vec<Matrix<T, D>>) -> Matrix<T, N> 
 where T: Copy {
     if N != D + 1 {
