@@ -35,7 +35,7 @@ mod tests {
 		let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
 		
 		let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
-		let result = (e.get_intensity(), e.shape().clone());
+		let result = (e.get_intensity(), e.shape().to_vec());
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
 		let reference = file.dataset("intensity").unwrap();
@@ -77,7 +77,7 @@ mod tests {
 		let gaussian = waves::gaussian(&shape, &deltas, &center, 1.0, w);
 		
 		let e = fdmbpm::slab2d::run(&core, k0, 0.0, gaussian, boundary_codition::transparent);
-		let result = (e.get_intensity(), e.shape().clone());
+		let result = (e.get_intensity(), e.shape().to_vec());
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
 		let reference = file.dataset("intensity").unwrap();

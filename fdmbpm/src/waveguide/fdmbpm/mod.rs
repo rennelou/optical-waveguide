@@ -25,7 +25,7 @@ impl AlphaBeta {
 
 }
 
-fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor> {
+fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor,1> {
 	let left_boundaty = boundary_codition(Side::Left, &last_es);
 	let right_boundaty = boundary_codition(Side::Right, &last_es);
 	let values = insert_boundary_values(
@@ -33,8 +33,8 @@ fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codi
 		boundary_codition
 	);
 	
-	let shape = vec![values.len()];
-	matrix::new(values, &shape)
+	let shape = values.len();
+	matrix::new(values, &[shape])
 }
 
 fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {

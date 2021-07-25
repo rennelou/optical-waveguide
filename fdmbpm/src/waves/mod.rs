@@ -1,7 +1,8 @@
 use crate::fp::{Matrix, matrix};
 use crate::waveguide;
 
-pub fn gaussian(shape: &[usize], deltas: &[f64], center: &[f64], amplitude: f64, width: f64) -> Matrix<waveguide::Phasor> {
+// DEVERIA RECEBER A GRID E NÃO OS VALORES SOLTOS
+pub fn gaussian<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;D], amplitude: f64, width: f64) -> Matrix<waveguide::Phasor,D> {
 
     let center_normalized: Vec<_> = center.iter().zip(deltas.iter()).map(
         |(&p, &d)| p/d
@@ -24,5 +25,5 @@ pub fn gaussian(shape: &[usize], deltas: &[f64], center: &[f64], amplitude: f64,
 
     }).collect();
 
-    matrix::new(values, &shape.to_vec())
+    matrix::new(values, &shape)
 }

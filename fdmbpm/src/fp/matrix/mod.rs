@@ -1,21 +1,13 @@
 use crate::fp;
 use super::*;
 
-pub mod view;
-
 #[derive(Clone, Copy)]
 pub enum Idx {
     Free,
     Value(usize)
 }
 
-pub struct MatrixView<'a, T: Copy, const D: usize> {
-    matrix: &'a Matrix<T>,
-    shape_mask: Vec<usize>,
-    position_mask: Vec<usize>
-}
-
-pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &Vec<usize>) -> Matrix<T> {
+pub fn new<T: Clone + Copy, const D: usize>(values: Vec<T>, shape_ref: &[usize;D]) -> Matrix<T,D> {
     if shape_ref.iter().product::<usize>() != values.len() {
         panic!("shape dosent match with values")
     }
@@ -24,74 +16,12 @@ pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &Vec<usize>) -> Matrix<T>
     Matrix { values, shape }
 }
 
-impl<T: Clone + Copy> Matrix<T> {
-    pub fn raw(&self) -> &Vec<T> {
-        &self.values
-    }
-
-    fn taken_raw(self) -> Vec<T> {
-        self.values
-    }
-
-    pub fn shape(&self) -> &Vec<usize> {
-        &self.shape
-    }
-
-    pub fn dimension(&self) -> usize {
-        dimension(self.shape())
-    }
-
-    pub fn get(&self, position: &[usize]) -> &T {
-        &self.values[position_to_id(position, self.shape())]
-    }
-
-    pub fn get_transposed(&self, position: &[usize]) -> &T {
-        let reversed_position: Vec<_> = position.iter().rev().copied().collect();
-        let id = position_to_id(reversed_position.as_slice(), self.shape());
-        &self.values[id]
-    }
-
-    pub fn view<const D: usize>(&self, slice: &[Idx]) -> MatrixView<T, D> {
-        let slice_dimension = slice_dimension(slice);
-        
-        if slice_dimension != D {
-            panic!("slice dosent match with dimension of view")
-        }
-
-        if self.dimension() < slice_dimension {
-            panic!("slice dimension must be less or equal than dimension matrix")
-        }
-    
-        let (shape_mask, position_mask) = slice.into_iter().zip(self.shape.clone().into_iter()).fold( 
-            (vec![],vec![]), 
-            |(mut shape_mask, mut position_mask), (&position, depht )| {
-                match position {
-                    Idx::Value(index) => {
-                        if index >= depht {
-                            panic!("position out of the range")
-                        }
-                        
-                        shape_mask.push(1);
-                        position_mask.push(index);
-    
-                        (shape_mask, position_mask)
-                    },
-                    Idx::Free => {
-                        shape_mask.push(depht);
-                        position_mask.push(0);
-    
-                        (shape_mask, position_mask)
-                    }
-                }
-            }
-        );
-    
-        MatrixView { matrix: &self, shape_mask, position_mask }
-    }
-}
-
-pub fn zip<T>(matrixs: Vec<Matrix<T>>) -> Matrix<T> 
+pub fn new_from_vec<T, const D: usize, const N: usize>(matrixs: Vec<Matrix<T, D>>) -> Matrix<T, N> 
 where T: Copy {
+    if N != D + 1 {
+        panic!("so pode subir uma dimensão e eu to puto que to brigando com a linguagem pra isso ser garantido em tempo de compilaçao")
+    }  
+
     let all_shapes_equals = (0..matrixs.len()-1).any(
         |i| matrixs[i].shape() != matrixs[i+1].shape()
     );
@@ -100,10 +30,17 @@ where T: Copy {
         panic!("all matrixs must have the sames shapes")
     }
     
-    let shape = fp::head(matrixs.iter()).unwrap().shape().clone();
+    let shape = fp::head(matrixs.iter()).unwrap().shape();
 
     let new_depht = matrixs.len();
-    let new_shape = list::concat(vec![new_depht], shape);
+    let mut new_shape = [0;N];
+    
+    new_shape[0] = new_depht;
+    let mut index = 1usize;
+    for &depht in shape {
+        new_shape[index] = depht;
+        index = index + 1;
+    }
 
     let new_values = matrixs.into_iter().fold(
         vec![],
@@ -115,22 +52,28 @@ where T: Copy {
     new(new_values, &new_shape)
 }
 
-fn dimension(shape: &Vec<usize>) -> usize {
-    shape.iter().copied().fold(
-        0, 
-        |dim, depht|{ if depht > 1 {dim + 1} else {dim} }
-    )
-}
+impl<T: Clone + Copy, const D: usize> Matrix<T, D> {
+    pub fn raw(&self) -> &Vec<T> {
+        &self.values
+    }
 
-fn slice_dimension(shape: &[Idx]) -> usize {
-    shape.iter().copied().fold(
-        0, 
-        |dim, index|
-            match index {
-                Idx::Value(_) => { dim }
-                Idx::Free => { dim + 1 }
-            }
-    )
+    fn taken_raw(self) -> Vec<T> {
+        self.values
+    }
+
+    pub fn shape(&self) -> &[usize;D] {
+        &self.shape
+    }
+
+    pub fn get(&self, position: &[usize]) -> &T {
+        &self.values[position_to_id(position, self.shape())]
+    }
+
+    pub fn get_transposed(&self, position: &[usize]) -> &T {
+        let reversed_position: Vec<_> = position.iter().rev().copied().collect();
+        let id = position_to_id(reversed_position.as_slice(), self.shape());
+        &self.values[id]
+    }
 }
 
 pub fn id_to_position(id: usize, shape: &[usize]) -> Vec<usize> {
@@ -160,7 +103,7 @@ mod tests {
 
     #[test]
     fn acess_position() {
-        let matrix = new(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
+        let matrix = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
 
         assert_eq!(matrix.get(&[0,0]), &0);
         assert_eq!(matrix.get(&[0,1]), &1);
@@ -172,7 +115,7 @@ mod tests {
 
     #[test]
     fn transposed_test() {
-        let matrix = new(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
+        let matrix = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
 
         assert_eq!(matrix.get_transposed(&[0,0]), &0);
         assert_eq!(matrix.get_transposed(&[0,1]), &3);
@@ -184,10 +127,10 @@ mod tests {
 
     #[test]
     fn zip_test() {
-        let m1 = new(vec![0,1,2,3,4,5], &vec![2usize, 3usize]);
-        let m2 = new(vec![6,7,8,9,10,11], &vec![2usize, 3usize]);
+        let m1 = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
+        let m2 = new(vec![6,7,8,9,10,11], &[2usize, 3usize]);
 
-        let ziped = matrix::zip(vec![m1, m2]);
+        let ziped = matrix::new_from_vec::<i32,2,3>(vec![m1, m2]);
         
         assert_eq!(ziped.get(&[0,0,0]), &0);
         assert_eq!(ziped.get(&[0,0,1]), &1);

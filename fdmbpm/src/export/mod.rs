@@ -1,19 +1,19 @@
 use ndarray::Array;
 use crate::{fp::{matrix}, waveguide::{EletricField, cores::Core}};
 
-pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField, core: &impl Core<D>) {
+pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField<D>, core: &impl Core<D>) {
    
     let file = hdf5::File::create(title).unwrap();
 
     let shape = eletric_field.shape();
     
-    save_instensity(&file, eletric_field.get_intensity(), shape.clone());
-    save_eletric_fields(&file, eletric_field.get_values(), shape.clone());
+    save_instensity(&file, eletric_field.get_intensity(), shape.to_vec());
+    save_eletric_fields(&file, eletric_field.get_values(), shape.to_vec());
     
     let deltas = eletric_field.grid_steps();
-    save_deltas(&file, deltas.clone(), vec![deltas.len()]);
+    save_deltas(&file, deltas.to_vec(), vec![deltas.len()]);
     
-    save_core(&file, get_core_matrix(core), shape.clone());
+    save_core(&file, get_core_matrix(core), shape.to_vec());
 }
 
 fn save_instensity(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>) {

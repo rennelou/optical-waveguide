@@ -6,9 +6,9 @@ use crate::fp::list;
 
 // e_input precisa ser unidimensional e nada no codigo garante que não é
 // to_do criar alguma garantia no codigo de e_input ser unidimensional
-pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField {
+pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor,1>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<2> {
 	let shape = core.get_shape().clone();
-	let grid_steps = core.get_deltas().to_vec();
+	
 	let zsteps = shape[0];
 
 	let es = (1usize..zsteps).fold( 
@@ -28,7 +28,8 @@ pub fn run(core: &impl Core<2>, k: f64, alpha: f64, e_input: Matrix<Phasor>, bou
 		}
 	);
 
-	let values = matrix::zip(es);
+	let values = matrix::new_from_vec(es);
+	let grid_steps = core.get_deltas().clone();
 	return EletricField { values, grid_steps };
 }
 

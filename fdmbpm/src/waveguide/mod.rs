@@ -8,9 +8,9 @@ pub mod cores;
 
 pub type Phasor = Complex<f64>;
 
-pub struct EletricField {
-    values: Matrix<Phasor>,
-    grid_steps: Vec<f64>
+pub struct EletricField<const D: usize> {
+    values: Matrix<Phasor,D>,
+    grid_steps: [f64;D]
 }
 
 const PHASOR_ZERO: Phasor = Complex::new(0.0, 0.0);

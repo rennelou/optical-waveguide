@@ -1,7 +1,7 @@
 use super::Phasor;
 use super::EletricField;
 
-impl EletricField {
+impl<const D: usize> EletricField<D> {
     pub fn get_values(&self) -> Vec<f64> {
         self.values.raw().iter().map(|p|{
             let (r, _theta) = p.clone().to_polar();
@@ -14,11 +14,11 @@ impl EletricField {
         self.values.raw().iter().map(|c| intensity(c)).collect()
     }
 
-    pub fn shape(&self) -> &Vec<usize> {
+    pub fn shape(&self) -> &[usize;D] {
         self.values.shape()
     }
 
-    pub fn grid_steps(&self) -> &Vec<f64> {
+    pub fn grid_steps(&self) -> &[f64;D] {
         &self.grid_steps
     }
 }
