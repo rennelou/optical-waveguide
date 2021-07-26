@@ -33,14 +33,13 @@ mod tests {
 		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
 		let e = fdmbpm::slab2d::run(&core, beam, boundary_codition::transparent);
-		let result = (e.get_intensity(), e.shape().to_vec());
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
 		let reference = file.dataset("intensity").unwrap();
 		
 		let diffs = tools::areas_diff(
 			tools::normalize(tools::dataset_to_matrix(reference)), 
-			tools::normalize(result)
+			tools::normalize(e.get_intensity())
 		);
 		
 		assert!(diffs.into_iter().all(|x| x <= 0.011)); // erro de ate 1.1%
@@ -73,14 +72,13 @@ mod tests {
 		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
 		let e = fdmbpm::slab2d::run(&core, beam, boundary_codition::transparent);
-		let result = (e.get_intensity(), e.shape().to_vec());
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
 		let reference = file.dataset("intensity").unwrap();
 		
 		let diffs = tools::areas_diff(
 			tools::normalize(tools::dataset_to_matrix(reference)), 
-			tools::normalize(result)
+			tools::normalize(e.get_intensity())
 		);
 		
 		assert!(diffs.into_iter().all(|x| x <= 0.011)); // erro de ate 1.1%
@@ -119,14 +117,13 @@ mod tests {
 	   let beam = waves::new(center, 1.0, w, k0, 0.0);
 
 	   let e = fdmbpm::slab3d::run(&core, beam, boundary_codition::transparent);
-	   let result = (e.get_intensity(), e.shape().to_vec());
 
 	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;
 	   let reference = file.dataset("intensity").unwrap();
 	   
 	   let diffs = tools::areas_diff(
 		   tools::normalize(tools::dataset_to_matrix(reference)), 
-		   tools::normalize(result)
+		   tools::normalize(e.get_intensity())
 	   );
 	   
 	   assert!(diffs.into_iter().all(|x| x <= 0.011)); // erro de ate 1.1%

@@ -1,5 +1,5 @@
 use ndarray::Array;
-use rust_fdmbpm::export;
+use rust_fdmbpm::{export, fp::Matrix};
 use structopt::StructOpt;
 use rust_fdmbpm::tools;
 
@@ -19,11 +19,13 @@ fn main() {
         Ok(file) => {
             let output = hdf5::File::create(args.output_file).unwrap();
 
-            let (intensity_norm, intensity_shape) = normalize(&file, "intensity");
-            export::save_surface(&output, intensity_norm, intensity_shape, "intensity");
+            let intensity_norm = normalize(&file, "intensity");
+            let intensity_shape = intensity_norm.shape().to_vec();
+            export::save_surface(&output, intensity_norm.into_raw(), intensity_shape, "intensity");
 
-            let (eletric_field_norm, eletric_field_shape) = normalize(&file, "eletric_field");
-            export::save_surface(&output, eletric_field_norm, eletric_field_shape, "eletric_field");
+            let eletric_field_norm = normalize(&file, "eletric_field");
+            let eletric_field_shape = eletric_field_norm.shape().to_vec();
+            export::save_surface(&output, eletric_field_norm.into_raw(), eletric_field_shape, "eletric_field");
             
             copy_dataset(&output, &file, "deltas");
             copy_dataset(&output, &file, "core");
@@ -34,7 +36,7 @@ fn main() {
     }    
 }
 
-fn normalize(file: &hdf5::File, dataset_name: &str) -> (Vec<f64>, Vec<usize>) {
+fn normalize(file: &hdf5::File, dataset_name: &str) -> Matrix<f64> {
     let dataset = file.dataset(dataset_name).unwrap();
 
     tools::normalize(tools::dataset_to_matrix(dataset))

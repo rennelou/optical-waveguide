@@ -37,7 +37,7 @@ pub fn new_from_vec<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
     let new_values = matrixs.into_iter().fold(
         vec![],
         |result, m| {
-            list::concat(result, m.taken_raw())
+            list::concat(result, m.into_raw())
         }
     );
 
@@ -49,7 +49,7 @@ impl<T: Clone + Copy> Matrix<T> {
         &self.values
     }
 
-    fn taken_raw(self) -> Vec<T> {
+    pub fn into_raw(self) -> Vec<T> {
         self.values
     }
 
@@ -58,14 +58,14 @@ impl<T: Clone + Copy> Matrix<T> {
     }
 
     pub fn get(&self, position: &[usize]) -> &T {
-        &self.values[position_to_id(position, self.shape())]
+        &self.values[Matrix::<T>::position_to_id(position, self.shape())]
     }
-}
 
-pub fn position_to_id(position: &[usize], shape: &[usize]) -> usize {
-    (0..position.len()).fold(0, |id, index| {
-        id*shape[index]+position[index]
-    })
+    fn position_to_id(position: &[usize], shape: &[usize]) -> usize {
+        (0..position.len()).fold(0, |id, index| {
+            id*shape[index]+position[index]
+        })
+    }
 }
 
 // #Todo otimizar essa função
