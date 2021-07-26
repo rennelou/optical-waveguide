@@ -60,12 +60,6 @@ impl<T: Clone + Copy> Matrix<T> {
     pub fn get(&self, position: &[usize]) -> &T {
         &self.values[position_to_id(position, self.shape())]
     }
-
-    pub fn get_transposed(&self, position: &[usize]) -> &T {
-        let reversed_position: Vec<_> = position.iter().rev().copied().collect();
-        let id = position_to_id(reversed_position.as_slice(), self.shape());
-        &self.values[id]
-    }
 }
 
 pub fn id_to_position(id: usize, shape: &[usize]) -> Vec<usize> {
@@ -103,18 +97,6 @@ mod tests {
         assert_eq!(matrix.get(&[1,0]), &3);
         assert_eq!(matrix.get(&[1,1]), &4);
         assert_eq!(matrix.get(&[1,2]), &5);
-    }
-
-    #[test]
-    fn transposed_test() {
-        let matrix = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
-
-        assert_eq!(matrix.get_transposed(&[0,0]), &0);
-        assert_eq!(matrix.get_transposed(&[0,1]), &3);
-        assert_eq!(matrix.get_transposed(&[1,0]), &1);
-        assert_eq!(matrix.get_transposed(&[1,1]), &4);
-        assert_eq!(matrix.get_transposed(&[2,0]), &2);
-        assert_eq!(matrix.get_transposed(&[2,1]), &5);
     }
 
     #[test]

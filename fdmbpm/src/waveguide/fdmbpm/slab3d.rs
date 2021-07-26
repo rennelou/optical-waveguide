@@ -95,61 +95,51 @@ fn get_row(m: &Matrix<Phasor>, y: usize) -> Vec<Phasor> {
 }
 
 fn get_sx(core: &impl Core<3>, z: usize, y: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	let &[zdelta, _, xdelta] = core.get_deltas();
 	let &[_, _, xdepht] = core.get_shape();
 
 	(0..xdepht).map(|x| {
-		s(core, [z, y, x], zdelta, xdelta, beam)
+		s(core, [z, y, x], zdelta, xdelta, k, alpha)
 	}).collect()
 }
 
 fn get_qx(core: &impl Core<3>, z: usize, y: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	let &[zdelta, _, xdelta] = core.get_deltas();
 	let &[_, _, xdepht] = core.get_shape();
 
 	(0..xdepht).map(|x| {
-		q(core, [z, y, x], zdelta, xdelta, beam)
+		q(core, [z, y, x], zdelta, xdelta, k, alpha)
 	}).collect()
 }
 
 fn get_sy(core: &impl Core<3>, z: usize, x: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	let &[zdelta, ydelta, _] = core.get_deltas();
 	let &[_, ydepht, _] = core.get_shape();
 
 	(0..ydepht).map(|y| {
-		s(core, [z, y, x], zdelta, ydelta, beam)
+		s(core, [z, y, x], zdelta, ydelta, k, alpha)
 	}).collect()
 }
 
 fn get_qy(core: &impl Core<3>, z: usize, x: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
+	let k = beam.k;
+	let alpha = beam.alpha;
+
 	let &[zdelta, ydelta, _] = core.get_deltas();
 	let &[_, ydepht, _] = core.get_shape();
 
 	(0..ydepht).map(|y| {
-		q(core, [z, y, x], zdelta, ydelta, beam)
+		q(core, [z, y, x], zdelta, ydelta, k, alpha)
 	}).collect()
-}
-
-fn s<const D: usize>(core: &impl Core<D>, position: [usize;D], zdelta: f64, delta: f64, beam: &Gaussian<2>) -> Phasor {
-	let k = beam.k;
-	let alpha = beam.alpha;
-
-	let guiding_space = guiding_space(core, position, delta, k);
-	let free_space = free_space(core, zdelta, delta, k);
-	let loss = loss(core, delta, k, alpha);
-
-	Complex::new(2.0 - guiding_space, free_space + loss)
-}
-
-fn q<const D: usize>(core: &impl Core<D>, position: [usize;D], zdelta: f64, delta: f64, beam: &Gaussian<2>) -> Phasor {
-	let k = beam.k;
-	let alpha = beam.alpha;
-
-	let guiding_space = guiding_space(core, position, delta, k);
-	let free_space = free_space(core, zdelta, delta, k);
-	let loss = loss(core, delta, k, alpha);
-
-	Complex::new(-2.0 + guiding_space, free_space - loss)
 }
 
 fn guiding_space<const D: usize>(core: &impl Core<D>, position: [usize;D], delta: f64, k: f64) -> f64 {
@@ -168,4 +158,23 @@ fn loss<const D: usize>(core: &impl Core<D>, delta: f64, k: f64, alpha: f64) -> 
 	let n0 = core.get_n0();
 
 	k*n0*delta.powf(2.0)*alpha
+}
+
+// Todo essas funções serão compartilhadas entre slab2d e slab3d
+fn s<const D: usize>(core: &impl Core<D>, position: [usize;D], zdelta: f64, delta: f64, k: f64, alpha: f64) -> Phasor {
+	let (guiding_space, free_space, loss) = slab_formulas(core, position, zdelta, delta, k, alpha);
+	Complex::new(2.0 - guiding_space, free_space + loss)
+}
+
+fn q<const D: usize>(core: &impl Core<D>, position: [usize;D], zdelta: f64, delta: f64, k: f64, alpha: f64) -> Phasor {
+	let (guiding_space, free_space, loss) = slab_formulas(core, position, zdelta, delta, k, alpha);
+	Complex::new(-2.0 + guiding_space, free_space - loss)
+}
+
+fn slab_formulas<const D: usize>(core: &impl Core<D>, position: [usize;D], zdelta: f64, delta: f64, k: f64, alpha: f64) -> (f64, f64, f64) {
+	let guiding_space = guiding_space(core, position, delta, k);
+	let free_space = free_space(core, zdelta, delta, k);
+	let loss = loss(core, delta, k, alpha);
+
+	(guiding_space, free_space, loss)
 }
