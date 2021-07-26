@@ -54,16 +54,10 @@ pub fn dataset_to_matrix(dataset: hdf5::Dataset) -> (Vec<f64>, Vec<usize>) {
 fn submatrix((values, shape): (Vec<f64>, Vec<usize>), z: usize) -> Vec<f64> {
     let sub_shape = shape[1..].to_vec();
 
-    cartesian_product(sub_shape).into_iter().map(
+    matrix::dephts_cartesian_product(sub_shape).into_iter().map(
         |mut position| {
             position.insert(0, z);
             values[matrix::position_to_id(position.as_slice(), shape.as_slice())].clone()
         }
-    ).collect()
-}
-
-fn cartesian_product(shape: Vec<usize>) -> Vec<Vec<usize>> {
-    (0..shape.iter().product()).map(
-        |id| matrix::id_to_position(id, shape.as_slice())
     ).collect()
 }

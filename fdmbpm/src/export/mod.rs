@@ -35,11 +35,9 @@ fn save_core(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>) {
 fn get_core_matrix<const D: usize>(core: &impl Core<D>) -> Vec<f64> {
     let shape = core.get_shape().to_vec();
     
-    (0..shape.iter().product()).map(|id| {
-        let position = matrix::id_to_position(id, &shape);
-		core.get_n(position.as_slice(), core.get_n0())
-
-	}).collect()
+    matrix::dephts_cartesian_product(shape).into_iter().map(
+        |position| core.get_n(position.as_slice(), core.get_n0())
+    ).collect()
 }
 
 pub fn save_surface(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>, title: &str) {

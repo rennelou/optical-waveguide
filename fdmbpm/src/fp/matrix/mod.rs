@@ -62,7 +62,20 @@ impl<T: Clone + Copy> Matrix<T> {
     }
 }
 
-pub fn id_to_position(id: usize, shape: &[usize]) -> Vec<usize> {
+pub fn position_to_id(position: &[usize], shape: &[usize]) -> usize {
+    (0..position.len()).fold(0, |id, index| {
+        id*shape[index]+position[index]
+    })
+}
+
+// #Todo otimizar essa função
+pub fn dephts_cartesian_product(shape: Vec<usize>) -> Vec<Vec<usize>> {
+    (0..shape.iter().product()).map(
+        |id| matrix::id_to_position(id, shape.as_slice())
+    ).collect()
+}
+
+fn id_to_position(id: usize, shape: &[usize]) -> Vec<usize> {
     let len = shape.len();
     
     let mut position = vec![0usize;len];
@@ -77,11 +90,6 @@ pub fn id_to_position(id: usize, shape: &[usize]) -> Vec<usize> {
     position
 }
 
-pub fn position_to_id(position: &[usize], shape: &[usize]) -> usize {
-    (0..position.len()).fold(0, |id, index| {
-        id*shape[index]+position[index]
-    })
-}
 
 #[cfg(test)]
 mod tests {
