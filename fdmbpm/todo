@@ -1,0 +1,9 @@
+[ ]limpar run do slab3d
+[ ]separar algoritmo de thomas
+[ ]separar core de grid
+[ ]criar o slab alto nivel que internamete separa em 2d e 3d
+[ ]otimizar dephts_cartesian_product
+[ ]get_q, get_s, get_col, get_row usaram submatrix para terem uma forma generica
+[ ]criar composição de cores
+[ ]criar composição de beams
+[ ]criar leitor de roteiro de simulação externo
