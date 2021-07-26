@@ -1,12 +1,6 @@
 use crate::fp;
 use super::*;
 
-#[derive(Clone, Copy)]
-pub enum Idx {
-    Free,
-    Value(usize)
-}
-
 pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Matrix<T> {
     if shape_ref.iter().product::<usize>() != values.len() {
         panic!("shape dosent match with values")

@@ -9,7 +9,7 @@ use core::f64::consts::PI;
 fn main() -> Result<(), std::io::Error> {
 	let k0 = (2.0*PI)/1.15;
 	let xdepht = 100usize;
-	let ydepht = 50usize;
+	let ydepht = 100usize;
     let dx = 40.0;
     let xdelta = dx/(xdepht as f64);
 	let dy = 40.0;

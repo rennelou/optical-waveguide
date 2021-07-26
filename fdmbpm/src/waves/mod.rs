@@ -13,7 +13,6 @@ pub fn new<const D: usize>(center: [f64;D], amplitude: f64, width: f64, k: f64, 
     Gaussian {center, amplitude, width, k, alpha}
 }
 
-// DEVERIA RECEBER A GRID E NÃO OS VALORES SOLTOS
 pub fn input<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;D], amplitude: f64, width: f64) -> Matrix<waveguide::Phasor> {
 
     let center_normalized: Vec<_> = center.iter().zip(deltas.iter()).map(

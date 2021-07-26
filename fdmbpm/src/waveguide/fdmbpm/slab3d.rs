@@ -1,4 +1,3 @@
-use crate::fp::matrix::Idx;
 use crate::waves;
 use crate::waves::Gaussian;
 
@@ -28,7 +27,7 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 			let d_list = (1..xdepht-1).map(|x| {
 				let last_es_col= get_col(last_es, x);
 				
-				let last_qy = get_qy(core, z-1, Idx::Free, Idx::Value(x), &beam);
+				let last_qy = get_qy(core, z-1, x, &beam);
 				
 				get_ds(&last_es_col, last_qy).into_iter().map(|e| e * dx2bydy2).collect()
 			}).collect();
@@ -37,7 +36,7 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 			let es_list = (1..ydepht-1).map(|y| {
 				let last_es_row= get_row(last_es, y);
 
-				let sx_list = get_sx(core, z-1, Idx::Value(y), Idx::Free, &beam);
+				let sx_list = get_sx(core, z-1, y, &beam);
 				let d_list = get_col(&transposed_d_plane,y-1);
 
 				get_es(sx_list, d_list, &last_es_row, boundary_codition)
@@ -48,7 +47,7 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 
 			let h_list = (1..ydepht-1).map(|y|{
 				let es_intermediate_row = get_row(&es_intermediate, y-1);
-				let last_qx = get_qx(core, z-1, Idx::Value(y), Idx::Free, &beam);
+				let last_qx = get_qx(core, z-1, y, &beam);
 
 				get_ds(&es_intermediate_row, last_qx).into_iter().map(|e| e * dy2bydx2).collect()
 			}).collect();
@@ -57,7 +56,7 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 			let es_list = (1..xdepht-1).map(|x|{
 				let es_intermediate_col= get_col(&es_intermediate, x);
 
-				let sy_list = get_sy(core, z-1, Idx::Free, Idx::Value(x), &beam);
+				let sy_list = get_sy(core, z-1, x, &beam);
 				let h_list = get_col(&h_plane, x-1);
 
 				get_es(sy_list, h_list, &es_intermediate_col, boundary_codition)
@@ -79,7 +78,7 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 	return EletricField { values, grid_steps };
 }
 
-// Otimizar submatrix pra usa la
+// #Todo Otimizar submatrix pra usa la
 fn get_col(m: &Matrix<Phasor>, x: usize) -> Vec<Phasor> {
 	// temporario vai usar como garantia que m tem depht 2
 	let y_depht = m.shape()[0];
@@ -87,7 +86,7 @@ fn get_col(m: &Matrix<Phasor>, x: usize) -> Vec<Phasor> {
 	(0..y_depht).map(|y| m.get(&[y, x]).clone()).collect()
 }
 
-// Otimizar submatrix pra usa la
+// #Todo Otimizar submatrix pra usa la
 fn get_row(m: &Matrix<Phasor>, y: usize) -> Vec<Phasor> {
 	// temporario vai usar como garantia que m tem depht 2
 	let x_depht = m.shape()[1];
@@ -95,155 +94,77 @@ fn get_row(m: &Matrix<Phasor>, y: usize) -> Vec<Phasor> {
 	(0..x_depht).map(|x| m.get(&[y, x]).clone()).collect()
 }
 
-fn get_sx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
-	let &[_, y_depht, x_depht] = core.get_shape();
+fn get_sx(core: &impl Core<3>, z: usize, y: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let &[zdelta, _, xdelta] = core.get_deltas();
-	let k = beam.k;
-	let alpha = beam.alpha;
+	let &[_, _, xdepht] = core.get_shape();
 
-	match (y_idx, x_idx) {
-		(Idx::Value(_), Idx::Value(_)) => {
-			panic!("get_s result needs have one dimension")
-		},
-		(Idx::Free, Idx::Free) => {
-			panic!("get_s result needs have one dimension")
-		},
-		(Idx::Free, Idx::Value(x)) => {
-			(0..y_depht).map(|y| {
-				let guiding_space = guiding_space(core, z, y, x, xdelta, k);
-				let free_space = free_space(core, zdelta, xdelta, k);
-				let loss = loss(core, xdelta, k, alpha);
-		
-				Complex::new(2.0 - guiding_space, free_space + loss)
-			}).collect()
-		},
-		(Idx::Value(y), Idx::Free) => {
-			(0..x_depht).map(|x| {
-				let guiding_space = guiding_space(core, z, y, x, xdelta, k);
-				let free_space = free_space(core, zdelta, xdelta, k);
-				let loss = loss(core, xdelta, k, alpha);
-		
-				Complex::new(2.0 - guiding_space, free_space + loss)
-			}).collect()
-		}
-	}
+	(0..xdepht).map(|x| {
+		s(core, [z, y, x], zdelta, xdelta, beam)
+	}).collect()
 }
 
-fn get_qx(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
-	let [_, y_depht, x_depht] = core.get_shape().clone();
+fn get_qx(core: &impl Core<3>, z: usize, y: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let &[zdelta, _, xdelta] = core.get_deltas();
-	let k = beam.k;
-	let alpha = beam.alpha;
+	let &[_, _, xdepht] = core.get_shape();
 
-	match (y_idx, x_idx) {
-		(Idx::Value(_), Idx::Value(_)) => {
-			panic!("get_q result needs have one dimension")
-		},
-		(Idx::Free, Idx::Free) => {
-			panic!("get_q result needs have one dimension")
-		},
-		(Idx::Free, Idx::Value(x)) => {
-			(0..y_depht).map(|y| {
-				let guiding_space = guiding_space(core, z, y, x, xdelta, k);
-				let free_space = free_space(core, zdelta, xdelta, k);
-				let loss = loss(core, xdelta, k, alpha);
-		
-				Complex::new(-2.0 + guiding_space, free_space - loss)
-			}).collect()
-		},
-		(Idx::Value(y), Idx::Free) => {
-			(0..x_depht).map(|x| {
-				let guiding_space = guiding_space(core, z, y, x, xdelta, k);
-				let free_space = free_space(core, zdelta, xdelta, k);
-				let loss = loss(core, xdelta, k, alpha);
-		
-				Complex::new(-2.0 + guiding_space, free_space - loss)
-			}).collect()
-		}
-	}
+	(0..xdepht).map(|x| {
+		q(core, [z, y, x], zdelta, xdelta, beam)
+	}).collect()
 }
 
-fn get_sy(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
-	let &[_, y_depht, x_depht] = core.get_shape();
+fn get_sy(core: &impl Core<3>, z: usize, x: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let &[zdelta, ydelta, _] = core.get_deltas();
-	let k = beam.k;
-	let alpha = beam.alpha;
+	let &[_, ydepht, _] = core.get_shape();
 
-	match (y_idx, x_idx) {
-		(Idx::Value(_), Idx::Value(_)) => {
-			panic!("get_s result needs have one dimension")
-		},
-		(Idx::Free, Idx::Free) => {
-			panic!("get_s result needs have one dimension")
-		},
-		(Idx::Free, Idx::Value(x)) => {
-			(0..y_depht).map(|y| {
-				let guiding_space = guiding_space(core, z, y, x, ydelta, k);
-				let free_space = free_space(core, zdelta, ydelta, k);
-				let loss = loss(core, ydelta, k, alpha);
-		
-				Complex::new(2.0 - guiding_space, free_space + loss)
-			}).collect()
-		},
-		(Idx::Value(y), Idx::Free) => {
-			(0..x_depht).map(|x| {
-				let guiding_space = guiding_space(core, z, y, x, ydelta, k);
-				let free_space = free_space(core, zdelta, ydelta, k);
-				let loss = loss(core, ydelta, k, alpha);
-		
-				Complex::new(2.0 - guiding_space, free_space + loss)
-			}).collect()
-		}
-	}
+	(0..ydepht).map(|y| {
+		s(core, [z, y, x], zdelta, ydelta, beam)
+	}).collect()
 }
 
-fn get_qy(core: &impl Core<3>, z: usize, y_idx: Idx, x_idx: Idx, beam: &Gaussian<2>) -> Vec<Phasor> {
-	let [_, y_depht, x_depht] = core.get_shape().clone();
+fn get_qy(core: &impl Core<3>, z: usize, x: usize, beam: &Gaussian<2>) -> Vec<Phasor> {
 	let &[zdelta, ydelta, _] = core.get_deltas();
+	let &[_, ydepht, _] = core.get_shape();
+
+	(0..ydepht).map(|y| {
+		q(core, [z, y, x], zdelta, ydelta, beam)
+	}).collect()
+}
+
+fn s<const D: usize>(core: &impl Core<D>, position: [usize;D], zdelta: f64, delta: f64, beam: &Gaussian<2>) -> Phasor {
 	let k = beam.k;
 	let alpha = beam.alpha;
 
-	match (y_idx, x_idx) {
-		(Idx::Value(_), Idx::Value(_)) => {
-			panic!("get_q result needs have one dimension")
-		},
-		(Idx::Free, Idx::Free) => {
-			panic!("get_q result needs have one dimension")
-		},
-		(Idx::Free, Idx::Value(x)) => {
-			(0..y_depht).map(|y| {
-				let guiding_space = guiding_space(core, z, y, x, ydelta, k);
-				let free_space = free_space(core, zdelta, ydelta, k);
-				let loss = loss(core, ydelta, k, alpha);
-		
-				Complex::new(-2.0 + guiding_space, free_space - loss)
-			}).collect()
-		},
-		(Idx::Value(y), Idx::Free) => {
-			(0..x_depht).map(|x| {
-				let guiding_space = guiding_space(core, z, y, x, ydelta, k);
-				let free_space = free_space(core, zdelta, ydelta, k);
-				let loss = loss(core, ydelta, k, alpha);
-		
-				Complex::new(-2.0 + guiding_space, free_space - loss)
-			}).collect()
-		}
-	}
+	let guiding_space = guiding_space(core, position, delta, k);
+	let free_space = free_space(core, zdelta, delta, k);
+	let loss = loss(core, delta, k, alpha);
+
+	Complex::new(2.0 - guiding_space, free_space + loss)
 }
 
-fn guiding_space(core: &impl Core<3>, z: usize, y: usize, x: usize, delta: f64, k: f64) -> f64 {
+fn q<const D: usize>(core: &impl Core<D>, position: [usize;D], zdelta: f64, delta: f64, beam: &Gaussian<2>) -> Phasor {
+	let k = beam.k;
+	let alpha = beam.alpha;
+
+	let guiding_space = guiding_space(core, position, delta, k);
+	let free_space = free_space(core, zdelta, delta, k);
+	let loss = loss(core, delta, k, alpha);
+
+	Complex::new(-2.0 + guiding_space, free_space - loss)
+}
+
+fn guiding_space<const D: usize>(core: &impl Core<D>, position: [usize;D], delta: f64, k: f64) -> f64 {
 	let n0 = core.get_n0();
 
-	0.5*k.powf(2.0)*delta.powf(2.0)*(core.get_half_n(&[z, y, x], n0).powf(2.0)-n0.powf(2.0))
+	0.5*k.powf(2.0)*delta.powf(2.0)*(core.get_half_n(&position, n0).powf(2.0)-n0.powf(2.0))
 }
 
-fn free_space(core: &impl Core<3>, zdelta: f64, delta: f64, k: f64) -> f64 {
+fn free_space<const D: usize>(core: &impl Core<D>, zdelta: f64, delta: f64, k: f64) -> f64 {
 	let n0 = core.get_n0();
 	
 	4.0*k*n0*delta.powf(2.0)/zdelta
 }
 
-fn loss(core: &impl Core<3>, delta: f64, k: f64, alpha: f64) -> f64 {
+fn loss<const D: usize>(core: &impl Core<D>, delta: f64, k: f64, alpha: f64) -> f64 {
 	let n0 = core.get_n0();
 
 	k*n0*delta.powf(2.0)*alpha
