@@ -3,6 +3,7 @@
 [ ]separar core de grid
 [ ]criar o slab alto nivel que internamete separa em 2d e 3d
 ----- 0.1 ---------
+[ ]tornar todos os maps do codigo em paralelo
 [ ]otimizar dephts_cartesian_product
 [ ]get_q, get_s, get_col, get_row usaram submatrix para terem uma forma generica
 [ ]criar composição de cores

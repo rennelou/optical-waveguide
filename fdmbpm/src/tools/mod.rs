@@ -1,4 +1,6 @@
 use std::cmp;
+use itertools::izip;
+
 use crate::fp::{Matrix, matrix};
 
 pub fn normalize(m: Matrix<f64>) -> Matrix<f64> {
@@ -28,13 +30,13 @@ fn diffs(m1: Matrix<f64>, m2: Matrix<f64>) -> (Vec<Vec<f64>>, usize, Vec<usize>)
         let sub_shape1 = shape1[1..].to_vec();
         let sub_shape2 = shape2[1..].to_vec();
         
-        if sub_shape1.iter().zip(sub_shape2.iter()).all(|(d1,d2)| d1 == d2) {
+        if izip!(&sub_shape1, &sub_shape2).all(|(d1,d2)| d1 == d2) {
             
             let result = (0..depht0).map(|z| {
                 let sub_data1 = submatrix(&m1, z);
                 let sub_data2 = submatrix(&m2, z);
 
-                sub_data1.into_iter().zip(sub_data2.into_iter()).map(
+                izip!(&sub_data1, &sub_data2).map(
                     |(d1, d2)| (d1 - d2).abs()
                 ).collect()
 

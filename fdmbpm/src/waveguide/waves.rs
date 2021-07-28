@@ -1,3 +1,4 @@
+use itertools::izip;
 use crate::fp::{Matrix, matrix};
 use crate::waveguide;
 
@@ -15,17 +16,17 @@ pub fn new<const D: usize>(center: [f64;D], amplitude: f64, width: f64, k: f64, 
 
 pub fn input<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;D], amplitude: f64, width: f64) -> Matrix<waveguide::Phasor> {
 
-    let center_normalized: Vec<_> = center.iter().zip(deltas.iter()).map(
+    let center_normalized: Vec<_> = izip!(center.iter(), deltas.iter()).map(
         |(&p, &d)| p/d
     ).collect();
 
     let values = matrix::dephts_cartesian_product(shape.to_vec()).into_iter().map(
         |position| {
-            let v = position.iter().zip(center_normalized.iter()).map(
-                |(&p, p0)| (p as f64) - p0
+            let v = izip!(&position, &center_normalized).map(
+                |(&p, &p0)| (p as f64) - p0
             );
-            let v = v.zip(deltas.iter()).map(|(p, &d)|
-                p * d
+            let v = izip!(v, deltas).map(
+                |(p, &d)| p * d
             );
     
             let r = v.map(|x| x.powf(2.0)).sum::<f64>().sqrt();

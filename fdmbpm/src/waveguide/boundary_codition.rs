@@ -17,15 +17,16 @@ pub fn transparent(s: Side, es: &Vec<waveguide::Phasor>) -> waveguide::Phasor {
     // do Hadley 1992 pra garantir que passos muito grandes em Z não cause problemas
     match s {
         Side::Left => {
-            let mut es_it = es.iter();
-            let x0 = es_it.next().unwrap();
-            let x1 = es_it.next().unwrap();
+            
+            let x0 = es[0];
+            let x1 = es[1];
 
             let eta = x0/x1;
 
             valid_eta(eta)
         },
         Side::Right => {
+            
             let mut es_it = es.iter();
             let xn = es_it.next_back().unwrap();
             let xn_less_one = es_it.next_back().unwrap();
