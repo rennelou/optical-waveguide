@@ -1,13 +1,11 @@
-use crate::waves;
-use crate::waves::Gaussian;
-
 use super::*;
+use eletric_field::EletricField;
+use waves::Gaussian;
 use cores::Core;
-use Phasor;
 use fp::list;
 use fp::Matrix;
 
-pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<3> {
+pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField {
 	let [zdepht, ydepht, xdepht] = core.get_shape().clone();
 	let shape  = core.get_shape();
 	let deltas = core.get_deltas();
@@ -77,9 +75,7 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 		}
 	);
 
-	let values = matrix::new_from_vec(es);
-	let grid_steps = core.get_deltas().to_vec();
-	return EletricField { values, grid_steps };
+	eletric_field::new (matrix::new_from_vec(es), core.get_deltas().to_vec())
 }
 
 // #Todo Otimizar submatrix pra usa la

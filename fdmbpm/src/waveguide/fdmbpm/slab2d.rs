@@ -1,12 +1,11 @@
 use super::*;
-use Phasor;
+use eletric_field::EletricField;
+use waves::Gaussian;
 use cores::Core;
 use crate::fp::matrix;
 use crate::fp::list;
-use crate::waves;
-use crate::waves::Gaussian;
 
-pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<2> {
+pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField {
 	let shape = core.get_shape();
 	let zsteps = shape[0];
 
@@ -17,20 +16,17 @@ pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side
 		|acc, z| {
 			
 			let last_es= fp::last(acc.iter()).unwrap().raw();
-			
 			let last_q = get_q(core, z-1, &beam);
 			let last_s = get_s(core, z-1, &beam);
-			let matrix = equation_to_diagonal_matrix(last_s, last_es, boundary_codition);
 			
+			let matrix = equation_to_diagonal_matrix(last_s, last_es, boundary_codition);
 			let e = get_es(matrix, get_ds(last_es, last_q), boundary_codition);
 
 			list::append(acc, e)
 		}
 	);
 
-	let values = matrix::new_from_vec(es);
-	let grid_steps = core.get_deltas().to_vec();
-	return EletricField { values, grid_steps };
+	eletric_field::new(matrix::new_from_vec(es), core.get_deltas().to_vec())
 }
 
 fn get_s(core: &impl Core<2>, z: usize, beam: &Gaussian<1>) -> Vec<Phasor> {

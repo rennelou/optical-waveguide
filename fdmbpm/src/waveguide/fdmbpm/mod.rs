@@ -7,11 +7,11 @@ use crate::lin_alg::{self, DiagonalMatrix, diagonal_matrix};
 pub mod slab2d;
 pub mod slab3d;
 
-fn get_es(matrix: DiagonalMatrix, d: Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor> {
-	insert_boundary_values(
-		lin_alg::thomas::try_solve(matrix, d),
-		boundary_codition
-	)
+fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
+	qs.iter().enumerate().map(
+		// okamoto 7.97
+		|(i, q)| es[i]+q*es[i+1]+es[i+2]
+	).collect()
 }
 
 fn equation_to_diagonal_matrix(s: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> DiagonalMatrix {
@@ -42,11 +42,11 @@ fn get_diagonal(mut s: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn
 	s
 }
 
-fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
-	qs.iter().enumerate().map(
-		// okamoto 7.97
-		|(i, q)| es[i]+q*es[i+1]+es[i+2]
-	).collect()
+fn get_es(matrix: DiagonalMatrix, d: Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor> {
+	insert_boundary_values(
+		lin_alg::thomas::try_solve(matrix, d),
+		boundary_codition
+	)
 }
 
 fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>) -> Phasor) -> Matrix<Phasor> {

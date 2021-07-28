@@ -1,5 +1,5 @@
 [ ]limpar run do slab3d
-[ ]separar algoritmo de thomas
+[x]separar algoritmo de thomas
 [ ]separar core de grid
 [ ]criar o slab alto nivel que internamete separa em 2d e 3d
 ----- 0.1 ---------

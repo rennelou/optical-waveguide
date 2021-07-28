@@ -2,16 +2,12 @@ use num::complex::Complex;
 use crate::fp::Matrix;
 
 pub mod fdmbpm;
+pub mod waves;
 pub mod boundary_codition;
 pub mod eletric_field;
 pub mod cores;
 
 pub type Phasor = Complex<f64>;
-
-pub struct EletricField<const D: usize> {
-    values: Matrix<Phasor>,
-    grid_steps: Vec<f64>
-}
 
 const PHASOR_ZERO: Phasor = Complex::new(0.0, 0.0);
 const fn zero() -> &'static Phasor {

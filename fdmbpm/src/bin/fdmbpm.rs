@@ -1,6 +1,6 @@
 use rust_fdmbpm::waveguide::cores;
 use rust_fdmbpm::waveguide::boundary_codition;
-use rust_fdmbpm::waves;
+use rust_fdmbpm::waveguide::waves;
 use rust_fdmbpm::waveguide::fdmbpm;
 use rust_fdmbpm::export;
 

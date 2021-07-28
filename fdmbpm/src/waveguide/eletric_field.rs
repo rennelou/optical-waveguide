@@ -1,9 +1,17 @@
 use crate::fp::Matrix;
 use crate::fp::matrix;
 use super::Phasor;
-use super::EletricField;
 
-impl<const D: usize> EletricField<D> {
+pub struct EletricField {
+    values: Matrix<Phasor>,
+    grid_steps: Vec<f64>
+}
+
+pub fn new(values: Matrix<Phasor>, grid_steps: Vec<f64>) -> EletricField {
+    EletricField { values, grid_steps }
+}
+
+impl EletricField {
     pub fn get_eletric_fields(&self) -> Matrix<f64>  {
         let values = self.values.raw().iter().map(|p|{
             let (r, _theta) = p.clone().to_polar();
