@@ -3,13 +3,11 @@ use Phasor;
 use cores::Core;
 use crate::fp::matrix;
 use crate::fp::list;
-use crate::linear_solver;
 use crate::waves;
 use crate::waves::Gaussian;
 
 pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> EletricField<2> {
 	let shape = core.get_shape();
-
 	let zsteps = shape[0];
 
 	let e_input = waves::input(&[shape[1]], &[core.get_deltas()[1]], &beam.center, beam.amplitude, beam.width);
@@ -22,17 +20,11 @@ pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side
 			
 			let last_q = get_q(core, z-1, &beam);
 			let last_s = get_s(core, z-1, &beam);
+			let matrix = equation_to_diagonal_matrix(last_s, last_es, boundary_codition);
+			
+			let e = get_es(matrix, get_ds(last_es, last_q), boundary_codition);
 
-			let last_d = get_ds(last_es, last_q);
-
-			let e = linear_solver::thomas::try_solve(equation_to_diagonal_matrix(last_s, last_es, boundary_codition), last_d);
-
-			let values = insert_boundary_values(
-				e,
-				boundary_codition
-			);
-
-			list::append(acc, values)
+			list::append(acc, e)
 		}
 	);
 

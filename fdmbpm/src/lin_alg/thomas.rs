@@ -2,9 +2,9 @@ use super::*;
 use itertools::izip;
 
 // m*x = const_terms
-pub fn try_solve(m: DiagonalMatrix, const_terms: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
-	if m.lenght == const_terms.len() {
-        solve(m.below_diag, m.diag, m.above_diag, const_terms)
+pub fn try_solve(matrix: DiagonalMatrix, const_terms: Vec<Complex<f64>>) -> Vec<Complex<f64>> {
+	if matrix.lenght == const_terms.len() {
+        solve(matrix.below_diag, matrix.diag, matrix.above_diag, const_terms)
     } else {
         panic!("constant terms must have the same lenght that diagonal matrix")
     }

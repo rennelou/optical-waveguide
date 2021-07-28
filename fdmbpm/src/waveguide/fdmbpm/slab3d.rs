@@ -39,7 +39,9 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 				let sx_list = get_sx(core, z-1, y, &beam);
 				let d_list = get_col(&transposed_d_plane,y-1);
 
-				get_es(sx_list, d_list, &last_es_row, boundary_codition)
+				let matrix = equation_to_diagonal_matrix(sx_list, &last_es_row, boundary_codition);
+				get_es(matrix, d_list, boundary_codition)
+
 			}).collect();
 			let es_intermediate = matrix::new_from_vec(es_list);
 			
@@ -59,7 +61,9 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 				let sy_list = get_sy(core, z-1, x, &beam);
 				let h_list = get_col(&h_plane, x-1);
 
-				get_es(sy_list, h_list, &es_intermediate_col, boundary_codition)
+				let matrix = equation_to_diagonal_matrix(sy_list, &es_intermediate_col, boundary_codition);
+				get_es(matrix, h_list, boundary_codition)
+
 			}).collect();
 			let es_transposed = matrix::new_from_vec(es_list);
 			

@@ -39,10 +39,6 @@ pub fn tail<T: Clone>(mut l: impl Iterator<Item = T>) -> impl Iterator<Item = T>
 	l
 }
 
-pub fn middle<T: Clone>(l: impl DoubleEndedIterator<Item = T>) -> impl Iterator<Item = T> {
-	return tail(init(l));
-}
-
 pub fn unwrap_or_default<T>(wrap: Option<T>, default: T) -> T {
 	return {
 		if let None = wrap {
