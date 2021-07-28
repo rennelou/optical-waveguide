@@ -35,5 +35,5 @@ pub fn input<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;
         }
     ).collect();
 
-    matrix::new(values, shape)
+    matrix::new_from_raw(values, shape)
 }

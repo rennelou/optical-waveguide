@@ -3,6 +3,7 @@ use Phasor;
 use cores::Core;
 use crate::fp::matrix;
 use crate::fp::list;
+use crate::linear_solver;
 use crate::waves;
 use crate::waves::Gaussian;
 
@@ -22,11 +23,16 @@ pub fn run(core: &impl Core<2>, beam: Gaussian<1>, boundary_codition: fn(s: Side
 			let last_q = get_q(core, z-1, &beam);
 			let last_s = get_s(core, z-1, &beam);
 
-			let ds = get_ds(last_es, last_q);
+			let last_d = get_ds(last_es, last_q);
 
-			let new_es = get_es(last_s, ds, last_es, boundary_codition);
+			let e = linear_solver::thomas::try_solve(equation_to_diagonal_matrix(last_s, last_es, boundary_codition), last_d);
 
-			list::append(acc, new_es)
+			let values = insert_boundary_values(
+				e,
+				boundary_codition
+			);
+
+			list::append(acc, values)
 		}
 	);
 
@@ -42,7 +48,7 @@ fn get_s(core: &impl Core<2>, z: usize, beam: &Gaussian<1>) -> Vec<Phasor> {
 	let [_, x_depht] = core.get_shape().clone();
 	let &[zdelta, xdelta] = core.get_deltas();
 
-	(0..x_depht).map(|x| {
+	(1..x_depht-1).map(|x| {
 		s(core, [z, x], zdelta, xdelta, k, alpha)
 	}).collect()
 }
@@ -54,7 +60,7 @@ fn get_q(core: &impl Core<2>, z: usize, beam: &Gaussian<1>) -> Vec<Phasor> {
 	let [_, x_depht] = core.get_shape().clone();
 	let &[zdelta, xdelta] = core.get_deltas();
 
-	(0..x_depht).map(|x| {
+	(1..x_depht-1).map(|x| {
 		q(core, [z, x], zdelta, xdelta, k, alpha)
 	}).collect()
 }

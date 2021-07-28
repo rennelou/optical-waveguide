@@ -6,7 +6,7 @@ pub fn normalize(m: Matrix<f64>) -> Matrix<f64> {
     
     let new_values = m.raw().into_iter().map(|x| x / area_input).collect();
 
-    return matrix::new(new_values, m.shape());
+    return matrix::new_from_raw(new_values, m.shape());
 }
 
 pub fn areas_diff(m1: Matrix<f64>, m2: Matrix<f64>) -> Vec<f64> {
@@ -51,7 +51,7 @@ pub fn dataset_to_matrix(dataset: hdf5::Dataset) -> Matrix<f64> {
     let data = dataset.read_raw::<f64>().unwrap();
     let shape = dataset.shape();
 
-    matrix::new(data, shape.as_slice())
+    matrix::new_from_raw(data, shape.as_slice())
 }
 
 fn submatrix(m: &Matrix<f64>, z: usize) -> Vec<f64> {

@@ -2,6 +2,7 @@ use super::*;
 use super::boundary_codition::Side;
 use crate::fp::{self, matrix};
 use crate::fp::list;
+use crate::linear_solver::{DiagonalMatrix, diagonal_matrix};
 
 pub mod slab2d;
 pub mod slab3d;
@@ -25,16 +26,42 @@ impl AlphaBeta {
 
 }
 
+fn equation_to_diagonal_matrix(s: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> DiagonalMatrix {
+	
+	let len = s.len();
+	
+	let mut below_diag = vec![-(*one()); len];
+	below_diag[0] = *zero();
+	
+	let diag = get_diagonal(s, last_es, boundary_codition);
+
+	let mut above_diag = vec![-(*one()); len];
+	above_diag[len - 1] = *zero();
+
+	diagonal_matrix(below_diag, diag, above_diag)
+
+}
+
+fn get_diagonal(mut s: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Vec<Phasor> {
+	
+	let left_boundary = boundary_codition(Side::Left, last_es);
+	let right_boundary = boundary_codition(Side::Right, last_es);
+	
+	s[0] = s[0] - left_boundary;
+	let len = s.len();
+	s[len - 1] = s[len - 1] - right_boundary;
+
+	s
+}
+
 fn get_es(ss: Vec<Phasor>, ds: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> Matrix<Phasor> {
 	let left_boundaty = boundary_codition(Side::Left, &last_es);
 	let right_boundaty = boundary_codition(Side::Right, &last_es);
-	let values = insert_boundary_values(
+	
+	insert_boundary_values(
 		get_recurrence_form(get_alphas_betas(ss, ds, left_boundaty, right_boundaty)),
 		boundary_codition
-	);
-	
-	let shape = values.len();
-	matrix::new(values, &[shape])
+	)
 }
 
 fn get_recurrence_form(alpha_betas:  Vec<AlphaBeta>) -> Vec<Phasor> {
@@ -87,24 +114,14 @@ fn get_alphas_betas(ss: Vec<Phasor>, ds: Vec<Phasor>, left_boundary: Phasor, rig
 	)
 }
 
-// TODO: lembrar de multiplicar pelo fator usado em 3 dimensões
 fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
-	
-	if es.len() == qs.len() {
-		let es: Vec<_> = es.iter().map(|x|x).collect();
-		let values = fp::middle(qs.iter()).enumerate().map(
-			// okamoto 7.97
-			|(i, q)| es[i]+q*es[i+1]+es[i+2]
-		).collect();
-
-		
-		return values;
-	}
-
-	panic!("es array and qs array dosent have the same size");
+	qs.iter().enumerate().map(
+		// okamoto 7.97
+		|(i, q)| es[i]+q*es[i+1]+es[i+2]
+	).collect()
 }
 
-fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>) -> Phasor) -> Vec<Phasor> {
+fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>) -> Phasor) -> Matrix<Phasor> {
 
 	let head = vec![{
 		let es_head = fp::head_or_default(es.iter(), one());
@@ -117,5 +134,5 @@ fn insert_boundary_values(es: Vec<Phasor>, boundary_codition: fn(s: Side, es: &V
 	
 	let values = list::concat(list::concat(head, es),last);
 
-	values
+	matrix::new(values)
 }

@@ -1,7 +1,13 @@
 use crate::fp;
 use super::*;
 
-pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Matrix<T> {
+pub fn new<T: Clone + Copy>(values: Vec<T>) -> Matrix<T> {
+    let shape = vec![values.len()];
+    
+    Matrix { values, shape }
+}
+
+pub fn new_from_raw<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Matrix<T> {
     if shape_ref.iter().product::<usize>() != values.len() {
         panic!("shape dosent match with values")
     }
@@ -41,7 +47,7 @@ pub fn new_from_vec<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
         }
     );
 
-    new(new_values, &new_shape)
+    new_from_raw(new_values, &new_shape)
 }
 
 impl<T: Clone + Copy> Matrix<T> {
@@ -97,7 +103,7 @@ mod tests {
 
     #[test]
     fn acess_position() {
-        let matrix = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
+        let matrix = new_from_raw(vec![0,1,2,3,4,5], &[2usize, 3usize]);
 
         assert_eq!(matrix.get(&[0,0]), &0);
         assert_eq!(matrix.get(&[0,1]), &1);
@@ -109,8 +115,8 @@ mod tests {
 
     #[test]
     fn zip_test() {
-        let m1 = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
-        let m2 = new(vec![6,7,8,9,10,11], &[2usize, 3usize]);
+        let m1 = new_from_raw(vec![0,1,2,3,4,5], &[2usize, 3usize]);
+        let m2 = new_from_raw(vec![6,7,8,9,10,11], &[2usize, 3usize]);
 
         let ziped = matrix::new_from_vec(vec![m1, m2]);
         

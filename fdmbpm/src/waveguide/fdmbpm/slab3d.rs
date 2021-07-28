@@ -67,7 +67,7 @@ pub fn run(core: &impl Core<3>, beam: Gaussian<2>, boundary_codition: fn(s: Side
 				let es_to_insert_boundary_x = get_col(&es_transposed, y);
 				insert_boundary_values(es_to_insert_boundary_x, boundary_codition)
 			}).collect();
-			let es = matrix::new2_from_vec_vec(es_list);
+			let es = matrix::new_from_vec(es_list);
 
 			list::append(result, es)
 		}
@@ -101,7 +101,7 @@ fn get_sx(core: &impl Core<3>, z: usize, y: usize, beam: &Gaussian<2>) -> Vec<Ph
 	let &[zdelta, _, xdelta] = core.get_deltas();
 	let &[_, _, xdepht] = core.get_shape();
 
-	(0..xdepht).map(|x| {
+	(1..xdepht-1).map(|x| {
 		s(core, [z, y, x], zdelta, xdelta, k, alpha)
 	}).collect()
 }
@@ -113,7 +113,7 @@ fn get_qx(core: &impl Core<3>, z: usize, y: usize, beam: &Gaussian<2>) -> Vec<Ph
 	let &[zdelta, _, xdelta] = core.get_deltas();
 	let &[_, _, xdepht] = core.get_shape();
 
-	(0..xdepht).map(|x| {
+	(1..xdepht-1).map(|x| {
 		q(core, [z, y, x], zdelta, xdelta, k, alpha)
 	}).collect()
 }
@@ -125,7 +125,7 @@ fn get_sy(core: &impl Core<3>, z: usize, x: usize, beam: &Gaussian<2>) -> Vec<Ph
 	let &[zdelta, ydelta, _] = core.get_deltas();
 	let &[_, ydepht, _] = core.get_shape();
 
-	(0..ydepht).map(|y| {
+	(1..ydepht-1).map(|y| {
 		s(core, [z, y, x], zdelta, ydelta, k, alpha)
 	}).collect()
 }
@@ -137,7 +137,7 @@ fn get_qy(core: &impl Core<3>, z: usize, x: usize, beam: &Gaussian<2>) -> Vec<Ph
 	let &[zdelta, ydelta, _] = core.get_deltas();
 	let &[_, ydepht, _] = core.get_shape();
 
-	(0..ydepht).map(|y| {
+	(1..ydepht-1).map(|y| {
 		q(core, [z, y, x], zdelta, ydelta, k, alpha)
 	}).collect()
 }
