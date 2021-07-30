@@ -44,7 +44,7 @@ impl<T: Core<3>> Slab<T,3,2> {
 		let shape  = self.core.get_shape();
 		let deltas = self.core.get_deltas();
 
-		waves::input(&[shape[1], shape[2]], &[deltas[1], deltas[2]], &self.beam.center, self.beam.amplitude, self.beam.width)
+		beam::input(&[shape[1], shape[2]], &[deltas[1], deltas[2]], &self.beam.center, self.beam.amplitude, self.beam.width)
 	}
 
 	fn get_transposed_d_plane(&self, last_es: &Matrix<Phasor>, z: usize) -> Matrix<Phasor> {

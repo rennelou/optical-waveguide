@@ -30,7 +30,7 @@ impl<T: Core<2>> Slab<T,2,1> {
 	}
 
 	fn get_input_beam(&self) -> Matrix<Phasor> {
-		waves::input(&[self.core.get_shape()[1]], &[self.core.get_deltas()[1]], &self.beam.center, self.beam.amplitude, self.beam.width)
+		beam::input(&[self.core.get_shape()[1]], &[self.core.get_deltas()[1]], &self.beam.center, self.beam.amplitude, self.beam.width)
 	}
 
 	fn get_s(&self, z: usize) -> Vec<Phasor> {

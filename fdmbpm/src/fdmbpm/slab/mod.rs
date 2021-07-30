@@ -1,7 +1,7 @@
 use super::*;
 use cores::Core;
 use boundary_codition::Side;
-use waves::Gaussian;
+use beam::Gaussian;
 use crate::fp::{self, matrix};
 use crate::fp::list;
 use crate::lin_alg::{self, DiagonalMatrix, diagonal_matrix};

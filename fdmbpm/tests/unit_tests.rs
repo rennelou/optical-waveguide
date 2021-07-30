@@ -4,7 +4,7 @@ mod tests {
     use rust_fdmbpm::fdmbpm::cores;
 	use rust_fdmbpm::fdmbpm::slab;
 	use rust_fdmbpm::fdmbpm::boundary_codition;
-	use rust_fdmbpm::fdmbpm::waves;
+	use rust_fdmbpm::fdmbpm::beam;
 	use core::f64::consts::PI;
 	use std::error::Error;
 
@@ -30,7 +30,7 @@ mod tests {
     	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 		
     	let w = 2.0_f64;
-		let beam = waves::new(center, 1.0, w, k0, 0.0);
+		let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 		
 		let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
 		let e = simulation.run();
@@ -70,7 +70,7 @@ mod tests {
     	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
 		
     	let w = 4.0_f64;
-		let beam = waves::new(center, 1.0, w, k0, 0.0);
+		let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 		
 		let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
 		let e = simulation.run();
@@ -116,7 +116,7 @@ mod tests {
 	   let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 	   
 	   let w = 2.0;
-	   let beam = waves::new(center, 1.0, w, k0, 0.0);
+	   let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 	   let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
 	   let e = simulation.run();
 

@@ -10,7 +10,7 @@ pub struct Gaussian<const D: usize> {
     pub alpha: f64
 }
 
-pub fn new<const D: usize>(center: [f64;D], amplitude: f64, width: f64, k: f64, alpha: f64) -> Gaussian<D> {
+pub fn gaussian<const D: usize>(center: [f64;D], amplitude: f64, width: f64, k: f64, alpha: f64) -> Gaussian<D> {
     Gaussian {center, amplitude, width, k, alpha}
 }
 

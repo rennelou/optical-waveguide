@@ -2,7 +2,7 @@ use num::complex::Complex;
 use crate::fp::Matrix;
 
 pub mod slab;
-pub mod waves;
+pub mod beam;
 pub mod boundary_codition;
 pub mod eletric_field;
 pub mod cores;

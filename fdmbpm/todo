@@ -5,6 +5,7 @@
 [x]criar o slab alto nivel que internamete separa em 2d e 3d
 [ ]Controle de slice em x ou y vir do run do slab3d e descer ate os get_row, get_col, get_sx, get_sy, get_qx e get_qy
 [ ]melhorar nomenclatura de funções e variaveis do slab3d
+[ ]remover codigo reptido do get_q e get_s do slab::bidimensional
 ----- 0.1 ---------
 [ ]tornar todos os maps do codigo em paralelo
 [ ]otimizar dephts_cartesian_product

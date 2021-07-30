@@ -1,6 +1,6 @@
 use rust_fdmbpm::fdmbpm::cores;
 use rust_fdmbpm::fdmbpm::boundary_codition;
-use rust_fdmbpm::fdmbpm::waves;
+use rust_fdmbpm::fdmbpm::beam;
 use rust_fdmbpm::fdmbpm::slab;
 use rust_fdmbpm::export;
 
@@ -28,7 +28,7 @@ fn main() -> Result<(), std::io::Error> {
     let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
 	
     let w = 2.0;
-    let beam = waves::new(center, 1.0, w, k0, 0.0);
+    let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 
 	let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
 	let e = simulation.run();
