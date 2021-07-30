@@ -1,5 +1,5 @@
 use ndarray::Array;
-use crate::{fp::{Matrix, matrix}, waveguide::{eletric_field::EletricField, cores::Core}};
+use crate::{fp::{Matrix, matrix}, fdmbpm::{eletric_field::EletricField, cores::Core}};
 
 pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField, core: &impl Core<D>) {
    

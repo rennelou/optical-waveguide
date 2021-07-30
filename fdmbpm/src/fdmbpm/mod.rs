@@ -1,7 +1,7 @@
 use num::complex::Complex;	
 use crate::fp::Matrix;
 
-pub mod fdmbpm;
+pub mod slab;
 pub mod waves;
 pub mod boundary_codition;
 pub mod eletric_field;

@@ -1,4 +1,4 @@
-use crate::waveguide;
+use crate::fdmbpm;
 use num::complex::Complex;
 
 pub enum Side {
@@ -6,11 +6,11 @@ pub enum Side {
     Right
 }
 
-pub fn dirichlet(_: Side, _: &Vec<waveguide::Phasor>) -> waveguide::Phasor {
-    return *waveguide::zero();
+pub fn dirichlet(_: Side, _: &Vec<fdmbpm::Phasor>) -> fdmbpm::Phasor {
+    return *fdmbpm::zero();
 }
 
-pub fn transparent(s: Side, es: &Vec<waveguide::Phasor>) -> waveguide::Phasor {
+pub fn transparent(s: Side, es: &Vec<fdmbpm::Phasor>) -> fdmbpm::Phasor {
     
     // forma mais simples que considera que a frente de onda é transversal ao eixo z. 
     // caso implemente semi vector ou full vector algoritmo é interessante ver os mais casos

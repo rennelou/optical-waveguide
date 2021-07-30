@@ -6,8 +6,8 @@ use crate::fp::{self, matrix};
 use crate::fp::list;
 use crate::lin_alg::{self, DiagonalMatrix, diagonal_matrix};
 
-pub mod slab2d;
-pub mod slab3d;
+pub mod bidimensional;
+pub mod tridimensional;
 
 pub struct Slab<T: Core<D>, const D: usize, const N: usize> {
 	core: T, 

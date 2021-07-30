@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
     use rust_fdmbpm::tools;
-    use rust_fdmbpm::waveguide::cores;
-	use rust_fdmbpm::waveguide::fdmbpm;
-	use rust_fdmbpm::waveguide::boundary_codition;
-	use rust_fdmbpm::waveguide::waves;
+    use rust_fdmbpm::fdmbpm::cores;
+	use rust_fdmbpm::fdmbpm::slab;
+	use rust_fdmbpm::fdmbpm::boundary_codition;
+	use rust_fdmbpm::fdmbpm::waves;
 	use core::f64::consts::PI;
 	use std::error::Error;
 
@@ -32,7 +32,7 @@ mod tests {
     	let w = 2.0_f64;
 		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
-		let simulation = fdmbpm::new(core.clone(), beam, boundary_codition::transparent); 
+		let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
@@ -72,7 +72,7 @@ mod tests {
     	let w = 4.0_f64;
 		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
-		let simulation = fdmbpm::new(core.clone(), beam, boundary_codition::transparent); 
+		let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
@@ -117,7 +117,7 @@ mod tests {
 	   
 	   let w = 2.0;
 	   let beam = waves::new(center, 1.0, w, k0, 0.0);
-	   let simulation = fdmbpm::new(core.clone(), beam, boundary_codition::transparent); 
+	   let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
 	   let e = simulation.run();
 
 	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;

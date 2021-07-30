@@ -1,6 +1,6 @@
 use itertools::izip;
 use crate::fp::{Matrix, matrix};
-use crate::waveguide;
+use crate::fdmbpm;
 
 pub struct Gaussian<const D: usize> {
     pub center: [f64;D],
@@ -14,7 +14,7 @@ pub fn new<const D: usize>(center: [f64;D], amplitude: f64, width: f64, k: f64, 
     Gaussian {center, amplitude, width, k, alpha}
 }
 
-pub fn input<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;D], amplitude: f64, width: f64) -> Matrix<waveguide::Phasor> {
+pub fn input<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;D], amplitude: f64, width: f64) -> Matrix<fdmbpm::Phasor> {
 
     let center_normalized: Vec<_> = izip!(center.iter(), deltas.iter()).map(
         |(&p, &d)| p/d
@@ -32,7 +32,7 @@ pub fn input<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;
             let r = v.map(|x| x.powf(2.0)).sum::<f64>().sqrt();
             let e = amplitude*(- (r.powf(2.0) / width.powf(2.0)) ).exp();
                 
-            waveguide::to_phasor(e)
+            fdmbpm::to_phasor(e)
         }
     ).collect();
 
