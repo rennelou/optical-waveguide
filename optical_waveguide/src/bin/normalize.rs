@@ -1,7 +1,7 @@
 use ndarray::Array;
-use rust_fdmbpm::{export, fp::Matrix};
+use optical_waveguide::{export, fp::Matrix};
 use structopt::StructOpt;
-use rust_fdmbpm::tools;
+use optical_waveguide::tools;
 
 #[derive(StructOpt)]
 struct Cli {

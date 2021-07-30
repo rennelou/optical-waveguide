@@ -1,8 +1,8 @@
-use rust_fdmbpm::fdmbpm::cores;
-use rust_fdmbpm::fdmbpm::boundary_codition;
-use rust_fdmbpm::fdmbpm::beam;
-use rust_fdmbpm::fdmbpm::slab;
-use rust_fdmbpm::export;
+use optical_waveguide::fdmbpm::cores;
+use optical_waveguide::fdmbpm::boundary_codition;
+use optical_waveguide::fdmbpm::beam;
+use optical_waveguide::fdmbpm::slab;
+use optical_waveguide::export;
 
 use core::f64::consts::PI;
 

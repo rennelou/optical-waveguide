@@ -1,5 +1,5 @@
 [package]
-name = "rust-fdmbpm"
+name = "optical_waveguide"
 version = "0.1.0"
 authors = ["rennelou <rennelou@outlook.com>"]
 edition = "2018"

@@ -1,6 +1,6 @@
 use ndarray::Array;
 use structopt::StructOpt;
-use rust_fdmbpm::tools;
+use optical_waveguide::tools;
 
 #[derive(StructOpt)]
 struct CompareArgs {
