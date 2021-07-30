@@ -56,7 +56,9 @@ impl<T: Core<2>> Slab<T,2,1> {
 			self.q([z, x], zdelta, xdelta, k, alpha)
 		}).collect()
 	}
+}
 
+impl<T: Core<2>> SlabParamtersFormulas<T,2> for Slab<T,2,1> {
 	fn guiding_space(&self, position: [usize;2], delta: f64, k: f64) -> f64 {
 		let &n0 = &self.core.get_n0();
 	
@@ -73,24 +75,5 @@ impl<T: Core<2>> Slab<T,2,1> {
 		let n0 = &self.core.get_n0();
 	
 		2.0*k*n0*delta.powf(2.0)*alpha
-	}
-	
-	// Todo essas funções serão compartilhadas entre slab2d e slab3d
-	fn s(&self, position: [usize;2], zdelta: f64, delta: f64, k: f64, alpha: f64) -> Phasor {
-		let (guiding_space, free_space, loss) = self.slab_formulas(position, zdelta, delta, k, alpha);
-		Complex::new(2.0 - guiding_space, free_space + loss)
-	}
-	
-	fn q(&self, position: [usize;2], zdelta: f64, delta: f64, k: f64, alpha: f64) -> Phasor {
-		let (guiding_space, free_space, loss) = self.slab_formulas(position, zdelta, delta, k, alpha);
-		Complex::new(-2.0 + guiding_space, free_space - loss)
-	}
-	
-	fn slab_formulas(&self, position: [usize;2], zdelta: f64, delta: f64, k: f64, alpha: f64) -> (f64, f64, f64) {
-		let guiding_space = self.guiding_space(position, delta, k);
-		let free_space = self.free_space(zdelta, delta, k);
-		let loss = self.loss(delta, k, alpha);
-	
-		(guiding_space, free_space, loss)
 	}
 }

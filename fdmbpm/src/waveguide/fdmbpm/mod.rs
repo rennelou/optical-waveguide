@@ -33,6 +33,32 @@ fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
 	).collect()
 }
 
+trait SlabParamtersFormulas<T: Core<D>, const D: usize>  {
+	fn s(&self, position: [usize;D], zdelta: f64, delta: f64, k: f64, alpha: f64) -> Phasor {
+		let (guiding_space, free_space, loss) = self.slab_formulas(position, zdelta, delta, k, alpha);
+		Complex::new(2.0 - guiding_space, free_space + loss)
+	}
+	
+	fn q(&self, position: [usize;D], zdelta: f64, delta: f64, k: f64, alpha: f64) -> Phasor {
+		let (guiding_space, free_space, loss) = self.slab_formulas(position, zdelta, delta, k, alpha);
+		Complex::new(-2.0 + guiding_space, free_space - loss)
+	}
+
+	fn slab_formulas(&self, position: [usize;D], zdelta: f64, delta: f64, k: f64, alpha: f64) -> (f64, f64, f64) {
+		let guiding_space = self.guiding_space(position, delta, k);
+		let free_space = self.free_space(zdelta, delta, k);
+		let loss = self.loss(delta, k, alpha);
+	
+		(guiding_space, free_space, loss)
+	}
+
+	fn guiding_space(&self, position: [usize;D], delta: f64, k: f64) -> f64;
+	
+	fn free_space(&self, zdelta: f64, delta: f64, k: f64) -> f64;
+	
+	fn loss(&self, delta: f64, k: f64, alpha: f64) -> f64;
+}
+
 fn equation_to_diagonal_matrix(s: Vec<Phasor>, last_es: &Vec<Phasor>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)->Phasor) -> DiagonalMatrix {
 	
 	let len = s.len();
