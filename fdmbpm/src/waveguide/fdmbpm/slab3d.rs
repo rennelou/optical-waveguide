@@ -7,7 +7,7 @@ use fp::Matrix;
 impl<T: Core<3>> Slab<T,3,2> {
 	
 	pub fn run(&self) -> EletricField {
-		let [zdepht, ydepht, xdepht] = self.core.get_shape().clone();
+		let [zdepht, _, _] = self.core.get_shape().clone();
 	
 		let e_input = self.get_input_beam();
 	
@@ -17,56 +17,15 @@ impl<T: Core<3>> Slab<T,3,2> {
 				
 				let last_es = fp::last(result.iter()).unwrap();
 	
-				let d_list = (1..xdepht-1).map(|x| {
-					let last_es_col= get_col(last_es, x);
-					
-					let last_qy = self.get_qy(z-1, x,);
-					
-					get_ds(&last_es_col, last_qy).into_iter().map(|e| e * self.dx2bydy2()).collect()
-				}).collect();
-				let transposed_d_plane = matrix::new2_from_vec_vec(d_list);
-	
-				let es_list = (1..ydepht-1).map(|y| {
-					let last_es_row= get_row(last_es, y);
-	
-					let sx_list = self.get_sx(z-1, y);
-					let d_list = get_col(&transposed_d_plane,y-1);
-	
-					let matrix = equation_to_diagonal_matrix(sx_list, &last_es_row, self.boundary_codition);
-					get_es(matrix, d_list, self.boundary_codition)
-	
-				}).collect();
-				let es_intermediate = matrix::new_from_vec(es_list);
+				let transposed_d_plane = self.get_transposed_d_plane(last_es, z-1);
+				let e_intermediate = self.get_e_intermediate(last_es, transposed_d_plane, z-1);
 				
-	//----------------------- segunda parte -----------------------------------------------
-	
-				let h_list = (1..ydepht-1).map(|y|{
-					let es_intermediate_row = get_row(&es_intermediate, y-1);
-					let last_qx = self.get_qx(z-1, y);
-	
-					get_ds(&es_intermediate_row, last_qx).into_iter().map(|e| e * self.dy2bydx2()).collect()
-				}).collect();
-				let h_plane = matrix::new2_from_vec_vec(h_list);
-				
-				let es_list = (1..xdepht-1).map(|x|{
-					let es_intermediate_col= get_col(&es_intermediate, x);
-	
-					let sy_list = self.get_sy(z-1, x);
-					let h_list = get_col(&h_plane, x-1);
-	
-					let matrix = equation_to_diagonal_matrix(sy_list, &es_intermediate_col, self.boundary_codition);
-					get_es(matrix, h_list, self.boundary_codition)
-	
-				}).collect();
-				let es_transposed = matrix::new_from_vec(es_list);
-				
-				let es_list = (0..ydepht).map(|y|{
-					let es_to_insert_boundary_x = get_col(&es_transposed, y);
-					insert_boundary_values(es_to_insert_boundary_x, self.boundary_codition)
-				}).collect();
-				let es = matrix::new_from_vec(es_list);
-	
-				list::append(result, es)
+				let h_plane = self.get_h_plane(&e_intermediate, z-1);
+				let e_transposed = self.get_e_transposed(&e_intermediate, h_plane, z-1);
+
+				let e = self.get_e_plane(e_transposed);
+
+				list::append(result, e)
 			}
 		);
 	
@@ -78,6 +37,78 @@ impl<T: Core<3>> Slab<T,3,2> {
 		let deltas = self.core.get_deltas();
 
 		waves::input(&[shape[1], shape[2]], &[deltas[1], deltas[2]], &self.beam.center, self.beam.amplitude, self.beam.width)
+	}
+
+	fn get_transposed_d_plane(&self, last_es: &Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
+		let &[_, _, xdepht] = self.core.get_shape();
+
+		let d_list = (1..xdepht-1).map(|x| {
+			let last_es_col= get_col(last_es, x);
+			
+			let last_qy = self.get_qy(z, x);
+			
+			get_ds(&last_es_col, last_qy).into_iter().map(|e| e * self.dx2bydy2()).collect()
+		}).collect();
+		
+		matrix::new2_from_vec_vec(d_list)
+	}
+
+	fn get_e_intermediate(&self, last_es: &Matrix<Phasor>, transposed_d_plane: Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
+		let &[_, ydepht, _] = self.core.get_shape();
+
+		let es_list = (1..ydepht-1).map(|y| {
+			let last_es_row= get_row(last_es, y);
+
+			let sx_list = self.get_sx(z, y);
+			let d_list = get_col(&transposed_d_plane,y-1);
+
+			let matrix = equation_to_diagonal_matrix(sx_list, &last_es_row, self.boundary_codition);
+			get_es(matrix, d_list, self.boundary_codition)
+
+		}).collect();
+		
+		matrix::new_from_vec(es_list)
+	}
+
+	fn get_h_plane(&self, e_intermediate: &Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
+		let &[_, ydepht, _] = self.core.get_shape();
+
+		let h_list = (1..ydepht-1).map(|y|{
+			let es_intermediate_row = get_row(&e_intermediate, y-1);
+			let last_qx = self.get_qx(z, y);
+
+			get_ds(&es_intermediate_row, last_qx).into_iter().map(|e| e * self.dy2bydx2()).collect()
+		}).collect();
+		
+		matrix::new2_from_vec_vec(h_list)
+	}
+
+	fn get_e_transposed(&self, e_intermediate: &Matrix<Phasor>, h_plane: Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
+		let &[_, _, xdepht] = self.core.get_shape();
+
+		let es_list = (1..xdepht-1).map(|x|{
+			let es_intermediate_col= get_col(&e_intermediate, x);
+
+			let sy_list = self.get_sy(z, x);
+			let h_list = get_col(&h_plane, x-1);
+
+			let matrix = equation_to_diagonal_matrix(sy_list, &es_intermediate_col, self.boundary_codition);
+			get_es(matrix, h_list, self.boundary_codition)
+
+		}).collect();
+		
+		matrix::new_from_vec(es_list)
+	}
+
+	fn get_e_plane(&self, e_transposed: Matrix<Phasor>) -> Matrix<Phasor> {
+		let &[_, ydepht, _] = self.core.get_shape();
+
+		let es_list = (0..ydepht).map(|y|{
+			let es_to_insert_boundary_x = get_col(&e_transposed, y);
+			insert_boundary_values(es_to_insert_boundary_x, self.boundary_codition)
+		}).collect();
+		
+		matrix::new_from_vec(es_list)
 	}
 
 	fn dy2bydx2(&self) -> Phasor {
