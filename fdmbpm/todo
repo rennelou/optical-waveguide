@@ -1,7 +1,8 @@
-[ ]limpar run do slab3d
+[x]limpar run do slab3d
 [x]separar algoritmo de thomas
 [ ]separar core de grid
-[ ]criar o slab alto nivel que internamete separa em 2d e 3d
+[x]criar o slab alto nivel que internamete separa em 2d e 3d
+[ ]melhorar nomenclatura de funções e variaveis do slab3d
 ----- 0.1 ---------
 [ ]tornar todos os maps do codigo em paralelo
 [ ]otimizar dephts_cartesian_product

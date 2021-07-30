@@ -4,6 +4,8 @@ use cores::Core;
 use fp::list;
 use fp::Matrix;
 
+//Nome de funções e variaveis precisa enfatizar o algoritmo da direção implicita
+
 impl<T: Core<3>> Slab<T,3,2> {
 	
 	pub fn run(&self) -> EletricField {
