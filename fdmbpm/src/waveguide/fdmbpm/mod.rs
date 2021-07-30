@@ -1,11 +1,30 @@
 use super::*;
-use super::boundary_codition::Side;
+use cores::Core;
+use boundary_codition::Side;
+use waves::Gaussian;
 use crate::fp::{self, matrix};
 use crate::fp::list;
 use crate::lin_alg::{self, DiagonalMatrix, diagonal_matrix};
 
 pub mod slab2d;
 pub mod slab3d;
+
+pub struct Slab<T: Core<D>, const D: usize, const N: usize> {
+	core: T, 
+	beam: Gaussian<N>, 
+	boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor
+}
+
+pub fn new<T: Core<D>, const D: usize, const N: usize>(core: T, beam: Gaussian<N>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> Slab<T,D,N> {
+	match (D,N) {
+		(2,1) | (3,2) => {
+			Slab {core, beam, boundary_codition }
+		},
+		_ => {
+			panic!("Dimensões de core e feixe não estão consistentes")
+		}
+	}
+}
 
 fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
 	qs.iter().enumerate().map(

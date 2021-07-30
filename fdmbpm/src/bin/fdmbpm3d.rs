@@ -30,7 +30,8 @@ fn main() -> Result<(), std::io::Error> {
     let w = 2.0;
     let beam = waves::new(center, 1.0, w, k0, 0.0);
 
-	let e = fdmbpm::slab3d::run(&core, beam, boundary_codition::transparent);
+	let simulation = fdmbpm::new(core.clone(), beam, boundary_codition::transparent); 
+	let e = simulation.run();
 	
 	export::hdf5("fdmbpm3d.h5", &e, &core);
 	

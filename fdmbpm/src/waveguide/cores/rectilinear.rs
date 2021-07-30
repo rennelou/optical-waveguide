@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Clone)]
 pub struct Rectilinear<const D: usize> {
     pub shape: [usize;D],
     pub deltas: [f64;D],

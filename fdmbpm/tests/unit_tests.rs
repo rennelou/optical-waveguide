@@ -32,7 +32,8 @@ mod tests {
     	let w = 2.0_f64;
 		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
-		let e = fdmbpm::slab2d::run(&core, beam, boundary_codition::transparent);
+		let simulation = fdmbpm::new(core.clone(), beam, boundary_codition::transparent); 
+		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
 		let reference = file.dataset("intensity").unwrap();
@@ -71,7 +72,8 @@ mod tests {
     	let w = 4.0_f64;
 		let beam = waves::new(center, 1.0, w, k0, 0.0);
 		
-		let e = fdmbpm::slab2d::run(&core, beam, boundary_codition::transparent);
+		let simulation = fdmbpm::new(core.clone(), beam, boundary_codition::transparent); 
+		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
 		let reference = file.dataset("intensity").unwrap();
@@ -115,8 +117,8 @@ mod tests {
 	   
 	   let w = 2.0;
 	   let beam = waves::new(center, 1.0, w, k0, 0.0);
-
-	   let e = fdmbpm::slab3d::run(&core, beam, boundary_codition::transparent);
+	   let simulation = fdmbpm::new(core.clone(), beam, boundary_codition::transparent); 
+	   let e = simulation.run();
 
 	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;
 	   let reference = file.dataset("intensity").unwrap();
