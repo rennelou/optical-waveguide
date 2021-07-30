@@ -5,22 +5,22 @@ use crate::fp::matrix;
 use crate::fp::list;
 
 impl<T: Core<2>> Slab<T,2,1> {
+	
 	pub fn run(&self) -> EletricField {
-		let shape = self.core.get_shape();
-		let zsteps = shape[0];
+		let &[zdepht, _] = self.core.get_shape();
 	
 		let e_input = self.get_input_beam();
 	
-		let es = (1usize..zsteps).fold( 
+		let es = (1usize..zdepht).fold( 
 			vec![e_input],
 			|acc, z| {
 				
 				let last_es= fp::last(acc.iter()).unwrap().raw();
-				let last_q = self.get_q(z-1);
-				let last_s = self.get_s(z-1);
 				
-				let matrix = equation_to_diagonal_matrix(last_s, last_es, self.boundary_codition);
-				let e = get_es(matrix, get_ds(last_es, last_q), self.boundary_codition);
+				let e = self.get_es(
+					self.equation_to_diagonal_matrix(self.get_s(z-1), last_es),
+					get_ds(last_es, self.get_q(z-1))
+				);
 	
 				list::append(acc, e)
 			}

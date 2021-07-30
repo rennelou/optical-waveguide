@@ -17,11 +17,17 @@ impl<T: Core<3>> Slab<T,3,2> {
 				
 				let last_es = fp::last(result.iter()).unwrap();
 	
-				let transposed_d_plane = self.get_transposed_d_plane(last_es, z-1);
-				let e_intermediate = self.get_e_intermediate(last_es, transposed_d_plane, z-1);
+				let e_intermediate = self.get_e_intermediate(
+					last_es,
+					self.get_transposed_d_plane(last_es, z-1),
+					z-1
+				);
 				
-				let h_plane = self.get_h_plane(&e_intermediate, z-1);
-				let e_transposed = self.get_e_transposed(&e_intermediate, h_plane, z-1);
+				let e_transposed = self.get_e_transposed(
+					&e_intermediate,
+					self.get_h_plane(&e_intermediate, z-1),
+					z-1
+				);
 
 				let e = self.get_e_plane(e_transposed);
 
@@ -43,27 +49,29 @@ impl<T: Core<3>> Slab<T,3,2> {
 		let &[_, _, xdepht] = self.core.get_shape();
 
 		let d_list = (1..xdepht-1).map(|x| {
-			let last_es_col= get_col(last_es, x);
-			
-			let last_qy = self.get_qy(z, x);
-			
-			get_ds(&last_es_col, last_qy).into_iter().map(|e| e * self.dx2bydy2()).collect()
+			get_ds(
+				&get_col(last_es, x),
+				self.get_qy(z, x)
+			).into_iter().map(|d| d * self.dx2bydy2()).collect()
 		}).collect();
 		
 		matrix::new2_from_vec_vec(d_list)
+	}
+
+	fn dx2bydy2(&self)  -> Phasor {
+		let &[_, ydelta, xdelta] = self.core.get_deltas();
+		Complex::new(xdelta.powf(2.0) / ydelta.powf(2.0), 0.0)
 	}
 
 	fn get_e_intermediate(&self, last_es: &Matrix<Phasor>, transposed_d_plane: Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
 		let &[_, ydepht, _] = self.core.get_shape();
 
 		let es_list = (1..ydepht-1).map(|y| {
-			let last_es_row= get_row(last_es, y);
-
-			let sx_list = self.get_sx(z, y);
-			let d_list = get_col(&transposed_d_plane,y-1);
-
-			let matrix = equation_to_diagonal_matrix(sx_list, &last_es_row, self.boundary_codition);
-			get_es(matrix, d_list, self.boundary_codition)
+			
+			self.get_es(
+				self.equation_to_diagonal_matrix(self.get_sx(z, y), &get_row(last_es, y)),
+				get_col(&transposed_d_plane,y-1)
+			)
 
 		}).collect();
 		
@@ -74,26 +82,29 @@ impl<T: Core<3>> Slab<T,3,2> {
 		let &[_, ydepht, _] = self.core.get_shape();
 
 		let h_list = (1..ydepht-1).map(|y|{
-			let es_intermediate_row = get_row(&e_intermediate, y-1);
-			let last_qx = self.get_qx(z, y);
-
-			get_ds(&es_intermediate_row, last_qx).into_iter().map(|e| e * self.dy2bydx2()).collect()
+			get_ds(
+				&get_row(&e_intermediate, y-1),
+				self.get_qx(z, y)
+			).into_iter().map(|d| d * self.dy2bydx2()).collect()
 		}).collect();
 		
 		matrix::new2_from_vec_vec(h_list)
+	}
+
+	fn dy2bydx2(&self) -> Phasor {
+		let &[_, ydelta, xdelta] = self.core.get_deltas();
+		Complex::new(ydelta.powf(2.0) / xdelta.powf(2.0), 0.0)
 	}
 
 	fn get_e_transposed(&self, e_intermediate: &Matrix<Phasor>, h_plane: Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
 		let &[_, _, xdepht] = self.core.get_shape();
 
 		let es_list = (1..xdepht-1).map(|x|{
-			let es_intermediate_col= get_col(&e_intermediate, x);
-
-			let sy_list = self.get_sy(z, x);
-			let h_list = get_col(&h_plane, x-1);
-
-			let matrix = equation_to_diagonal_matrix(sy_list, &es_intermediate_col, self.boundary_codition);
-			get_es(matrix, h_list, self.boundary_codition)
+			
+			self.get_es(
+				self.equation_to_diagonal_matrix(self.get_sy(z, x), &get_col(&e_intermediate, x)),
+				get_col(&h_plane, x-1)
+			)
 
 		}).collect();
 		
@@ -103,22 +114,13 @@ impl<T: Core<3>> Slab<T,3,2> {
 	fn get_e_plane(&self, e_transposed: Matrix<Phasor>) -> Matrix<Phasor> {
 		let &[_, ydepht, _] = self.core.get_shape();
 
-		let es_list = (0..ydepht).map(|y|{
-			let es_to_insert_boundary_x = get_col(&e_transposed, y);
-			insert_boundary_values(es_to_insert_boundary_x, self.boundary_codition)
-		}).collect();
+		let es_list = (0..ydepht).map(
+			
+			|y| self.insert_boundary_values(get_col(&e_transposed, y))
+		
+		).collect();
 		
 		matrix::new_from_vec(es_list)
-	}
-
-	fn dy2bydx2(&self) -> Phasor {
-		let &[_, ydelta, xdelta] = self.core.get_deltas();
-		Complex::new(ydelta.powf(2.0) / xdelta.powf(2.0), 0.0)
-	}
-
-	fn dx2bydy2(&self)  -> Phasor {
-		let &[_, ydelta, xdelta] = self.core.get_deltas();
-		Complex::new(xdelta.powf(2.0) / ydelta.powf(2.0), 0.0)
 	}
 	
 	fn get_sx(&self, z: usize, y: usize) -> Vec<Phasor> {
@@ -171,6 +173,7 @@ impl<T: Core<3>> Slab<T,3,2> {
 }
 
 impl<T: Core<3>> SlabParamtersFormulas<T,3> for Slab<T,3,2> {
+	
 	fn guiding_space(&self, position: [usize;3], delta: f64, k: f64) -> f64 {
 		let n0 = self.core.get_n0();
 	
