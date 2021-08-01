@@ -20,7 +20,7 @@ pub fn input<const D: usize>(shape: &[usize;D], deltas: &[f64;D], center: &[f64;
         |(&p, &d)| p/d
     ).collect();
 
-    let values = matrix::dephts_cartesian_product(shape.to_vec()).into_iter().map(
+    let values = matrix::cartesian_product_of_shape(shape.to_vec()).map(
         |position| {
             let v = izip!(&position, &center_normalized).map(
                 |(&p, &p0)| (p as f64) - p0

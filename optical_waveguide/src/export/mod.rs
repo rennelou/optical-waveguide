@@ -37,7 +37,7 @@ fn save_core(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>) {
 fn get_core_matrix<const D: usize>(core: &impl Core<D>) -> Vec<f64> {
     let shape = core.get_shape().to_vec();
     
-    matrix::dephts_cartesian_product(shape).into_iter().map(
+    matrix::cartesian_product_of_shape(shape).map(
         |position| core.get_n(position.as_slice(), core.get_n0())
     ).collect()
 }

@@ -74,28 +74,35 @@ impl<T: Clone + Copy> Matrix<T> {
     }
 }
 
-// #Todo otimizar essa função
-pub fn dephts_cartesian_product(shape: Vec<usize>) -> Vec<Vec<usize>> {
-    (0..shape.iter().product()).map(
-        |id| matrix::id_to_position(id, shape.as_slice())
-    ).collect()
-}
-
-fn id_to_position(id: usize, shape: &[usize]) -> Vec<usize> {
-    let len = shape.len();
-    
-    let mut position = vec![0usize;len];
-    let mut quocient = id;
-    for i in 1..=len {
-        let rev_i = len - i;
-        let depht = shape[rev_i];
-        position[rev_i] = quocient%depht;
-        quocient = quocient/depht;
+pub fn cartesian_product_of_shape(shape: Vec<usize>) -> impl Iterator<Item = Vec<usize>> { 
+    if shape.iter().any(|&i| i == 0) {
+        panic!("colum need depht >= 1")
     }
 
-    position
-}
+    let cartesian_product_lenght = shape.iter().product();
+    let sets_len = shape.len();
+    let mut indexs_count = vec![0usize;sets_len];
+    
+    (0..cartesian_product_lenght).map(move |_| {
+        let result = indexs_count.clone();
 
+        for i in (0..indexs_count.len()).rev() {
+            
+            if indexs_count[i] == shape[i] - 1 {
+                indexs_count[i] = 0;
+
+                if i == 0 {
+                    break;
+                }
+            } else {
+                indexs_count[i] = indexs_count[i] + 1;
+                break;
+            } 
+        }
+
+        result
+    })
+}
 
 #[cfg(test)]
 mod tests {
@@ -132,5 +139,17 @@ mod tests {
         assert_eq!(ziped.get(&[1,1,0]), &9);
         assert_eq!(ziped.get(&[1,1,1]), &10);
         assert_eq!(ziped.get(&[1,1,2]), &11);
+    }
+
+    #[test]
+    fn cartesian_product_of_shape_test() {
+        let mut cartesian_product = cartesian_product_of_shape(vec![1,2,3]);
+
+        assert_eq!(cartesian_product.next().unwrap(), vec![0,0,0]);
+        assert_eq!(cartesian_product.next().unwrap(), vec![0,0,1]);
+        assert_eq!(cartesian_product.next().unwrap(), vec![0,0,2]);
+        assert_eq!(cartesian_product.next().unwrap(), vec![0,1,0]);
+        assert_eq!(cartesian_product.next().unwrap(), vec![0,1,1]);
+        assert_eq!(cartesian_product.next().unwrap(), vec![0,1,2]);
     }
 }

@@ -60,7 +60,7 @@ fn submatrix(m: &Matrix<f64>, z: usize) -> Vec<f64> {
     let shape = m.shape();
     let sub_shape = shape[1..].to_vec();
 
-    matrix::dephts_cartesian_product(sub_shape).into_iter().map(
+    matrix::cartesian_product_of_shape(sub_shape).map(
         |mut position| {
             position.insert(0, z);
             
