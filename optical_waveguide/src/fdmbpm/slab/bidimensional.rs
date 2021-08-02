@@ -52,7 +52,7 @@ impl<T: Core<2>> Slab<T,2,1> {
 		let [_, x_depht] = self.core.get_shape().clone();
 		let &[zdelta, xdelta] = self.core.get_deltas();
 	
-		(1..x_depht-1).map(|x| {
+		(0..x_depht).map(|x| {
 			self.q([z, x], zdelta, xdelta, k, alpha)
 		}).collect()
 	}

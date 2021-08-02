@@ -151,5 +151,6 @@ mod tests {
         assert_eq!(cartesian_product.next().unwrap(), vec![0,1,0]);
         assert_eq!(cartesian_product.next().unwrap(), vec![0,1,1]);
         assert_eq!(cartesian_product.next().unwrap(), vec![0,1,2]);
+        assert_eq!(cartesian_product.next(), None);
     }
 }

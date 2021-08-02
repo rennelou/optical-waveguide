@@ -103,7 +103,8 @@ trait SlabParamtersFormulas<T: Core<D>, const D: usize>  {
 }
 
 fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
-	qs.iter().enumerate().map(
+	
+	fp::middle(qs.iter()).enumerate().map(
 		// okamoto 7.97
 		|(i, q)| es[i]+q*es[i+1]+es[i+2]
 	).collect()
