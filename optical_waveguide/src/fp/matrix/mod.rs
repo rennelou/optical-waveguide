@@ -29,6 +29,26 @@ pub fn new2_from_vec_vec<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T> {
     Matrix { values: new_values, shape: vec![y_depht, x_depht] }
 }
 
+pub fn new2_from_transposed_vec_vec<T: Clone + Copy + Default>(values: Vec<Vec<T>>) -> Matrix<T> {
+    let y_depht = values.len();
+    let x_depht = fp::head(values.iter()).unwrap().len();
+
+    if values.iter().any(|v| v.len() != x_depht) {
+        panic!("all lines needs have the same lenght")
+    }
+    
+    let mut new_values = vec![T::default();y_depht*x_depht];
+    let mut i = 0usize;
+    for y in 0..y_depht {
+        for x in 0..x_depht {
+            new_values[i] = values[x][y];
+            i = i+1;
+        }
+    }
+
+    Matrix { values: new_values, shape: vec![y_depht, x_depht] }
+}
+
 pub fn new_from_vec<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
     if (0..matrixs.len()-1).any(|i| matrixs[i].shape() != matrixs[i+1].shape()) {
         panic!("all matrixs must have the sames shapes")
@@ -152,5 +172,26 @@ mod tests {
         assert_eq!(cartesian_product.next().unwrap(), vec![0,1,1]);
         assert_eq!(cartesian_product.next().unwrap(), vec![0,1,2]);
         assert_eq!(cartesian_product.next(), None);
+    }
+
+    #[test]
+    fn create_transposed() {
+        let matrix = new2_from_transposed_vec_vec(
+            vec![
+                vec![0,3,6],
+                vec![1,4,7],
+                vec![2,5,8],
+                ]
+            );
+
+        assert_eq!(matrix.get(&[0,0]), &0);
+        assert_eq!(matrix.get(&[0,1]), &1);
+        assert_eq!(matrix.get(&[0,2]), &2);
+        assert_eq!(matrix.get(&[1,0]), &3);
+        assert_eq!(matrix.get(&[1,1]), &4);
+        assert_eq!(matrix.get(&[1,2]), &5);
+        assert_eq!(matrix.get(&[2,0]), &6);
+        assert_eq!(matrix.get(&[2,1]), &7);
+        assert_eq!(matrix.get(&[2,2]), &8);
     }
 }

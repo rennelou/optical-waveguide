@@ -25,19 +25,14 @@ impl<T: Core<3>> Slab<T,3,2> {
 					|x| {
 						self.get_d_vec(last_es, ydelta, z-1, [0,x], [ydepht-1,x]).into_iter().map(|d| d * self.dx2bydy2()).collect()
 				}).collect();
-				// criar função que transpõe
-				let transposed_d_plane = matrix::new2_from_vec_vec(ds);
+				let d_plane = matrix::new2_from_transposed_vec_vec(ds);
 
 				let es_list = (0..ydepht).map(|y| {
 			
 					if y == 0 || y == ydepht - 1 {
 						matrix::new(vec![*zero();xdepht])
 					} else {
-						self.get_es(
-							self.equation_to_diagonal_matrix(self.get_s(xdelta,[z,y,1], [z,y,xdepht-2]), &get_line(last_es, [y,1], [y,xdepht-2])),
-							//slice de cima -1
-							get_line(&transposed_d_plane,[0,y-1],[xdepht-3,y-1])
-						)
+						self.get_e_vec(last_es, &d_plane, xdelta, z, [y,1], [y,xdepht-2])
 					}
 		
 				}).collect();
@@ -49,13 +44,7 @@ impl<T: Core<3>> Slab<T,3,2> {
 				let h_plane = matrix::new2_from_vec_vec(hs);
 
 				let es_list = (1..xdepht-1).map(|x|{
-			
-					self.get_es(
-						self.equation_to_diagonal_matrix(self.get_s(ydelta, [z,1,x], [z,ydepht-2,x]), &get_line(&e_intermediate, [0, x], [ydepht-3, x])),
-						//slice de cima -1
-						get_line(&h_plane, [0, x-1], [ydepht-3, x-1])
-					)
-		
+					self.get_e_vec(&e_intermediate, &h_plane, ydelta, z, [1,x], [ydepht-2,x])
 				}).collect();
 				let e_transposed = matrix::new_from_vec(es_list);
 
@@ -85,6 +74,23 @@ impl<T: Core<3>> Slab<T,3,2> {
 		}
 		
 		get_ds(&es,q)
+	}
+
+	fn get_e_vec(&self, e_plane: &Matrix<Phasor>, const_terms_plane: &Matrix<Phasor>, delta: f64, z: usize, [y0,x0]: [usize;2], [y,x]:[usize;2]) -> Matrix<Phasor> {
+		let mut s = vec![];
+		let mut es = vec![];
+		let mut d = vec![];
+
+		for[_y, _x] in get_slice([y0,x0], [y,x]) {
+			s.push(self.get_s(delta, [z, _y, _x]));
+			es.push(e_plane.get(&[_y, _x]).clone());
+			d.push(const_terms_plane.get(&[_y-1,_x-1]).clone());
+		}
+
+		self.get_es(
+			self.equation_to_diagonal_matrix(s, &es),
+			d
+		)
 	} 
 
 	fn dx2bydy2(&self)  -> Phasor {
@@ -109,16 +115,13 @@ impl<T: Core<3>> Slab<T,3,2> {
 		matrix::new_from_vec(es_list)
 	}
 	
-	fn get_s(&self, delta: f64, from: [usize;3], to: [usize;3]) -> Vec<Phasor> {
+	fn get_s(&self, delta: f64, position: [usize;3]) -> Phasor {
 		let k = self.beam.k;
 		let alpha = self.beam.alpha;
 	
 		let &[zdelta, _, _] = self.core.get_deltas();
-		get_slice(from, to).map(
-			|position| {
-				self.s(position, zdelta, delta, k, alpha)
-			}
-		).collect()
+		
+		self.s(position, zdelta, delta, k, alpha)
 	}
 	
 	fn get_q(&self, delta: f64, position: [usize;3]) -> Phasor {
