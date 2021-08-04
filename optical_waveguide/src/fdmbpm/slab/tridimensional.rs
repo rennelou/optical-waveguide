@@ -2,8 +2,6 @@ use super::*;
 use eletric_field::EletricField;
 use cores::Core;
 use fp::list;
-use fp::Matrix;
-use itertools::izip;
 
 //Nome de funções e variaveis precisa enfatizar o algoritmo da direção implicita
 
@@ -143,27 +141,4 @@ impl<T: Core<3>> SlabParamtersFormulas<T,3> for Slab<T,3,2> {
 	
 		k*n0*delta.powf(2.0)*alpha
 	}
-}
-
-fn get_slice<const N: usize>(from: [usize;N], to: [usize;N]) -> impl Iterator<Item = [usize;N]>  {
-	let sub_matrix_shape = izip!(to, from).map(
-		|(j, i)| {
-			let d = j - i + 1;
-			if d <= 0 {
-				panic!("final indexes must be bigger or equal than initial indexes")
-			}
-
-			d
-		}
-	).collect();
-
-	matrix::cartesian_product_of_shape(sub_matrix_shape).map(
-		move |cursor| {
-			let mut position = [0usize;N];
-			for i in 0..N {
-				position[i] = cursor[i] + from[i];
-			}
-			position
-		}
-	)
 }
