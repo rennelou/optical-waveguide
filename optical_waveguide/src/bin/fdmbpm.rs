@@ -1,6 +1,7 @@
 use optical_waveguide::fdmbpm::cores;
 use optical_waveguide::fdmbpm::boundary_codition;
 use optical_waveguide::fdmbpm::beam;
+use optical_waveguide::fdmbpm::grid;
 use optical_waveguide::fdmbpm::slab;
 use optical_waveguide::export;
 
@@ -25,14 +26,15 @@ fn main() -> Result<(), std::io::Error> {
 	let n0 = 3.377;
     let n = 3.38;
 
-    let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
+    let grid = grid::new2(dx, xdelta, dz, zdelta);
+    let core = cores::rectilinear::new_2d(n, n0, position, width);
 	
     let w = 2.0_f64;
 	let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
-	let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
+	let simulation = slab::new(grid.clone(), core.clone(), beam, boundary_codition::transparent); 
 	let e = simulation.run();
 
-    export::hdf5("main.h5", &e, &core);
+    export::hdf5("main.h5", &e, &grid, &core);
 
     Ok(())
 }

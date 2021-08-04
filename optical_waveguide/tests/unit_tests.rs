@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use optical_waveguide::fdmbpm::grid;
     use optical_waveguide::tools;
     use optical_waveguide::fdmbpm::cores;
 	use optical_waveguide::fdmbpm::slab;
@@ -27,12 +28,13 @@ mod tests {
 		let n0 = 3.377;
     	let n = 3.38;
 
-    	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
+		let grid = grid::new2(dx, xdelta, dz, zdelta);
+    	let core = cores::rectilinear::new_2d(n, n0, position, width);
 		
     	let w = 2.0_f64;
 		let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 		
-		let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
+		let simulation = slab::new(grid.clone(), core.clone(), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
@@ -67,12 +69,13 @@ mod tests {
 		let n0 = 3.377;
     	let n = 3.38;
 
-    	let core = cores::rectilinear::new_2d(dx, xdelta, dz, zdelta, n, n0, position, width);
+		let grid = grid::new2(dx, xdelta, dz, zdelta);
+    	let core = cores::rectilinear::new_2d(n, n0, position, width);
 		
     	let w = 4.0_f64;
 		let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 		
-		let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
+		let simulation = slab::new(grid.clone(), core.clone(), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
@@ -113,11 +116,12 @@ mod tests {
 	   let n0 = 3.377;
 	   let n = 3.38;
 
-	   let core = cores::rectilinear::new_3d(dx, xdelta, dy, ydelta, dz, zdelta, n, n0, position_x, width);
+	   let grid = grid::new3(dx, xdelta, dy, ydelta, dz, zdelta);
+	   let core = cores::rectilinear::new_3d(n, n0, position_x, width);
 	   
 	   let w = 2.0;
 	   let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
-	   let simulation = slab::new(core.clone(), beam, boundary_codition::transparent); 
+	   let simulation = slab::new(grid.clone(), core.clone(), beam, boundary_codition::transparent); 
 	   let e = simulation.run();
 
 	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;

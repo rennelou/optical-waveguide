@@ -1,7 +1,7 @@
 use ndarray::Array;
-use crate::{fp::{Matrix, matrix}, fdmbpm::{eletric_field::EletricField, cores::Core}};
+use crate::{fdmbpm::{cores::Core, eletric_field::EletricField, grid::Grid}, fp::{Matrix, matrix}};
 
-pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField, core: &impl Core<D>) {
+pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField, grid: &Grid<D>, core: &impl Core<D>) {
    
     let file = hdf5::File::create(title).unwrap();
 
@@ -13,7 +13,7 @@ pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField, core: &im
     let deltas = eletric_field.grid_steps();
     save_deltas(&file, deltas.to_vec(), vec![deltas.len()]);
     
-    save_core(&file, get_core_matrix(core), shape.to_vec());
+    save_core(&file, get_core_matrix(grid, core), shape.to_vec());
 }
 
 fn save_instensity(output: &hdf5::File, data: Matrix<f64>) {
@@ -34,11 +34,11 @@ fn save_core(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>) {
     save_surface(output, data, shape, "core")
 }
 
-fn get_core_matrix<const D: usize>(core: &impl Core<D>) -> Vec<f64> {
-    let shape = core.get_shape().to_vec();
+fn get_core_matrix<const D: usize>(grid: &Grid<D>, core: &impl Core<D>) -> Vec<f64> {
+    let shape = grid.get_shape().to_vec();
     
     matrix::cartesian_product_of_shape(shape).map(
-        |position| core.get_n(position.as_slice(), core.get_n0())
+        |position| core.get_n(&grid, position.as_slice(), core.get_n0())
     ).collect()
 }
 

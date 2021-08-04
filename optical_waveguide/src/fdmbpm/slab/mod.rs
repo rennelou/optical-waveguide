@@ -1,4 +1,5 @@
 use super::*;
+use super::grid::Grid;
 use cores::Core;
 use boundary_codition::Side;
 use beam::Gaussian;
@@ -10,15 +11,16 @@ pub mod bidimensional;
 pub mod tridimensional;
 
 pub struct Slab<T: Core<D>, const D: usize, const N: usize> {
+	grid: Grid<D>,
 	core: T, 
 	beam: Gaussian<N>, 
 	boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor
 }
 
-pub fn new<T: Core<D>, const D: usize, const N: usize>(core: T, beam: Gaussian<N>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> Slab<T,D,N> {
+pub fn new<T: Core<D>, const D: usize, const N: usize>(grid: Grid<D>, core: T, beam: Gaussian<N>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> Slab<T,D,N> {
 	match (D,N) {
 		(2,1) | (3,2) => {
-			Slab {core, beam, boundary_codition }
+			Slab {grid, core, beam, boundary_codition }
 		},
 		_ => {
 			panic!("Dimensões de core e feixe não estão consistentes")

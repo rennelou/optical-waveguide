@@ -8,8 +8,8 @@ use fp::list;
 impl<T: Core<3>> Slab<T,3,2> {
 	
 	pub fn run(&self) -> EletricField {
-		let &[zdepht, ydepht, xdepht] = self.core.get_shape();
-		let &[_, ydelta, xdelta] = self.core.get_deltas();
+		let &[zdepht, ydepht, xdepht] = self.grid.get_shape();
+		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 	
 		let e_input = self.beam.input(&[ydepht, xdepht], &[ydelta, xdelta]);
 	
@@ -90,16 +90,16 @@ impl<T: Core<3>> Slab<T,3,2> {
 			}
 		);
 	
-		eletric_field::new (matrix::merge(es), self.core.get_deltas().to_vec())
+		eletric_field::new (matrix::merge(es), self.grid.get_deltas().to_vec())
 	}
 	
 	fn dx2bydy2(&self)  -> Phasor {
-		let &[_, ydelta, xdelta] = self.core.get_deltas();
+		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 		Complex::new(xdelta.powf(2.0) / ydelta.powf(2.0), 0.0)
 	}
 
 	fn dy2bydx2(&self) -> Phasor {
-		let &[_, ydelta, xdelta] = self.core.get_deltas();
+		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 		Complex::new(ydelta.powf(2.0) / xdelta.powf(2.0), 0.0)
 	}
 
@@ -107,7 +107,7 @@ impl<T: Core<3>> Slab<T,3,2> {
 		let k = self.beam.k;
 		let alpha = self.beam.alpha;
 	
-		let &[zdelta, _, _] = self.core.get_deltas();
+		let &[zdelta, _, _] = self.grid.get_deltas();
 		
 		self.s(position, zdelta, delta, k, alpha)
 	}
@@ -116,7 +116,7 @@ impl<T: Core<3>> Slab<T,3,2> {
 		let k = self.beam.k;
 		let alpha = self.beam.alpha;
 	
-		let &[zdelta, _, _] = self.core.get_deltas();
+		let &[zdelta, _, _] = self.grid.get_deltas();
 		
 		self.q(position, zdelta, delta, k, alpha)
 	}
@@ -127,7 +127,7 @@ impl<T: Core<3>> SlabParamtersFormulas<T,3> for Slab<T,3,2> {
 	fn guiding_space(&self, position: [usize;3], delta: f64, k: f64) -> f64 {
 		let n0 = self.core.get_n0();
 	
-		0.5*k.powf(2.0)*delta.powf(2.0)*(self.core.get_half_n(&position, n0).powf(2.0)-n0.powf(2.0))
+		0.5*k.powf(2.0)*delta.powf(2.0)*(self.core.get_half_n(&self.grid, &position, n0).powf(2.0)-n0.powf(2.0))
 	}
 	
 	fn free_space(&self, zdelta: f64, delta: f64, k: f64) -> f64 {

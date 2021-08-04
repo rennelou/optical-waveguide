@@ -7,9 +7,9 @@ use crate::fp::list;
 impl<T: Core<2>> Slab<T,2,1> {
 	
 	pub fn run(&self) -> EletricField {
-		let &[zdepht, _] = self.core.get_shape();
+		let &[zdepht, _] = self.grid.get_shape();
 	
-		let e_input = self.beam.input(&[self.core.get_shape()[1]], &[self.core.get_deltas()[1]]);
+		let e_input = self.beam.input(&[self.grid.get_shape()[1]], &[self.grid.get_deltas()[1]]);
 	
 		let es = (1usize..zdepht).fold( 
 			vec![e_input],
@@ -26,15 +26,15 @@ impl<T: Core<2>> Slab<T,2,1> {
 			}
 		);
 	
-		eletric_field::new(matrix::merge(es), self.core.get_deltas().to_vec())
+		eletric_field::new(matrix::merge(es), self.grid.get_deltas().to_vec())
 	}
 
 	fn get_s(&self, z: usize) -> Vec<Phasor> {
 		let k = self.beam.k;
 		let alpha = self.beam.alpha;
 	
-		let [_, x_depht] = self.core.get_shape().clone();
-		let &[zdelta, xdelta] = self.core.get_deltas();
+		let [_, x_depht] = self.grid.get_shape().clone();
+		let &[zdelta, xdelta] = self.grid.get_deltas();
 	
 		(1..x_depht-1).map(|x| {
 			self.s([z, x], zdelta, xdelta, k, alpha)
@@ -45,8 +45,8 @@ impl<T: Core<2>> Slab<T,2,1> {
 		let k = self.beam.k;
 		let alpha = self.beam.alpha;
 	
-		let [_, x_depht] = self.core.get_shape().clone();
-		let &[zdelta, xdelta] = self.core.get_deltas();
+		let [_, x_depht] = self.grid.get_shape().clone();
+		let &[zdelta, xdelta] = self.grid.get_deltas();
 	
 		(0..x_depht).map(|x| {
 			self.q([z, x], zdelta, xdelta, k, alpha)
@@ -58,7 +58,7 @@ impl<T: Core<2>> SlabParamtersFormulas<T,2> for Slab<T,2,1> {
 	fn guiding_space(&self, position: [usize;2], delta: f64, k: f64) -> f64 {
 		let &n0 = &self.core.get_n0();
 	
-		k.powf(2.0)*delta.powf(2.0)*(&self.core.get_half_n(&position, n0).powf(2.0)-n0.powf(2.0))
+		k.powf(2.0)*delta.powf(2.0)*(&self.core.get_half_n(&self.grid, &position, n0).powf(2.0)-n0.powf(2.0))
 	}
 	
 	fn free_space(&self, zdelta: f64, delta: f64, k: f64) -> f64 {

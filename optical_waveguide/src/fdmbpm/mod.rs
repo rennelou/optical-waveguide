@@ -1,6 +1,7 @@
 use num::complex::Complex;
 
 pub mod slab;
+pub mod grid;
 pub mod beam;
 pub mod boundary_codition;
 pub mod eletric_field;
