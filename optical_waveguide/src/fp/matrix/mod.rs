@@ -1,13 +1,7 @@
 use crate::fp;
 use super::*;
 
-pub fn new<T: Clone + Copy>(values: Vec<T>) -> Matrix<T> {
-    let shape = vec![values.len()];
-    
-    Matrix { values, shape }
-}
-
-pub fn new_from_raw<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Matrix<T> {
+pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Matrix<T> {
     if shape_ref.iter().product::<usize>() != values.len() {
         panic!("shape dosent match with values")
     }
@@ -16,7 +10,13 @@ pub fn new_from_raw<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Mat
     Matrix { values, shape }
 }
 
-pub fn new2_from_vec_vec<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T> {
+pub fn vec_to_matrix<T: Clone + Copy>(values: Vec<T>) -> Matrix<T> {
+    let shape = vec![values.len()];
+    
+    Matrix { values, shape }
+}
+
+pub fn vec2_to_matrix2<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T> {
     let y_depht = values.len();
     let x_depht = fp::head(values.iter()).unwrap().len();
 
@@ -29,7 +29,7 @@ pub fn new2_from_vec_vec<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T> {
     Matrix { values: new_values, shape: vec![y_depht, x_depht] }
 }
 
-pub fn new2_from_transposed_vec_vec<T: Clone + Copy + Default>(values: Vec<Vec<T>>) -> Matrix<T> {
+pub fn transposed_vec2_to_matrix2<T: Clone + Copy + Default>(values: Vec<Vec<T>>) -> Matrix<T> {
     let y_depht = values.len();
     let x_depht = fp::head(values.iter()).unwrap().len();
 
@@ -39,17 +39,17 @@ pub fn new2_from_transposed_vec_vec<T: Clone + Copy + Default>(values: Vec<Vec<T
     
     let mut new_values = vec![T::default();y_depht*x_depht];
     let mut i = 0usize;
-    for y in 0..y_depht {
-        for x in 0..x_depht {
-            new_values[i] = values[x][y];
+    for x in 0..x_depht {
+        for y in 0..y_depht {
+            new_values[i] = values[y][x];
             i = i+1;
         }
     }
 
-    Matrix { values: new_values, shape: vec![y_depht, x_depht] }
+    Matrix { values: new_values, shape: vec![x_depht, y_depht] }
 }
 
-pub fn new_from_vec<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
+pub fn merge<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
     if (0..matrixs.len()-1).any(|i| matrixs[i].shape() != matrixs[i+1].shape()) {
         panic!("all matrixs must have the sames shapes")
     }
@@ -67,7 +67,7 @@ pub fn new_from_vec<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
         }
     );
 
-    new_from_raw(new_values, &new_shape)
+    new(new_values, &new_shape)
 }
 
 impl<T: Clone + Copy> Matrix<T> {
@@ -130,7 +130,7 @@ mod tests {
 
     #[test]
     fn acess_position() {
-        let matrix = new_from_raw(vec![0,1,2,3,4,5], &[2usize, 3usize]);
+        let matrix = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
 
         assert_eq!(matrix.get(&[0,0]), &0);
         assert_eq!(matrix.get(&[0,1]), &1);
@@ -142,10 +142,10 @@ mod tests {
 
     #[test]
     fn zip_test() {
-        let m1 = new_from_raw(vec![0,1,2,3,4,5], &[2usize, 3usize]);
-        let m2 = new_from_raw(vec![6,7,8,9,10,11], &[2usize, 3usize]);
+        let m1 = new(vec![0,1,2,3,4,5], &[2usize, 3usize]);
+        let m2 = new(vec![6,7,8,9,10,11], &[2usize, 3usize]);
 
-        let ziped = matrix::new_from_vec(vec![m1, m2]);
+        let ziped = matrix::merge(vec![m1, m2]);
         
         assert_eq!(ziped.get(&[0,0,0]), &0);
         assert_eq!(ziped.get(&[0,0,1]), &1);
@@ -176,11 +176,11 @@ mod tests {
 
     #[test]
     fn create_transposed() {
-        let matrix = new2_from_transposed_vec_vec(
+        let matrix = transposed_vec2_to_matrix2(
             vec![
-                vec![0,3,6],
-                vec![1,4,7],
-                vec![2,5,8],
+                vec![0,3],
+                vec![1,4],
+                vec![2,5],
                 ]
             );
 
@@ -190,8 +190,5 @@ mod tests {
         assert_eq!(matrix.get(&[1,0]), &3);
         assert_eq!(matrix.get(&[1,1]), &4);
         assert_eq!(matrix.get(&[1,2]), &5);
-        assert_eq!(matrix.get(&[2,0]), &6);
-        assert_eq!(matrix.get(&[2,1]), &7);
-        assert_eq!(matrix.get(&[2,2]), &8);
     }
 }

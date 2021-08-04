@@ -19,13 +19,13 @@ impl EletricField {
             r
         }).collect();
 
-        matrix::new_from_raw(values, self.shape())
+        matrix::new(values, self.shape())
     }
 
     pub fn get_intensity(&self) -> Matrix<f64> {
         let values = self.values.raw().iter().map(|c| intensity(c)).collect();
 
-        matrix::new_from_raw(values, self.shape())
+        matrix::new(values, self.shape())
     }
 
     pub fn shape(&self) -> &[usize] {

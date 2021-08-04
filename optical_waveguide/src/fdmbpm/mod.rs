@@ -1,5 +1,4 @@
-use num::complex::Complex;	
-use crate::fp::Matrix;
+use num::complex::Complex;
 
 pub mod slab;
 pub mod beam;

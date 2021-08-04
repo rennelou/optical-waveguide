@@ -13,7 +13,7 @@ impl<T: Core<3>> Slab<T,3,2> {
 		let &[zdepht, ydepht, xdepht] = self.core.get_shape();
 		let &[_, ydelta, xdelta] = self.core.get_deltas();
 	
-		let e_input = self.get_input_beam();
+		let e_input = self.beam.input(&[ydepht, xdepht], &[ydelta, xdelta]);
 	
 		let es = (1usize..zdepht).fold(
 			vec![e_input], 
@@ -21,78 +21,80 @@ impl<T: Core<3>> Slab<T,3,2> {
 				
 				let last_es = fp::last(result.iter()).unwrap();
 	
-				let ds = (1..xdepht-1).map(
+				let d_plane: Vec<Vec<_>> = (1..xdepht-1).map(
 					|x| {
-						self.get_d_vec(last_es, ydelta, z-1, [0,x], [ydepht-1,x]).into_iter().map(|d| d * self.dx2bydy2()).collect()
-				}).collect();
-				let d_plane = matrix::new2_from_transposed_vec_vec(ds);
+						let mut q = vec![];
+						let mut es = vec![];
 
-				let es_list = (0..ydepht).map(|y| {
-			
-					if y == 0 || y == ydepht - 1 {
-						matrix::new(vec![*zero();xdepht])
-					} else {
-						self.get_e_vec(last_es, &d_plane, xdelta, z, [y,1], [y,xdepht-2])
-					}
+						for y in 0..ydepht {
+							q.push(self.get_q(ydelta, [z-1, y, x]));
+							es.push(last_es.get(&[y, x]).clone())
+						}
 		
+						get_const_terms(&es,q).into_iter().map(|d| d * self.dx2bydy2()).collect()
 				}).collect();
-				let e_intermediate = matrix::new_from_vec(es_list);
-				
-				let hs = (1..ydepht-1).map(|y| {
-					self.get_d_vec(&e_intermediate, xdelta, z-1, [y, 0], [y, xdepht-1]).into_iter().map(|d| d * self.dy2bydx2()).collect()
-				}).collect();
-				let h_plane = matrix::new2_from_vec_vec(hs);
 
-				let es_list = (1..xdepht-1).map(|x|{
-					self.get_e_vec(&e_intermediate, &h_plane, ydelta, z, [1,x], [ydepht-2,x])
-				}).collect();
-				let e_transposed = matrix::new_from_vec(es_list);
+				let mut e_intermediate = vec![];
+				let mut h_plane: Vec<Vec<_>>  = vec![];
+				for y in 1..ydepht-1 {
+			
+					let mut s = vec![];
+					let mut q = vec![];
+					let mut es = vec![];
+					let mut d = vec![];
 
-				let e = self.get_e_plane(e_transposed);
+					for x in 0..xdepht {
+						q.push(self.get_q(xdelta, [z-1, y, x]));
+						
+						if x > 0 && x < xdepht-1 {
+							s.push(self.get_s(xdelta, [z-1, y, x]));
+						
+							es.push(last_es.get(&[y, x]).clone());
+							d.push(d_plane[y-1][x-1]);
+						}
+					}
+
+					let e = self.get_es(self.equation_to_diagonal_matrix(s, &es), d);
+					let h = get_const_terms(&e ,q).into_iter().map(|d| d * self.dy2bydx2()).collect();
+
+					e_intermediate.push(e);
+					h_plane.push(h);
+				}
+
+				let e_transposed: Vec<Vec<_>> = (1..xdepht-1).map(|x|{
+					let mut s = vec![];
+					let mut es = vec![];
+					let mut d = vec![];
+
+					for y in 1..ydepht-1 {
+						s.push(self.get_s(ydelta, [z-1, y, x]));
+						es.push(e_intermediate[y-1][x]);
+						d.push(h_plane[y-1][x-1]);
+					}
+
+					self.get_es(self.equation_to_diagonal_matrix(s, &es), d)
+
+				}).collect();
+				let es_middle = matrix::transposed_vec2_to_matrix2(e_transposed);
+
+				let es = (0..ydepht).map(
+					|y| {
+						let mut e_middle_line = vec![];
+						for x in 0..xdepht-2 {
+							e_middle_line.push(es_middle.get(&[y,x]).clone());
+						}
+						self.insert_boundary_values(e_middle_line)
+					}
+				).collect();
+				let e = matrix::vec2_to_matrix2(es);
 
 				list::append(result, e)
 			}
 		);
 	
-		eletric_field::new (matrix::new_from_vec(es), self.core.get_deltas().to_vec())
+		eletric_field::new (matrix::merge(es), self.core.get_deltas().to_vec())
 	}
 	
-	fn get_input_beam(&self) -> Matrix<Phasor> {
-		let shape  = self.core.get_shape();
-		let deltas = self.core.get_deltas();
-
-		beam::input(&[shape[1], shape[2]], &[deltas[1], deltas[2]], &self.beam.center, self.beam.amplitude, self.beam.width)
-	}
-
-	fn get_d_vec(&self, e_plane: &Matrix<Phasor>, delta: f64, z: usize, [y0,x0]: [usize;2], [y,x]:[usize;2]) -> Vec<Phasor> {
-		let mut q = vec![];
-		let mut es = vec![];
-
-		for[_y, _x] in get_slice([y0,x0], [y,x]) {
-			q.push(self.get_q(delta, [z, _y, _x]));
-			es.push(e_plane.get(&[_y, _x]).clone())
-		}
-		
-		get_ds(&es,q)
-	}
-
-	fn get_e_vec(&self, e_plane: &Matrix<Phasor>, const_terms_plane: &Matrix<Phasor>, delta: f64, z: usize, [y0,x0]: [usize;2], [y,x]:[usize;2]) -> Matrix<Phasor> {
-		let mut s = vec![];
-		let mut es = vec![];
-		let mut d = vec![];
-
-		for[_y, _x] in get_slice([y0,x0], [y,x]) {
-			s.push(self.get_s(delta, [z, _y, _x]));
-			es.push(e_plane.get(&[_y, _x]).clone());
-			d.push(const_terms_plane.get(&[_y-1,_x-1]).clone());
-		}
-
-		self.get_es(
-			self.equation_to_diagonal_matrix(s, &es),
-			d
-		)
-	} 
-
 	fn dx2bydy2(&self)  -> Phasor {
 		let &[_, ydelta, xdelta] = self.core.get_deltas();
 		Complex::new(xdelta.powf(2.0) / ydelta.powf(2.0), 0.0)
@@ -103,18 +105,6 @@ impl<T: Core<3>> Slab<T,3,2> {
 		Complex::new(ydelta.powf(2.0) / xdelta.powf(2.0), 0.0)
 	}
 
-	fn get_e_plane(&self, e_transposed: Matrix<Phasor>) -> Matrix<Phasor> {
-		let &[_, ydepht, xdepht] = self.core.get_shape();
-
-		let es_list = (0..ydepht).map(
-			
-			|y| self.insert_boundary_values(get_line(&e_transposed, [0, y], [xdepht-3, y]))
-		
-		).collect();
-		
-		matrix::new_from_vec(es_list)
-	}
-	
 	fn get_s(&self, delta: f64, position: [usize;3]) -> Phasor {
 		let k = self.beam.k;
 		let alpha = self.beam.alpha;
@@ -153,10 +143,6 @@ impl<T: Core<3>> SlabParamtersFormulas<T,3> for Slab<T,3,2> {
 	
 		k*n0*delta.powf(2.0)*alpha
 	}
-}
-
-fn get_line(m: &Matrix<Phasor>, from: [usize;2], to: [usize;2]) -> Vec<Phasor> {
-	get_slice(from, to).map(|position| m.get(&position).clone()).collect()
 }
 
 fn get_slice<const N: usize>(from: [usize;N], to: [usize;N]) -> impl Iterator<Item = [usize;N]>  {

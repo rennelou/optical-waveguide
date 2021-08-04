@@ -28,11 +28,11 @@ pub fn new<T: Core<D>, const D: usize, const N: usize>(core: T, beam: Gaussian<N
 
 impl<T: Core<D>, const D: usize, const N: usize> Slab<T,D,N> {
 	
-	fn get_es(&self, matrix: DiagonalMatrix, d: Vec<Phasor>) -> Matrix<Phasor> {
+	fn get_es(&self, matrix: DiagonalMatrix, d: Vec<Phasor>) -> Vec<Phasor> {
 		self.insert_boundary_values(lin_alg::thomas::try_solve(matrix, d))
 	}
 	
-	fn insert_boundary_values(&self, es: Vec<Phasor>) -> Matrix<Phasor> {
+	fn insert_boundary_values(&self, es: Vec<Phasor>) -> Vec<Phasor> {
 		let head = vec![{
 			let es_head = fp::head_or_default(es.iter(), one());
 			es_head* (self.boundary_codition)(Side::Left, &es)
@@ -42,9 +42,7 @@ impl<T: Core<D>, const D: usize, const N: usize> Slab<T,D,N> {
 			es_last* (self.boundary_codition)(Side::Right, &es)
 		}];
 		
-		let values = list::concat(list::concat(head, es),last);
-	
-		matrix::new(values)
+		list::concat(list::concat(head, es),last)
 	}
 
 	fn equation_to_diagonal_matrix(&self, s: Vec<Phasor>, last_es: &Vec<Phasor>) -> DiagonalMatrix {
@@ -102,8 +100,7 @@ trait SlabParamtersFormulas<T: Core<D>, const D: usize>  {
 	fn loss(&self, delta: f64, k: f64, alpha: f64) -> f64;
 }
 
-fn get_ds(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
-	
+fn get_const_terms(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
 	fp::middle(qs.iter()).enumerate().map(
 		// okamoto 7.97
 		|(i, q)| es[i]+q*es[i+1]+es[i+2]

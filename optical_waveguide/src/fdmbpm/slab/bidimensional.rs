@@ -9,7 +9,7 @@ impl<T: Core<2>> Slab<T,2,1> {
 	pub fn run(&self) -> EletricField {
 		let &[zdepht, _] = self.core.get_shape();
 	
-		let e_input = self.get_input_beam();
+		let e_input = self.beam.input(&[self.core.get_shape()[1]], &[self.core.get_deltas()[1]]);
 	
 		let es = (1usize..zdepht).fold( 
 			vec![e_input],
@@ -19,18 +19,14 @@ impl<T: Core<2>> Slab<T,2,1> {
 				
 				let e = self.get_es(
 					self.equation_to_diagonal_matrix(self.get_s(z-1), last_es),
-					get_ds(last_es, self.get_q(z-1))
+					get_const_terms(last_es, self.get_q(z-1))
 				);
-	
-				list::append(acc, e)
+
+				list::append(acc, matrix::vec_to_matrix(e))
 			}
 		);
 	
-		eletric_field::new(matrix::new_from_vec(es), self.core.get_deltas().to_vec())
-	}
-
-	fn get_input_beam(&self) -> Matrix<Phasor> {
-		beam::input(&[self.core.get_shape()[1]], &[self.core.get_deltas()[1]], &self.beam.center, self.beam.amplitude, self.beam.width)
+		eletric_field::new(matrix::merge(es), self.core.get_deltas().to_vec())
 	}
 
 	fn get_s(&self, z: usize) -> Vec<Phasor> {
