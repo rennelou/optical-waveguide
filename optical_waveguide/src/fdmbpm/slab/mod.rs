@@ -10,14 +10,14 @@ use crate::lin_alg::{self, DiagonalMatrix, diagonal_matrix};
 pub mod bidimensional;
 pub mod tridimensional;
 
-pub struct Slab<T: Core<D>, const D: usize, const N: usize> {
+pub struct Slab<const D: usize, const N: usize> {
 	grid: Grid<D>,
-	core: T, 
+	core: Box<dyn Core<D>>, 
 	beam: Gaussian<N>, 
 	boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor
 }
 
-pub fn new<T: Core<D>, const D: usize, const N: usize>(grid: Grid<D>, core: T, beam: Gaussian<N>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> Slab<T,D,N> {
+pub fn new<const D: usize, const N: usize>(grid: Grid<D>, core: Box<dyn Core<D>>, beam: Gaussian<N>, boundary_codition: fn(s: Side, es: &Vec<Phasor>)-> Phasor) -> Slab<D,N> {
 	match (D,N) {
 		(2,1) | (3,2) => {
 			Slab {grid, core, beam, boundary_codition }
@@ -28,7 +28,7 @@ pub fn new<T: Core<D>, const D: usize, const N: usize>(grid: Grid<D>, core: T, b
 	}
 }
 
-impl<T: Core<D>, const D: usize, const N: usize> Slab<T,D,N> {
+impl<const D: usize, const N: usize> Slab<D,N> {
 	
 	fn get_es(&self, matrix: DiagonalMatrix, d: Vec<Phasor>) -> Vec<Phasor> {
 		self.insert_boundary_values(lin_alg::thomas::try_solve(matrix, d))
@@ -76,7 +76,7 @@ impl<T: Core<D>, const D: usize, const N: usize> Slab<T,D,N> {
 }
 
 // Colocar nome das equações no okamoto
-trait SlabParamtersFormulas<T: Core<D>, const D: usize>  {
+trait SlabParamtersFormulas<const D: usize>  {
 	fn s(&self, position: [usize;D], zdelta: f64, delta: f64, k: f64, alpha: f64) -> Phasor {
 		let (guiding_space, free_space, loss) = self.slab_formulas(position, zdelta, delta, k, alpha);
 		Complex::new(2.0 - guiding_space, free_space + loss)

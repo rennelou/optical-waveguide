@@ -1,11 +1,10 @@
 use super::*;
 use eletric_field::EletricField;
-use cores::Core;
 use fp::list;
 
 //Nome de funções e variaveis precisa enfatizar o algoritmo da direção implicita
 
-impl<T: Core<3>> Slab<T,3,2> {
+impl Slab<3,2> {
 	
 	pub fn run(&self) -> EletricField {
 		let &[zdepht, ydepht, xdepht] = self.grid.get_shape();
@@ -122,7 +121,7 @@ impl<T: Core<3>> Slab<T,3,2> {
 	}
 }
 
-impl<T: Core<3>> SlabParamtersFormulas<T,3> for Slab<T,3,2> {
+impl SlabParamtersFormulas<3> for Slab<3,2> {
 	
 	fn guiding_space(&self, position: [usize;3], delta: f64, k: f64) -> f64 {
 		let n0 = self.core.get_n0();

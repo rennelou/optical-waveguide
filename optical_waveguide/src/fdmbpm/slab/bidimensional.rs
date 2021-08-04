@@ -1,10 +1,9 @@
 use super::*;
 use eletric_field::EletricField;
-use cores::Core;
 use crate::fp::matrix;
 use crate::fp::list;
 
-impl<T: Core<2>> Slab<T,2,1> {
+impl Slab<2,1> {
 	
 	pub fn run(&self) -> EletricField {
 		let &[zdepht, _] = self.grid.get_shape();
@@ -54,7 +53,7 @@ impl<T: Core<2>> Slab<T,2,1> {
 	}
 }
 
-impl<T: Core<2>> SlabParamtersFormulas<T,2> for Slab<T,2,1> {
+impl SlabParamtersFormulas<2> for Slab<2,1> {
 	fn guiding_space(&self, position: [usize;2], delta: f64, k: f64) -> f64 {
 		let &n0 = &self.core.get_n0();
 	

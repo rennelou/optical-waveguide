@@ -34,7 +34,7 @@ mod tests {
     	let w = 2.0_f64;
 		let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 		
-		let simulation = slab::new(grid.clone(), core.clone(), beam, boundary_codition::transparent); 
+		let simulation = slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
@@ -75,7 +75,7 @@ mod tests {
     	let w = 4.0_f64;
 		let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 		
-		let simulation = slab::new(grid.clone(), core.clone(), beam, boundary_codition::transparent); 
+		let simulation = slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
     	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
@@ -121,7 +121,7 @@ mod tests {
 	   
 	   let w = 2.0;
 	   let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
-	   let simulation = slab::new(grid.clone(), core.clone(), beam, boundary_codition::transparent); 
+	   let simulation = slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent); 
 	   let e = simulation.run();
 
 	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;
