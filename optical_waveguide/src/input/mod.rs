@@ -2,8 +2,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 struct WaveguideEntity {
-    
-    
     n0: f64,
     n: f64,
     
@@ -27,6 +25,24 @@ struct GaussianBeamEntity {
     
     x: Option<f64>,
     y: Option<f64>
+}
+
+fn validate_waveguide_entity(entity: WaveguideEntity) -> bool {
+    if let (Some(_), Some(_)) = (&entity.x_axis, &entity.y_axis) {
+    
+        entity.beams.into_iter().all( |beam| beam.x.is_some() && beam.y.is_some() )
+    
+    } else if let (Some(_), None) = (&entity.x_axis, &entity.y_axis) {
+    
+        entity.beams.into_iter().all( |beam| beam.x.is_some() && beam.y.is_none() )
+
+    }  else if let (None, Some(_)) = (&entity.x_axis, &entity.y_axis) {
+    
+        entity.beams.into_iter().all( |beam| beam.x.is_none() && beam.y.is_some() )
+    
+    } else {
+        false
+    }
 }
 
 #[cfg(test)]
