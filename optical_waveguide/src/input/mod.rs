@@ -50,7 +50,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn happy_path() {
+    fn one_axis() {
         let data = r#"
         {
             "n0": 3.377,
@@ -72,6 +72,124 @@ mod tests {
             ]
         }"#;
 
-        let _: WaveguideEntity = serde_json::from_str(data).unwrap();
+        let entity: WaveguideEntity = serde_json::from_str(data).unwrap();
+        assert!(validate_waveguide_entity(entity));
+    }
+
+    #[test]
+    fn two_axis() {
+        let data = r#"
+        {
+            "n0": 3.377,
+            "n": 3.38,
+            "x_axis": {
+                "width": 40,
+                "delta": 0.02  
+            },
+            "y_axis": {
+                "width": 40,
+                "delta": 0.02  
+            },
+            "z_axis": {
+                "width": 750,
+                "delta": 0.5
+            },
+            "beams": [
+                {
+                    "k": 5.4636,
+                    "x": 20,
+                    "y": 20,
+                    "width": 8
+                }
+            ]
+        }"#;
+
+        let entity: WaveguideEntity = serde_json::from_str(data).unwrap();
+        assert!(validate_waveguide_entity(entity));
+    }
+
+    #[test]
+    fn two_axis_onedimensional_beam() {
+        let data = r#"
+        {
+            "n0": 3.377,
+            "n": 3.38,
+            "x_axis": {
+                "width": 40,
+                "delta": 0.02  
+            },
+            "y_axis": {
+                "width": 40,
+                "delta": 0.02  
+            },
+            "z_axis": {
+                "width": 750,
+                "delta": 0.5
+            },
+            "beams": [
+                {
+                    "k": 5.4636,
+                    "x": 20,
+                    "width": 8
+                }
+            ]
+        }"#;
+
+        let entity: WaveguideEntity = serde_json::from_str(data).unwrap();
+        assert!(!validate_waveguide_entity(entity));
+    }
+
+    #[test]
+    fn x_axis_and_y_beam() {
+        let data = r#"
+        {
+            "n0": 3.377,
+            "n": 3.38,
+            "x_axis": {
+                "width": 40,
+                "delta": 0.02  
+            },
+            "z_axis": {
+                "width": 750,
+                "delta": 0.5
+            },
+            "beams": [
+                {
+                    "k": 5.4636,
+                    "y": 20,
+                    "width": 8
+                }
+            ]
+        }"#;
+
+        let entity: WaveguideEntity = serde_json::from_str(data).unwrap();
+        assert!(!validate_waveguide_entity(entity));
+    }
+
+    #[test]
+    fn y_axis_and_x_beam() {
+        let data = r#"
+        {
+            "n0": 3.377,
+            "n": 3.38,
+            "y_axis": {
+                "width": 40,
+                "delta": 0.02  
+            },
+            "z_axis": {
+                "width": 750,
+                "delta": 0.5
+            },
+            "beams": [
+                {
+                    "k": 5.4636,
+                    "x": 20,
+                    "width": 8
+                }
+            ]
+        }"#;
+
+        let entity: WaveguideEntity = serde_json::from_str(data).unwrap();
+        assert!(!validate_waveguide_entity(entity));
     }
 }
