@@ -1,5 +1,3 @@
-use num::complex::Complex;
-
 pub mod slab;
 pub mod grid;
 pub mod beam;
@@ -7,7 +5,14 @@ pub mod boundary_codition;
 pub mod eletric_field;
 pub mod cores;
 
+use num::complex::Complex;
+use eletric_field::EletricField;
+
 pub type Phasor = Complex<f64>;
+
+pub trait WaveguideSimulation {
+	fn run(&self) -> EletricField;
+}
 
 const PHASOR_ZERO: Phasor = Complex::new(0.0, 0.0);
 const fn zero() -> &'static Phasor {

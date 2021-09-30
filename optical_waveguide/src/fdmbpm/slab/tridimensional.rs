@@ -4,9 +4,9 @@ use super::*;
 use eletric_field::EletricField;
 use fp::list;
 
-impl Slab<3,2> {
+impl WaveguideSimulation for Slab<3,2> {
 	
-	pub fn run(&self) -> EletricField {
+	fn run(&self) -> EletricField {
 		let &[zdepht, ydepht, xdepht] = self.grid.get_shape();
 		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 	
@@ -26,6 +26,10 @@ impl Slab<3,2> {
 	
 		eletric_field::new (matrix::merge(es), self.grid.get_deltas().to_vec())
 	}
+	
+}
+
+impl Slab<3,2> {
 	
 	fn alternate_direction_implicit_method(&self, last_es: &Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
 		let &[_, ydepht, xdepht] = self.grid.get_shape();

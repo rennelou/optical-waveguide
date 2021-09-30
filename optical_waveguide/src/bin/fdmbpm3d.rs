@@ -1,3 +1,4 @@
+use optical_waveguide::fdmbpm::WaveguideSimulation;
 use optical_waveguide::fdmbpm::cores;
 use optical_waveguide::fdmbpm::boundary_codition;
 use optical_waveguide::fdmbpm::beam;

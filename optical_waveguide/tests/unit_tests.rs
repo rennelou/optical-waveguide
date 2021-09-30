@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use optical_waveguide::fdmbpm::WaveguideSimulation;
     use optical_waveguide::fdmbpm::grid;
     use optical_waveguide::tools;
     use optical_waveguide::fdmbpm::cores;
