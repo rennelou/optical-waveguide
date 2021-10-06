@@ -1,10 +1,8 @@
-use optical_waveguide::fdmbpm::WaveguideSimulation;
 use optical_waveguide::fdmbpm::cores;
 use optical_waveguide::fdmbpm::boundary_codition;
 use optical_waveguide::fdmbpm::beam;
 use optical_waveguide::fdmbpm::grid;
 use optical_waveguide::fdmbpm::slab;
-use optical_waveguide::export;
 
 use core::f64::consts::PI;
 
@@ -35,9 +33,7 @@ fn main() -> Result<(), std::io::Error> {
     let beam = beam::gaussian(center, 1.0, w, k0, 0.0);
 
 	let simulation = slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent); 
-	let e = simulation.run();
-	
-	export::hdf5("fdmbpm3d.h5", &e, &grid, &core);
+	simulation.run().export("fdmbpm3d.h5");
 	
 	Ok(())
 }

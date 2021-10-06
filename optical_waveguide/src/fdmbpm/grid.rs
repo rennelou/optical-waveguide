@@ -1,4 +1,9 @@
-#[derive(Clone)]
+pub enum AlTypeGrid {
+    Bidimensional(Grid<2>),
+    Tridimensional(Grid<3>)
+}
+
+#[derive(Clone, Copy)]
 pub struct Grid<const D: usize> {
     shape: [usize;D],
     deltas: [f64;D]

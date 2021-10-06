@@ -38,22 +38,22 @@ struct GaussianBeamEntity {
     y: Option<f64>
 }
 
-pub fn get_simulation(serialized: &str) -> Box<dyn WaveguideSimulation> {
+pub fn get_simulation(serialized: &str) -> WaveguideSimulation {
     
     let w: WaveguideEntity = serde_json::from_str(serialized).unwrap();
         
     if let (&Some(x_axis), &Some(y_axis)) = (&w.x_axis, &w.y_axis) {
-        get3d_simulation(w, x_axis, y_axis)
+        WaveguideSimulation::Tridimensional(get3d_simulation(w, x_axis, y_axis))
     } else if let (&Some(x_axis), None) = (&w.x_axis, &w.y_axis) {
-        get2d_xsimulation(w, x_axis)
+        WaveguideSimulation::Bidimensional(get2d_xsimulation(w, x_axis))
     } else if let (None, &Some(y_axis)) = (&w.x_axis, &w.y_axis) {
-        get2d_ysimulation(w, y_axis)
+        WaveguideSimulation::Bidimensional(get2d_ysimulation(w, y_axis))
     } else {
         panic!("simulation needs at last one dimension parameters")
     }
 }
 
-fn get3d_simulation(entity: WaveguideEntity, x_axis: AxisEntity, y_axis: AxisEntity) -> Box<dyn WaveguideSimulation> {
+fn get3d_simulation(entity: WaveguideEntity, x_axis: AxisEntity, y_axis: AxisEntity) -> Slab<3,2> {
 
     let dx = x_axis.width;
     let xdelta = x_axis.delta;
@@ -81,7 +81,7 @@ fn get3d_simulation(entity: WaveguideEntity, x_axis: AxisEntity, y_axis: AxisEnt
             
             let beam = beam::gaussian(beam_center, 1.0, w, k0, 0.0);
 
-            Box::new(slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent))
+            slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent)
         
         } else {
             panic!("3D simulation must have all x and y positions for beam")
@@ -91,7 +91,7 @@ fn get3d_simulation(entity: WaveguideEntity, x_axis: AxisEntity, y_axis: AxisEnt
     }
 }
 
-fn get2d_xsimulation(entity: WaveguideEntity, x_axis: AxisEntity) -> Box<Slab<2,1>> {
+fn get2d_xsimulation(entity: WaveguideEntity, x_axis: AxisEntity) -> Slab<2,1> {
 
     let dx = x_axis.width;
     let xdelta = x_axis.delta;
@@ -115,7 +115,7 @@ fn get2d_xsimulation(entity: WaveguideEntity, x_axis: AxisEntity) -> Box<Slab<2,
             
             let beam = beam::gaussian(beam_center, 1.0, w, k0, 0.0);
 
-            Box::new(slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent))
+            slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent)
         
         } else {
             panic!("2D simulation in X must have x position for beam")
@@ -125,7 +125,7 @@ fn get2d_xsimulation(entity: WaveguideEntity, x_axis: AxisEntity) -> Box<Slab<2,
     }
 }
 
-fn get2d_ysimulation(entity: WaveguideEntity, y_axis: AxisEntity) -> Box<Slab<2,1>> {
+fn get2d_ysimulation(entity: WaveguideEntity, y_axis: AxisEntity) -> Slab<2,1> {
 
     let dy = y_axis.width;
     let ydelta = y_axis.delta;
@@ -149,7 +149,7 @@ fn get2d_ysimulation(entity: WaveguideEntity, y_axis: AxisEntity) -> Box<Slab<2,
             
             let beam = beam::gaussian(beam_center, 1.0, w, k0, 0.0);
 
-            Box::new(slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent))
+            slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent)
         
         } else {
             panic!("2D simulation in Y must have y position beam")

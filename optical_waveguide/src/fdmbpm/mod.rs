@@ -6,12 +6,12 @@ pub mod eletric_field;
 pub mod cores;
 
 use num::complex::Complex;
-use eletric_field::EletricField;
 
 pub type Phasor = Complex<f64>;
 
-pub trait WaveguideSimulation {
-	fn run(&self) -> EletricField;
+pub enum WaveguideSimulation {
+	Bidimensional(slab::Slab<2,1>),
+	Tridimensional(slab::Slab<3,2>)
 }
 
 const PHASOR_ZERO: Phasor = Complex::new(0.0, 0.0);

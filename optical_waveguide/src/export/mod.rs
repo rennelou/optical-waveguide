@@ -1,19 +1,15 @@
 use ndarray::Array;
-use crate::{fdmbpm::{cores::Core, eletric_field::EletricField, grid::Grid}, fp::{Matrix, matrix}};
+use crate::{fp::Matrix};
 
-pub fn hdf5<const D: usize>(title: &str, eletric_field: &EletricField, grid: &Grid<D>, core: &impl Core<D>) {
+pub fn hdf5(title: &str, shape: &[usize], deltas: &[f64], eletric_field: Matrix<f64>, intensity: Matrix<f64>, core_matrix: Vec<f64>) {
    
     let file = hdf5::File::create(title).unwrap();
-
-    let shape = eletric_field.shape();
     
-    save_instensity(&file, eletric_field.get_intensity());
-    save_eletric_fields(&file, eletric_field.get_eletric_fields());
-    
-    let deltas = eletric_field.grid_steps();
+    save_instensity(&file, intensity);
+    save_eletric_fields(&file, eletric_field);
     save_deltas(&file, deltas.to_vec(), vec![deltas.len()]);
     
-    save_core(&file, get_core_matrix(grid, core), shape.to_vec());
+    save_core(&file, core_matrix, shape.to_vec());
 }
 
 fn save_instensity(output: &hdf5::File, data: Matrix<f64>) {
@@ -32,14 +28,6 @@ fn save_deltas(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>) {
 
 fn save_core(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>) {
     save_surface(output, data, shape, "core")
-}
-
-fn get_core_matrix<const D: usize>(grid: &Grid<D>, core: &impl Core<D>) -> Vec<f64> {
-    let shape = grid.get_shape().to_vec();
-    
-    matrix::cartesian_product_of_shape(shape).map(
-        |position| core.get_n(&grid, position.as_slice(), core.get_n0())
-    ).collect()
 }
 
 pub fn save_surface(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>, title: &str) {
