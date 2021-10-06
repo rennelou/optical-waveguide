@@ -16,7 +16,7 @@ input_file = open(input_filename, "w")
 input_file.write(simulation_param)
 input_file.close()
 
-subprocess.run(["../optical_waveguide", input_filename, output_filename])
+subprocess.run(["../release/optical_waveguide", input_filename, output_filename])
 
 with h5py.File(output_filename, "r") as f:
         
