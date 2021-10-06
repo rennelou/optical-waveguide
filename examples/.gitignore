@@ -1,0 +1,5 @@
+*.json
+*.h5
+compare
+normalize
+optical_waveguide
