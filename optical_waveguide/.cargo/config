@@ -1,2 +1,2 @@
 [build]
-target-dir = "../examples"
+target-dir = "../"
