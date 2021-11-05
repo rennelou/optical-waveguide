@@ -1,5 +1,0 @@
-*.json
-*.h5
-release/
-debug/
-__pycache__
