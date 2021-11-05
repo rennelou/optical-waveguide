@@ -1,6 +1,5 @@
 import h5py
-import json
-import subprocess
+import optical_waveguide
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -8,38 +7,15 @@ origin = 'lower'
 lines = 50
 
 output_filename = "tridimensional_result.h5"
-input_filename = "tridimensional_simulation.json"
-simulation_param = {
-    "x_axis": {
-        "width": 40,
-        "delta": 0.4
-    },
-    "y_axis": {
-        "width": 40,
-        "delta": 0.4
-    },
-    "z_axis": {
-        "width": 200,
-        "delta": 0.5
-    },"core": {
-        "n0": 3.377,
-        "n": 3.38,
-        "width": 8,
-        "x": 20,
-        "y": 20
-    },
-    "beam": {
-        "k": 5.4636,
-        "x": 20,
-        "y": 20,
-        "width": 4
-    }
-}
 
-with open(input_filename, 'w') as f:
-    json.dump(simulation_param, f, sort_keys=True)
+x_axis = optical_waveguide.get_axis(40, 0.4)
+y_axis = optical_waveguide.get_axis(40, 0.4)
+z_axis = optical_waveguide.get_axis(200, 0.5)
+core = optical_waveguide.get_core(3.377, 3.38, 8, 20, 20)
+beam = optical_waveguide.get_beam(5.4636, 4, 20, 20)
 
-subprocess.run(["../release/optical_waveguide", input_filename, output_filename])
+simulation = optical_waveguide.get_simulation(core, beam, z_axis, x_axis, y_axis)
+optical_waveguide.run("../release/optical_waveguide", simulation, output_filename)
 
 with h5py.File(output_filename, "r") as f:
     
