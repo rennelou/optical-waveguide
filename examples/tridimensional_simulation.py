@@ -1,4 +1,5 @@
 import h5py
+import json
 import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,11 +9,35 @@ lines = 50
 
 output_filename = "tridimensional_result.h5"
 input_filename = "tridimensional_simulation.json"
-simulation_param = '{"x_axis": {"width": 40,"delta": 0.4},"y_axis": {"width": 40,"delta": 0.4},"z_axis": {"width": 200,"delta": 0.5},"core": {"n0": 3.377, "n": 3.38, "width": 8,"x": 20, "y": 20},"beam": {"k": 5.4636,"x": 20,"y": 20,"width": 4} }'
+simulation_param = {
+    "x_axis": {
+        "width": 40,
+        "delta": 0.4
+    },
+    "y_axis": {
+        "width": 40,
+        "delta": 0.4
+    },
+    "z_axis": {
+        "width": 200,
+        "delta": 0.5
+    },"core": {
+        "n0": 3.377,
+        "n": 3.38,
+        "width": 8,
+        "x": 20,
+        "y": 20
+    },
+    "beam": {
+        "k": 5.4636,
+        "x": 20,
+        "y": 20,
+        "width": 4
+    }
+}
 
-input_file = open(input_filename, "w")
-input_file.write(simulation_param)
-input_file.close()
+with open(input_filename, 'w') as f:
+    json.dump(simulation_param, f, sort_keys=True)
 
 subprocess.run(["../release/optical_waveguide", input_filename, output_filename])
 
