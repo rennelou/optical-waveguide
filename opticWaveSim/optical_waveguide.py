@@ -47,9 +47,10 @@ def get_core(n0, n, width, x=None, y=None):
     
     return core
 
-def get_beam(k, width, x = None, y = None):
+def get_beam(k, alpha, width, x = None, y = None):
     beam = {
         "k": k,
+        "alpha": alpha,
         "width": width
     }
 

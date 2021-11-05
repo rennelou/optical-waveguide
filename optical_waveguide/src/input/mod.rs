@@ -32,6 +32,7 @@ struct CoreEntity {
 #[derive(Serialize, Deserialize, Clone, Copy)]
 struct GaussianBeamEntity {
     k: f64,
+    alpha: f64,
     width: f64,
     
     x: Option<f64>,
@@ -76,10 +77,11 @@ fn get3d_simulation(entity: WaveguideEntity, x_axis: AxisEntity, y_axis: AxisEnt
         let beam = entity.beam;
         if let (Some(x_beam), Some(y_beam)) = (beam.x, beam.y) {
             let k0 = beam.k;
+            let alpha = beam.alpha;
             let w = beam.width;
             let beam_center = [y_beam, x_beam];
             
-            let beam = beam::gaussian(beam_center, 1.0, w, k0, 0.0);
+            let beam = beam::gaussian(beam_center, 1.0, w, k0, alpha);
 
             slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent)
         
@@ -186,6 +188,7 @@ mod tests {
             },
             "beam": {
                 "k": 5.4636,
+                "alpha": 0.0,
                 "x": 20,
                 "width": 4
             }
@@ -223,6 +226,7 @@ mod tests {
             },
             "beam": {
                 "k": 5.4636,
+                "alpha": 0.0,
                 "x": 20,
                 "y": 20,
                 "width": 4
@@ -261,6 +265,7 @@ mod tests {
             },
             "beam": {
                 "k": 5.4636,
+                "alpha": 0.0,
                 "x": 20,
                 "width": 4
             }
@@ -296,6 +301,7 @@ mod tests {
             },
             "beam": {
                 "k": 5.4636,
+                "alpha": 0.0,
                 "x": 20,
                 "width": 4
             }
@@ -332,6 +338,7 @@ mod tests {
             },
             "beam": {
                 "k": 5.4636,
+                "alpha": 0.0,
                 "x": 20,
                 "width": 4
             }
