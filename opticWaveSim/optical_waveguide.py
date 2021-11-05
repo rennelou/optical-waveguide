@@ -1,11 +1,16 @@
+import os
 import json
 import subprocess
 
-def run(simulation_path, simulation, output_name):
-    with open('simulation_temp.json', 'w') as f:
+simulation_path = "./release/optical_waveguide"
+
+def run(simulation, output_name):
+    with open('simulation_tmp.json', 'w') as f:
         json.dump(simulation, f, sort_keys=True)    
 
-    subprocess.run([simulation_path, 'simulation_temp.json', output_name])
+    subprocess.run([simulation_path, 'simulation_tmp.json', output_name])
+
+    os.remove('simulation_tmp.json')
 
     return
 

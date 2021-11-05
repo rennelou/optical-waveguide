@@ -15,7 +15,7 @@ core = wave.get_core(3.377, 3.38, 8, 20, 20)
 beam = wave.get_beam(5.4636, 4, 20, 20)
 
 simulation = wave.get_simulation(core, beam, z_axis, x_axis, y_axis)
-wave.run("./release/optical_waveguide", simulation, output_filename)
+wave.run(simulation, output_filename)
 
 with h5py.File(output_filename, "r") as f:
     
