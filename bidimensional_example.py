@@ -1,7 +1,7 @@
 import h5py
 import json
-import OpticWaveSim.builder
-import OpticWaveSim.simulator
+import optical_waveguide
+import optical_waveguide.builder
 import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
@@ -19,7 +19,7 @@ def main():
     beam = builder.get_beam(5.4636, 0.0, 4, 20)
     
     simulation = builder.get_simulation(core, beam, z_axis, x_axis)
-    simulator.run(simulation, output_filename)
+    optical_waveguide.run(simulation, output_filename)
 
     with h5py.File(output_filename, "r") as f:
 
