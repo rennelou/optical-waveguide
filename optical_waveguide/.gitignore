@@ -5,3 +5,4 @@
 *.h5
 *.svg
 Cargo.lock
+.env

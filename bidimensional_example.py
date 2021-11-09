@@ -1,5 +1,5 @@
 import h5py
-import opticWaveSim.optical_waveguide as wave
+import optical_waveguide as wave
 import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
