@@ -1,5 +1,6 @@
 import h5py
 import optical_waveguide as wave
+import optical_waveguide.waveguide_builder as builder
 import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
@@ -10,10 +11,10 @@ origin = 'lower'
 
 output_filename = "bidimensional_result.h5"
 
-x_axis = wave.get_axis(40, 0.02)
-z_axis = wave.get_axis(750, 0.5)
-core = wave.get_core(3.377, 3.38, 8, 20)
-beam = wave.get_beam(5.4636, 0.0, 4, 20)
+x_axis = builder.get_axis(40, 0.02)
+z_axis = builder.get_axis(750, 0.5)
+core = builder.get_core(3.377, 3.38, 8, 20)
+beam = builder.get_beam(5.4636, 0.0, 4, 20)
 
 simulation = wave.get_simulation(core, beam, z_axis, x_axis)
 wave.run(simulation, output_filename)
