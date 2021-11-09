@@ -1,19 +1,3 @@
-import os
-import json
-import subprocess
-
-simulation_path = "./release/optical_waveguide"
-
-def run(simulation, output_name):
-    with open('simulation_tmp.json', 'w') as f:
-        json.dump(simulation, f, sort_keys=True)    
-
-    subprocess.run([simulation_path, 'simulation_tmp.json', output_name])
-
-    os.remove('simulation_tmp.json')
-
-    return
-
 def get_simulation(core, beam, z_axis, x_axis = None, y_axis = None):
     simulation = {}
 
@@ -27,7 +11,7 @@ def get_simulation(core, beam, z_axis, x_axis = None, y_axis = None):
     simulation["core"] = core
     simulation["beam"] = beam
 
-    return simulation
+    return json.dumps(simulation, sort_keys=True)
 
 def get_axis(width, delta):
     return { "width": width, "delta": delta }
