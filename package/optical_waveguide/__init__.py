@@ -1,2 +1,2 @@
 from .optical_waveguide import *
-from .waveguide_builder import builder
+from .waveguide_builder.builder import *

@@ -1,6 +1,5 @@
 import h5py
 import optical_waveguide
-import optical_waveguide.waveguide_builder.builder
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,13 +8,13 @@ lines = 50
 
 output_filename = "tridimensional_result.h5"
 
-x_axis = builder.get_axis(40, 0.4)
-y_axis = builder.get_axis(40, 0.4)
-z_axis = builder.get_axis(200, 0.5)
-core = builder.get_core(3.377, 3.38, 8, 20, 20)
-beam = builder.get_beam(5.4636, 0.0, 4, 20, 20)
+x_axis = optical_waveguide.get_axis(40, 0.4)
+y_axis = optical_waveguide.get_axis(40, 0.4)
+z_axis = optical_waveguide.get_axis(200, 0.5)
+core = optical_waveguide.get_core(3.377, 3.38, 8, 20, 20)
+beam = optical_waveguide.get_beam(5.4636, 0.0, 4, 20, 20)
 
-simulation = builder.get_simulation(core, beam, z_axis, x_axis, y_axis)
+simulation = optical_waveguide.get_simulation(core, beam, z_axis, x_axis, y_axis)
 optical_waveguide.run(simulation, output_filename)
 
 with h5py.File(output_filename, "r") as f:
