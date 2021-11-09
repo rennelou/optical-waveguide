@@ -54,7 +54,7 @@ def get_simulation(core, beam, z_axis, x_axis = None, y_axis = None):
     simulation["core"] = core
     simulation["beam"] = beam
 
-    return simulation
+    return repr(simulation)
 
 def get_axis(width, delta):
     return { "width": width, "delta": delta }
