@@ -1,6 +1,0 @@
-release/
-debug
-.rustc_info.json
-*.json
-*.h5
-__pycache__
