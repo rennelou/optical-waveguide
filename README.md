@@ -2,33 +2,7 @@
 
 <!---Esses são exemplos. Veja https://shields.io para outras pessoas ou para personalizar este conjunto de escudos. Você pode querer incluir dependências, status do projeto e informações de licença aqui--->
 
-![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/README-template?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/iuricode/README-template?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/iuricode/README-template?style=for-the-badge)
-![Bitbucket open issues](https://img.shields.io/bitbucket/issues/iuricode/README-template?style=for-the-badge)
-![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/iuricode/README-template?style=for-the-badge)
-
-<img src="exemplo-image.png" alt="exemplo imagem">
-
 > Guia de onda optico para fotônica integrada.
-
-### Ajustes e melhorias
-
-O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
-
-- [x] limpar run do slab3d
-- [x] separar algoritmo de thomas
-- [ ] separar core de grid
-- [ ] deixar core tipo dinamic em runtime pra poder ler do arquivo de simulação
-- [x] criar o slab alto nivel que internamete separa em 2d e 3d
-- [ ] Controle de slice em x ou y vir do run do slab3d e descer ate os get_row, get_col, get_sx, get_sy, get_qx e get_qy
-- [ ] melhorar nomenclatura de funções e variaveis do slab3d
-- [ ] remover codigo reptido do get_q e get_s do slab::bidimensional
-- [ ] tornar todos os maps do codigo em paralelo
-- [ ] otimizar dephts_cartesian_product
-- [ ] criar composição de cores
-- [ ] criar composição de beams
-- [ ] criar leitor de roteiro de simulação externo
 
 ## 💻 Pré-requisitos
 
@@ -74,6 +48,24 @@ Para contribuir com <nome_do_projeto>, siga estas etapas:
 
 Como alternativa, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
+### Ajustes e melhorias
+
+O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
+
+- [x] limpar run do slab3d
+- [x] separar algoritmo de thomas
+- [ ] separar core de grid
+- [ ] deixar core tipo dinamic em runtime pra poder ler do arquivo de simulação
+- [x] criar o slab alto nivel que internamete separa em 2d e 3d
+- [ ] Controle de slice em x ou y vir do run do slab3d e descer ate os get_row, get_col, get_sx, get_sy, get_qx e get_qy
+- [ ] melhorar nomenclatura de funções e variaveis do slab3d
+- [ ] remover codigo reptido do get_q e get_s do slab::bidimensional
+- [ ] tornar todos os maps do codigo em paralelo
+- [ ] otimizar dephts_cartesian_product
+- [ ] criar composição de cores
+- [ ] criar composição de beams
+- [ ] criar leitor de roteiro de simulação externo 
+ 
 ## 🤝 Colaboradores
 
 Agradecemos às seguintes pessoas que contribuíram para este projeto:
