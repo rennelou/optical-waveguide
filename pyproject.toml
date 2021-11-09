@@ -1,2 +1,7 @@
 [project]
+name = "optical_waveguide"
+requires-python = ">=3.6"
+classifiers = [
+    "Topic :: Simulation :: Optical Waveguide",
+]
 dependencies = ["pytest>=3.5.0", "pip>=21.3", "h5py>=3.3.0", "matplotlib>=3.4.2", "PyQt5>=5.15.4"]
