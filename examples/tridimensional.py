@@ -1,6 +1,6 @@
 import h5py
 import optical_waveguide
-import optical_waveguide.waveguide_builder as builder
+import optical_waveguide.waveguide_builder.builder
 import numpy as np
 import matplotlib.pyplot as plt
 
