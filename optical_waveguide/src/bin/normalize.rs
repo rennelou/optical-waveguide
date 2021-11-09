@@ -48,7 +48,7 @@ fn copy_dataset(output: &hdf5::File, file: &hdf5::File, dataset_name: &str) {
     match dataset_option {
         Ok(dataset) => {
             let array = Array::from_shape_vec(dataset.shape(), dataset.read_raw::<f64>().unwrap()).unwrap();
-            let dataset_copy = output.new_dataset::<f64>().create(dataset_name, dataset.shape()).unwrap();
+            let dataset_copy = output.new_dataset::<f64>().shape(dataset.shape().as_slice()).create(dataset_name).unwrap();
             dataset_copy.write(&array).unwrap();
         }
         Err(_) => {

@@ -31,7 +31,7 @@ fn save_core(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>) {
 }
 
 pub fn save_surface(output: &hdf5::File, data: Vec<f64>, shape: Vec<usize>, title: &str) {
-    let dataset = output.new_dataset::<f64>().create(title, shape.clone()).unwrap();
+    let dataset = output.new_dataset::<f64>().shape(shape.as_slice()).create(title).unwrap();
     let result_array = Array::from_shape_vec(shape.clone(), data).unwrap();
 
     dataset.write(&result_array).unwrap();
