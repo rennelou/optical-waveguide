@@ -38,7 +38,7 @@ mod tests {
 		let simulation = slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
-    	let file = hdf5::File::open("tests/datas/core_8_gaussian_4.h5")?;
+    	let file = hdf5::File::open("tests/snapshots/core_8_gaussian_4.h5")?;
 		let reference = file.dataset("intensity").unwrap();
 		
 		let diffs = tools::areas_diff(
@@ -79,7 +79,7 @@ mod tests {
 		let simulation = slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent); 
 		let e = simulation.run();
 
-    	let file = hdf5::File::open("tests/datas/core_8_gaussian_8.h5")?;
+    	let file = hdf5::File::open("tests/snapshots/core_8_gaussian_8.h5")?;
 		let reference = file.dataset("intensity").unwrap();
 		
 		let diffs = tools::areas_diff(
@@ -125,7 +125,7 @@ mod tests {
 	   let simulation = slab::new(grid.clone(), Box::new(core.clone()), beam, boundary_codition::transparent); 
 	   let e = simulation.run();
 
-	   let file = hdf5::File::open("tests/datas/slab3d.h5")?;
+	   let file = hdf5::File::open("tests/snapshots/slab3d.h5")?;
 	   let reference = file.dataset("intensity").unwrap();
 	   
 	   let diffs = tools::areas_diff(
