@@ -1,4 +1,1 @@
 tests/snapshots filter=lfs diff=lfs merge=lfs -text
-tests/snapshots/core_8_gaussian_8.h5 filter=lfs diff=lfs merge=lfs -text
-tests/snapshots/slab3d.h5 filter=lfs diff=lfs merge=lfs -text
-tests/snapshots/core_8_gaussian_4.h5 filter=lfs diff=lfs merge=lfs -text
