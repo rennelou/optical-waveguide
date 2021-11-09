@@ -1,7 +1,7 @@
 # Workaround to bootstrap maturin on non-manylinux platforms
 [build-system]
-requires = ["setuptools~=53.0.0", "wheel~=0.36.2", "toml~=0.10.2"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=0.11,<0.12"]
+build-backend = "maturin"
 
 [project]
 name = "optical_waveguide"
