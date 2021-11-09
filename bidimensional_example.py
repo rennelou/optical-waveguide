@@ -1,4 +1,5 @@
 import h5py
+import json
 import optical_waveguide as wave
 import numpy as np
 import matplotlib
@@ -54,7 +55,7 @@ def get_simulation(core, beam, z_axis, x_axis = None, y_axis = None):
     simulation["core"] = core
     simulation["beam"] = beam
 
-    return repr(simulation)
+    return json.dumps(simulation, sort_keys=True)
 
 def get_axis(width, delta):
     return { "width": width, "delta": delta }
