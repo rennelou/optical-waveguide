@@ -1,5 +1,6 @@
 use super::*;
-use fp::matrix;
+use crate::functional_types;
+use functional_types::matrix;
 use eletric_field::EletricField;
 use grid::AlTypeGrid;
 use cores::AlTypeCore;
@@ -15,7 +16,7 @@ impl Slab<2,1> {
 			vec![e_input],
 			|acc, z| {
 				
-				let last_es= fp::last(acc.iter()).unwrap().raw();
+				let last_es= functional_types::last(acc.iter()).unwrap().raw();
 				
 				let e = self.get_es(
 					self.equation_to_diagonal_matrix(self.get_s(z-1), last_es),

@@ -1,5 +1,5 @@
 use super::*;
-use fp::list;
+use functional_types::list;
 use itertools::izip;
 
 // m*x = const_terms
@@ -19,7 +19,7 @@ fn solve(below_diag: Vec<Complex<f64>>, diag: Vec<Complex<f64>>, above_diag: Vec
 		vec![],
 		|result, (alpha, beta)| {
 			
-			let last_value = fp::last_or_default(result.iter(), one());
+			let last_value = functional_types::last_or_default(result.iter(), one());
 			
 			let new_value= beta - (last_value * alpha);
 			
@@ -33,7 +33,7 @@ fn row_echelon_form(below_diag: Vec<Complex<f64>>, diag: Vec<Complex<f64>>, abov
 	izip!(&below_diag, &diag, &above_diag, &const_terms).fold(
 		vec![],
 		|alpha_beta, (b, d, a, c)| {
-			let &(last_alpha, last_beta) = fp::last_or_default(alpha_beta.iter(), &(*zero(), *zero()));
+			let &(last_alpha, last_beta) = functional_types::last_or_default(alpha_beta.iter(), &(*zero(), *zero()));
 			
 			let alpha = a / (d - (b * last_alpha));
 			let beta = (c - (b * last_beta)) / (d - (b * last_alpha));

@@ -1,7 +1,8 @@
 use ndarray::Array;
-use optical_waveguide::simulator::{export, fp::Matrix};
+use optical_waveguide::functional_types::Matrix;
 use structopt::StructOpt;
 use optical_waveguide::tools;
+use tools::export;
 
 #[derive(StructOpt)]
 struct Cli {

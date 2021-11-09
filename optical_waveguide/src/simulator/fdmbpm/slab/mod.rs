@@ -1,6 +1,7 @@
 use super::*;
 use lin_alg::{DiagonalMatrix, diagonal_matrix};
-use fp::list;
+use crate::functional_types;
+use functional_types::list;
 use grid::Grid;
 use cores::Core;
 use boundary_codition::Side;
@@ -35,11 +36,11 @@ impl<const D: usize, const N: usize> Slab<D,N> {
 	
 	fn insert_boundary_values(&self, es: Vec<Phasor>) -> Vec<Phasor> {
 		let head = vec![{
-			let es_head = fp::head_or_default(es.iter(), one());
+			let es_head = functional_types::head_or_default(es.iter(), one());
 			es_head* (self.boundary_codition)(Side::Left, &es)
 		}];
 		let last = vec![{
-			let es_last = fp::last_or_default(es.iter(), one());
+			let es_last = functional_types::last_or_default(es.iter(), one());
 			es_last* (self.boundary_codition)(Side::Right, &es)
 		}];
 		
@@ -102,7 +103,7 @@ trait SlabParamtersFormulas<const D: usize>  {
 }
 
 fn get_const_terms(es: &Vec<Phasor>, qs: Vec<Phasor>) -> Vec<Phasor> {
-	fp::middle(qs.iter()).enumerate().map(
+	functional_types::middle(qs.iter()).enumerate().map(
 		// okamoto 7.97
 		|(i, q)| es[i]+q*es[i+1]+es[i+2]
 	).collect()

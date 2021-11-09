@@ -1,5 +1,5 @@
 use super::*;
-use fp::{Matrix, matrix};
+use crate::functional_types::{Matrix, matrix};
 use fdmbpm;
 use itertools::izip;
 

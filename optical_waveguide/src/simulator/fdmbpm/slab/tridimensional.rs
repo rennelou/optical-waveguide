@@ -1,9 +1,9 @@
 use super::*;
 use fdmbpm::{cores::AlTypeCore, grid::AlTypeGrid};
-use fp::{Matrix, matrix};
+use functional_types::{Matrix, matrix};
 
 use eletric_field::EletricField;
-use fp::list;
+use functional_types::list;
 
 impl Slab<3,2> {
 	
@@ -17,7 +17,7 @@ impl Slab<3,2> {
 			vec![e_input], 
 			|result, z| {
 				
-				let last_es = fp::last(result.iter()).unwrap();
+				let last_es = functional_types::last(result.iter()).unwrap();
 				
 				let e = self.alternate_direction_implicit_method(last_es, z);
 

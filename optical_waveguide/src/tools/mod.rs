@@ -1,7 +1,8 @@
+pub mod export;
+
+use crate::functional_types::{Matrix, matrix};
 use std::cmp;
 use itertools::izip;
-
-use crate::simulator::fp::{Matrix, matrix};
 
 pub fn normalize(m: Matrix<f64>) -> Matrix<f64> {
     let area_input = submatrix(&m, 0).iter().sum::<f64>();

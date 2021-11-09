@@ -1,4 +1,4 @@
-use super::fp;
+use crate::functional_types;
 use num::Complex;
 
 pub mod thomas;
@@ -28,11 +28,11 @@ pub fn diagonal_matrix(below_diag: Vec<Complex<f64>>, diag: Vec<Complex<f64>>, a
 
     let lenght = below_diag.len();
 	
-	if fp::head(below_diag.iter()).unwrap() != zero() {
+	if functional_types::head(below_diag.iter()).unwrap() != zero() {
 		panic!("before_diagonal vector must init with 0")
 	}
 
-	if fp::last(above_diag.iter()).unwrap() != zero() {
+	if functional_types::last(above_diag.iter()).unwrap() != zero() {
 		panic!("above_diagonal vector must ends with 0")
 	}
 
