@@ -1,3 +1,5 @@
+import json
+
 def get_simulation(core, beam, z_axis, x_axis = None, y_axis = None):
     simulation = {}
 
