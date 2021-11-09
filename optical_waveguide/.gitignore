@@ -1,8 +1,2 @@
-/target
-*.png
-*.data
-*.old
-*.h5
-*.svg
-Cargo.lock
-.env
+__pycache__
+*.so
