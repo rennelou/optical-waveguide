@@ -88,3 +88,6 @@ def get_beam(k, alpha, width, x = None, y = None):
         beam["y"] = y
 
     return beam
+
+if __name__ == '__main__':
+    main()
