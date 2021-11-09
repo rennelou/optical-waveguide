@@ -1,7 +1,7 @@
 import h5py
 import json
-import waveguide_builder.builder
-import optical_waveguide as simulator
+import OpticWaveSim.builder
+import OpticWaveSim.simulator
 import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
