@@ -1,4 +1,3 @@
-use crate::fp;
 use super::*;
 
 pub fn new<T: Clone + Copy>(values: Vec<T>, shape_ref: &[usize]) -> Matrix<T> {
@@ -18,7 +17,7 @@ pub fn vec_to_matrix<T: Clone + Copy>(values: Vec<T>) -> Matrix<T> {
 
 pub fn vec2_to_matrix2<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T> {
     let y_depht = values.len();
-    let x_depht = fp::head(values.iter()).unwrap().len();
+    let x_depht = head(values.iter()).unwrap().len();
 
     if values.iter().any(|v| v.len() != x_depht) {
         panic!("all lines needs have the same lenght")
@@ -31,7 +30,7 @@ pub fn vec2_to_matrix2<T: Clone + Copy>(values: Vec<Vec<T>>) -> Matrix<T> {
 
 pub fn transposed_vec2_to_matrix2<T: Clone + Copy + Default>(values: Vec<Vec<T>>) -> Matrix<T> {
     let y_depht = values.len();
-    let x_depht = fp::head(values.iter()).unwrap().len();
+    let x_depht = head(values.iter()).unwrap().len();
 
     if values.iter().any(|v| v.len() != x_depht) {
         panic!("all lines needs have the same lenght")
@@ -54,7 +53,7 @@ pub fn merge<T: Clone + Copy>(matrixs: Vec<Matrix<T>>) -> Matrix<T> {
         panic!("all matrixs must have the sames shapes")
     }
 
-    let shape = fp::head(matrixs.iter()).unwrap().shape();
+    let shape = head(matrixs.iter()).unwrap().shape();
 
     let new_depht = matrixs.len();
     let mut new_shape = shape.to_vec();

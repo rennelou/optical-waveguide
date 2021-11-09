@@ -1,5 +1,6 @@
+use super::*;
+use fp::Matrix;
 use ndarray::Array;
-use crate::{fp::Matrix};
 
 pub fn hdf5(title: &str, shape: &[usize], deltas: &[f64], eletric_field: Matrix<f64>, intensity: Matrix<f64>, core_matrix: Vec<f64>) {
    

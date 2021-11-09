@@ -1,6 +1,7 @@
+use super::*;
+use fp::{Matrix, matrix};
+use fdmbpm;
 use itertools::izip;
-use crate::fp::{Matrix, matrix};
-use crate::fdmbpm;
 
 pub struct Gaussian<const D: usize> {
     pub center: [f64;D],

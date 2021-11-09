@@ -1,5 +1,6 @@
+use super::fdmbpm::{WaveguideSimulation, beam, boundary_codition, cores, grid, slab::{self, Slab}};
 use serde::{Deserialize, Serialize};
-use crate::fdmbpm::{WaveguideSimulation, beam, boundary_codition, cores, grid, slab::{self, Slab}};
+
 
 #[derive(Serialize, Deserialize, Clone, Copy)]
 struct WaveguideEntity {

@@ -1,9 +1,8 @@
 use super::*;
+use fp::matrix;
 use eletric_field::EletricField;
-use crate::fdmbpm::cores::AlTypeCore;
-use crate::fdmbpm::grid::AlTypeGrid;
-use crate::fp::matrix;
-use crate::fp::list;
+use grid::AlTypeGrid;
+use cores::AlTypeCore;
 
 impl Slab<2,1> {
 	

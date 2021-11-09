@@ -1,9 +1,5 @@
-pub mod input;
-pub mod export;
+pub mod simulator;
 pub mod tools;
-pub mod fp;
-pub mod lin_alg;
-pub mod fdmbpm;
 
 use pyo3::prelude::*;
 
@@ -16,7 +12,7 @@ fn optical_waveguide(_py: Python, m: &PyModule) -> PyResult<()> {
     
     #[pyfn(m)]
     fn run(serialized: &str, output_name: &str) {
-        fdmbpm::run(serialized, output_name);
+        simulator::fdmbpm::run(serialized, output_name);
     }
     
     Ok(())

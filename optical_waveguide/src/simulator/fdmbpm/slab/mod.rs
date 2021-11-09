@@ -1,11 +1,10 @@
 use super::*;
-use super::grid::Grid;
+use lin_alg::{DiagonalMatrix, diagonal_matrix};
+use fp::list;
+use grid::Grid;
 use cores::Core;
 use boundary_codition::Side;
 use beam::Gaussian;
-use crate::fp::{self, matrix};
-use crate::fp::list;
-use crate::lin_alg::{self, DiagonalMatrix, diagonal_matrix};
 
 pub mod bidimensional;
 pub mod tridimensional;

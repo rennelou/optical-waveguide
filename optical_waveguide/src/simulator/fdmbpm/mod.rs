@@ -4,7 +4,9 @@ pub mod beam;
 pub mod boundary_codition;
 pub mod eletric_field;
 pub mod cores;
-use crate::input::get_simulation;
+
+use super::*;
+use super::input::get_simulation;
 
 use num::complex::Complex;
 

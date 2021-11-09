@@ -1,4 +1,4 @@
-use optical_waveguide::fdmbpm;
+use optical_waveguide::simulator::fdmbpm;
 use structopt::StructOpt;
 use std::fs;
 

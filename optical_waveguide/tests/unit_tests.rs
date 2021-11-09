@@ -1,11 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use optical_waveguide::fdmbpm::grid;
     use optical_waveguide::tools;
-    use optical_waveguide::fdmbpm::cores;
-	use optical_waveguide::fdmbpm::slab;
-	use optical_waveguide::fdmbpm::boundary_codition;
-	use optical_waveguide::fdmbpm::beam;
+	use optical_waveguide::simulator::fdmbpm;
+	use fdmbpm::grid;
+    use fdmbpm::cores;
+	use fdmbpm::slab;
+	use fdmbpm::boundary_codition;
+	use fdmbpm::beam;
 	use core::f64::consts::PI;
 	use std::error::Error;
 

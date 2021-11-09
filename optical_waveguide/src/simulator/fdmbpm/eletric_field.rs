@@ -1,11 +1,12 @@
-use crate::export;
-use crate::fp::Matrix;
-use crate::fp::matrix;
-use super::Phasor;
-use super::cores::AlTypeCore;
-use super::cores::Core;
-use super::grid::AlTypeGrid;
-use super::grid::Grid;
+use super::*;
+use export;
+use fp::Matrix;
+use fp::matrix;
+use Phasor;
+use cores::AlTypeCore;
+use cores::Core;
+use grid::AlTypeGrid;
+use grid::Grid;
 
 pub struct EletricField {
     values: Matrix<Phasor>,

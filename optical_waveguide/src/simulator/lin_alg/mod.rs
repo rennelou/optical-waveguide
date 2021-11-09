@@ -1,4 +1,4 @@
-use crate::fp::{self, list};
+use super::fp;
 use num::Complex;
 
 pub mod thomas;

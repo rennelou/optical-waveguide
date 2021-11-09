@@ -1,5 +1,5 @@
 use ndarray::Array;
-use optical_waveguide::{export, fp::Matrix};
+use optical_waveguide::simulator::{export, fp::Matrix};
 use structopt::StructOpt;
 use optical_waveguide::tools;
 

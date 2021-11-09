@@ -1,6 +1,7 @@
-use crate::{fdmbpm::{cores::AlTypeCore, grid::AlTypeGrid}, fp::Matrix};
-
 use super::*;
+use fdmbpm::{cores::AlTypeCore, grid::AlTypeGrid};
+use fp::{Matrix, matrix};
+
 use eletric_field::EletricField;
 use fp::list;
 
