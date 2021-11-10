@@ -16,7 +16,7 @@ Mais informações https://rust-lang.github.io/rustup/installation/index.html
 * `maturin >= 0.11.5`
 * `Qt5 >= 5.15`
 
-## 🚀 Instalando optical_waveguide
+## 🚀 Instalando <optical_waveguide>
 
 Para instalar o optical_waveguide, siga estas etapas:
 
@@ -37,9 +37,66 @@ Para executar um exemplo bidimensional, siga estas etapas:
 python examples/bidimensional.py
 ```
 
-Adicione comandos de execução e exemplos que você acha que os usuários acharão úteis. Fornece uma referência de opções para pontos de bônus!
+## ☕ Usando pela linha de comando <optical-waveguide>
 
-## 📫 Contribuindo para <nome_do_projeto>
+Além da biblioteca para python é possível usar o simulador direto pela linha de comando. Para tal execute:
+
+```
+cargo install --path .
+PATH="$HOME/.cargo/bin"
+```
+
+Agora nós temos um executavel `optical_waveguide` no diretorio $HOME/.cargo/bin e adcionamos esse diretorio na variavel de ambiente `PATH` para que o sistema operacional possa encontrar o nosso executavel. Para tornar a mudança persistente adcione a linha `PATH="$HOME/.cargo/bin"` no seu arquivo ~/.bashrc
+
+O simulador recebe dois argumentos por linha de comando. O primeiro é um json com a descrição da simalção e o segundo o nome do arquivo de resultados que será gerado.
+
+Como exemplo iremos rodar a mesma simulação da seção que usa a biblioteca python, porém agora a partir da linha de comando.
+Pra isso crie o arquivo `my_bidimensional_simulation.json`:
+
+```json
+{
+  "x_axis": {
+    "width": 40,
+    "delta": 0.02  
+  },
+  "z_axis": {
+    "width": 750,
+    "delta": 0.5
+  },
+  "core": {
+    "n0": 3.377,
+    "n": 3.38,
+
+    "width"
+    "x": 20
+  },
+  "beam": {
+    "k": 5.4636,
+    "alpha": 0.0,
+    "x": 20,
+    "width": 4
+  }
+}
+```
+
+Em seguide, execute:
+
+```
+optical_waveguide my_bidimensional_simulation.json my_output_file.h5
+```
+
+Você observara um novo arquivo criado HDF5 chamado `my_output_file.h5` que contém a seguinte hierarquia:
+
+```
+/         raiz do arquivo
+/deltas        array com os passos discretização da grid de simulação
+/core        matriz bidimensional ou tridimensional com os valores do índice de refração pra cada ponto da grid de simulação
+/eletric_field    matriz bidimensional ou tridimensional com os valores do campo elétrico pra cada ponto da grid de simulação
+/intensity    matriz bidimensional ou tridimensional com os valores da intensidade da onda eletromagnética pra cada ponto da grid de simulação
+```
+
+
+## 📫 Contribuindo para <optical-waveguide>
 <!---Se o seu README for longo ou se você tiver algum processo ou etapas específicas que deseja que os contribuidores sigam, considere a criação de um arquivo CONTRIBUTING.md separado--->
 Para contribuir com <nome_do_projeto>, siga estas etapas:
 
