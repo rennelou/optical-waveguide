@@ -8,28 +8,31 @@
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 <!---Estes são apenas requisitos de exemplo. Adicionar, duplicar ou remover conforme necessário--->
-* Um ambiente de desenvolvimento Rust. Aconselhamos instalar a partir do `<rustup>`. https://rust-lang.github.io/rustup/installation/index.html
+* Um ambiente de desenvolvimento Rust. Aconselhamos instalar a partir do `<rustup>`. 
+Mais informações https://rust-lang.github.io/rustup/installation/index.html
 * `<python3 >= 3.9>`
-* `<HDF5 >= 1.12.1 / python3 / pip / maturin / Qt5>`
+* `<HDF5 >= 1.12.1>`
 * `<pip >= 21.3.1>`
 * `<maturin >= 0.11.5>`
 * `<Qt5 >= 5.15>`
 
-## 🚀 Instalando <nome_do_projeto>
+## 🚀 Instalando optical_waveguide
 
 Para instalar o <nome_do_projeto>, siga estas etapas:
 
 Linux:
 ```
-<comando_de_instalação>
+python - venv .env
+source .env/bin/activate
+maturin develop
 ```
 
 ## ☕ Usando <optical-waveguide>
 
-Para usar <optical-waveguide>, siga estas etapas:
+Para executar um exemplo bidimensional, siga estas etapas:
 
 ```
-<exemplo_de_uso>
+python examples/bidimensional.py
 ```
 
 Adicione comandos de execução e exemplos que você acha que os usuários acharão úteis. Fornece uma referência de opções para pontos de bônus!
@@ -68,7 +71,7 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
   <tr>
     <td align="center">
       <a href="#">
-        <img src="https://avatars3.githubusercontent.com/u/31936044" width="100px;" alt="Foto do Iuri Silva no GitHub"/><br>
+        <img src="https://avatars.githubusercontent.com/u/34797226?s=400&u=2505230870aaf025b6c3e6806981d4567b594592&v=4" width="100px;" alt="Foto do rennelou no GitHub"/><br>
         <sub>
           <b>Rennê Lou</b>
         </sub>
