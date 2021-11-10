@@ -4,7 +4,7 @@ use super::*;
 
 impl WaveguideSimulation for Slab<2,1>{
 	
-	fn run(self) -> SimulationResult {
+	fn run(&self) -> SimulationResult {
 		let &[zdepht, _] = self.grid.get_shape();
 	
 		let e_input = self.beam.input(&[self.grid.get_shape()[1]], &[self.grid.get_deltas()[1]]);

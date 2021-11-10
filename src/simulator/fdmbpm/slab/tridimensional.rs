@@ -3,7 +3,7 @@ use functional_types::{list, Matrix, matrix};
 
 impl WaveguideSimulation for Slab<3,2> {
 	
-	fn run(self) -> SimulationResult {
+	fn run(&self) -> SimulationResult {
 		let &[zdepht, ydepht, xdepht] = self.grid.get_shape();
 		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 	
