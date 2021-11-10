@@ -8,20 +8,18 @@
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
 <!---Estes são apenas requisitos de exemplo. Adicionar, duplicar ou remover conforme necessário--->
-* Você instalou a versão mais recente de `<rustup / HDF5 / python3 / MatPlotLib / maturin>`
-* Você tem uma máquina `<Windows / Linux / Mac>`. Indique qual sistema operacional é compatível / não compatível.
-* Você leu `<guia / link / documentação_relacionada_ao_projeto>`.
+* Um ambiente de desenvolvimento Rust. Aconselhamos instalar a partir do `<rustup>`. https://rust-lang.github.io/rustup/installation/index.html
+* `<python3 >= 3.9>`
+* `<HDF5 >= 1.12.1 / python3 / pip / maturin / Qt5>`
+* `<pip >= 21.3.1>`
+* `<maturin >= 0.11.5>`
+* `<Qt5 >= 5.15>`
 
 ## 🚀 Instalando <nome_do_projeto>
 
 Para instalar o <nome_do_projeto>, siga estas etapas:
 
-Linux e macOS:
-```
-<comando_de_instalação>
-```
-
-Windows:
+Linux:
 ```
 <comando_de_instalação>
 ```
@@ -52,20 +50,16 @@ Como alternativa, consulte a documentação do GitHub em [como criar uma solicit
 
 O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
 
-- [x] limpar run do slab3d
-- [x] separar algoritmo de thomas
-- [ ] separar core de grid
-- [ ] deixar core tipo dinamic em runtime pra poder ler do arquivo de simulação
-- [x] criar o slab alto nivel que internamete separa em 2d e 3d
-- [ ] Controle de slice em x ou y vir do run do slab3d e descer ate os get_row, get_col, get_sx, get_sy, get_qx e get_qy
-- [ ] melhorar nomenclatura de funções e variaveis do slab3d
-- [ ] remover codigo reptido do get_q e get_s do slab::bidimensional
 - [ ] tornar todos os maps do codigo em paralelo
 - [ ] otimizar dephts_cartesian_product
 - [ ] criar composição de cores
 - [ ] criar composição de beams
-- [ ] criar leitor de roteiro de simulação externo 
- 
+
+Infezlimente o código ainda não esta com cobertura total de testes. Um breve apanhado de casos de testes necessários:
+
+- [ ] testas todas as condições de panic
+- [ ] feixe gaussiano em regiões fora da grid de simulação
+
 ## 🤝 Colaboradores
 
 Agradecemos às seguintes pessoas que contribuíram para este projeto:

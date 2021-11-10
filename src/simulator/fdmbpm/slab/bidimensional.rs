@@ -1,7 +1,6 @@
 use crate::functional_types::matrix;
 use super::*;
 
-
 impl WaveguideSimulation for Slab<2,1>{
 	
 	fn run(&self) -> SimulationResult {
