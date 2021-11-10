@@ -44,7 +44,7 @@ mod tests {
 		
 		let diffs = tools::areas_diff(
 			tools::normalize(tools::dataset_to_matrix(reference)), 
-			tools::normalize(e.get_intensity())
+			tools::normalize(e.intensity)
 		);
 		
 		assert!(diffs.into_iter().all(|x| x <= 0.011)); // erro de ate 1.1%
@@ -85,7 +85,7 @@ mod tests {
 		
 		let diffs = tools::areas_diff(
 			tools::normalize(tools::dataset_to_matrix(reference)), 
-			tools::normalize(e.get_intensity())
+			tools::normalize(e.intensity)
 		);
 		
 		assert!(diffs.into_iter().all(|x| x <= 0.011)); // erro de ate 1.1%
@@ -131,7 +131,7 @@ mod tests {
 	   
 	   let diffs = tools::areas_diff(
 		   tools::normalize(tools::dataset_to_matrix(reference)), 
-		   tools::normalize(e.get_intensity())
+		   tools::normalize(e.intensity)
 	   );
 	   
 	   assert!(diffs.into_iter().all(|x| x <= 0.011)); // erro de ate 1.1%

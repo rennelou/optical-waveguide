@@ -4,7 +4,7 @@ use super::*;
 
 impl WaveguideSimulation for Slab<2,1>{
 	
-	fn run(self) -> Box<dyn SimulationResults> {
+	fn run(self) -> SimulationResult {
 		let &[zdepht, _] = self.grid.get_shape();
 	
 		let e_input = self.beam.input(&[self.grid.get_shape()[1]], &[self.grid.get_deltas()[1]]);
@@ -24,12 +24,10 @@ impl WaveguideSimulation for Slab<2,1>{
 			}
 		);
 
-		Box::new(
-			eletric_field::new(
+		simulation_result::new(
 				matrix::merge(es), 
 				self.grid.get_deltas().to_vec(),
 				self.get_refractive_indexes()
-			)
 		)
 	}
 }

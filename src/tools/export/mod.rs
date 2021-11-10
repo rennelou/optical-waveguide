@@ -1,15 +1,18 @@
 use crate::functional_types::Matrix;
+use crate::simulator::types::SimulationResult;
 use ndarray::Array;
 
-pub fn hdf5(title: &str, shape: &[usize], deltas: &[f64], eletric_field: Matrix<f64>, intensity: Matrix<f64>, core_matrix: Vec<f64>) {
+pub fn hdf5(title: &str, results: SimulationResult) {
    
     let file = hdf5::File::create(title).unwrap();
+
+    save_instensity(&file, results.intensity);
+    save_eletric_fields(&file, results.eletric_field);
+
+    let grid_steps_len = results.grid_steps.len();
+    save_deltas(&file, results.grid_steps, vec![grid_steps_len]);
     
-    save_instensity(&file, intensity);
-    save_eletric_fields(&file, eletric_field);
-    save_deltas(&file, deltas.to_vec(), vec![deltas.len()]);
-    
-    save_core(&file, core_matrix, shape.to_vec());
+    save_core(&file, results.refractive_indexes, results.shape);
 }
 
 fn save_instensity(output: &hdf5::File, data: Matrix<f64>) {

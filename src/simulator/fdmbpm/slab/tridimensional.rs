@@ -3,7 +3,7 @@ use functional_types::{list, Matrix, matrix};
 
 impl WaveguideSimulation for Slab<3,2> {
 	
-	fn run(self) -> Box<dyn SimulationResults> {
+	fn run(self) -> SimulationResult {
 		let &[zdepht, ydepht, xdepht] = self.grid.get_shape();
 		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 	
@@ -21,12 +21,10 @@ impl WaveguideSimulation for Slab<3,2> {
 			}
 		);
 	
-		Box::new(
-			eletric_field::new(
-				matrix::merge(es), 
-				self.grid.get_deltas().to_vec(),
-				self.get_refractive_indexes()
-			)
+		simulation_result::new(
+			matrix::merge(es), 
+			self.grid.get_deltas().to_vec(),
+			self.get_refractive_indexes()
 		)
 	}
 }

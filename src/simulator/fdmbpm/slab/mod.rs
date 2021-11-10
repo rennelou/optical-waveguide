@@ -1,8 +1,6 @@
 use crate::functional_types;
-use functional_types::list;
-use functional_types::matrix;
+use functional_types::{list, matrix};
 use super::*;
-use types::*;
 use lin_alg::{DiagonalMatrix, diagonal_matrix};
 use grid::Grid;
 use cores::Core;
@@ -83,7 +81,6 @@ impl<const D: usize, const N: usize> Slab<D,N> {
 			|position| self.core.get_n(&self.grid, position.as_slice(), self.core.get_n0())
 		).collect()
 	}
-	
 }
 
 // Colocar nome das equações no okamoto
