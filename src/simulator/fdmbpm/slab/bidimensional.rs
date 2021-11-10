@@ -1,13 +1,13 @@
-use super::*;
 use crate::functional_types;
+use super::*;
 use functional_types::matrix;
 use eletric_field::EletricField;
 use grid::AlTypeGrid;
 use cores::AlTypeCore;
 
-impl Slab<2,1> {
+impl WaveguideSimulation for Slab<2,1>{
 	
-	pub fn run(self) -> EletricField {
+	fn run(self) -> EletricField {
 		let &[zdepht, _] = self.grid.get_shape();
 	
 		let e_input = self.beam.input(&[self.grid.get_shape()[1]], &[self.grid.get_deltas()[1]]);
@@ -34,7 +34,10 @@ impl Slab<2,1> {
 			AlTypeCore::Bidimensional(self.core)
 		)
 	}
+}
 
+impl Slab<2,1> {
+	
 	fn get_s(&self, z: usize) -> Vec<Phasor> {
 		let k = self.beam.k;
 		let alpha = self.beam.alpha;

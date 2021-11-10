@@ -1,13 +1,12 @@
 use super::*;
 use fdmbpm::{cores::AlTypeCore, grid::AlTypeGrid};
 use functional_types::{Matrix, matrix};
-
 use eletric_field::EletricField;
 use functional_types::list;
 
-impl Slab<3,2> {
+impl WaveguideSimulation for Slab<3,2> {
 	
-	pub fn run(self) -> EletricField {
+	fn run(self) -> EletricField {
 		let &[zdepht, ydepht, xdepht] = self.grid.get_shape();
 		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 	
@@ -32,6 +31,9 @@ impl Slab<3,2> {
 			AlTypeCore::Tridimensional(self.core)
 		)
 	}
+}
+
+impl Slab<3,2> {
 
 	fn alternate_direction_implicit_method(&self, last_es: &Matrix<Phasor>, z: usize) -> Matrix<Phasor> {
 		let &[_, ydepht, xdepht] = self.grid.get_shape();

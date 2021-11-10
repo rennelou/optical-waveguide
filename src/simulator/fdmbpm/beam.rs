@@ -1,6 +1,5 @@
-use super::*;
 use crate::functional_types::{Matrix, matrix};
-use fdmbpm;
+use super::*;
 use itertools::izip;
 
 pub struct Gaussian<const D: usize> {
@@ -16,7 +15,7 @@ pub fn gaussian<const D: usize>(center: [f64;D], amplitude: f64, width: f64, k: 
 }
 
 impl<const D: usize> Gaussian<D> {
-    pub fn input(&self, shape: &[usize;D], deltas: &[f64;D]) -> Matrix<fdmbpm::Phasor> {
+    pub fn input(&self, shape: &[usize;D], deltas: &[f64;D]) -> Matrix<Phasor> {
 
         let center_normalized: Vec<_> = izip!(self.center.iter(), deltas.iter()).map(
             |(&p, &d)| p/d
@@ -34,10 +33,14 @@ impl<const D: usize> Gaussian<D> {
                 let r = v.map(|x| x.powf(2.0)).sum::<f64>().sqrt();
                 let e = self.amplitude*(- (r.powf(2.0) / self.width.powf(2.0)) ).exp();
                     
-                fdmbpm::to_phasor(e)
+                to_phasor(e)
             }
         ).collect();
     
         matrix::new(values, shape)
     }
-} 
+}
+
+fn to_phasor(x: f64) -> Phasor {
+	return Complex::new(x, 0.0);
+}

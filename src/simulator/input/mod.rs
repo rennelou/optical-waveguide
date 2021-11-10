@@ -1,6 +1,5 @@
-use super::fdmbpm::{WaveguideSimulation, beam, boundary_codition, cores, grid, slab::{self, Slab}};
+use super::fdmbpm::{Waveguides, beam, boundary_codition, cores, grid, slab::{self, Slab}};
 use serde::{Deserialize, Serialize};
-
 
 #[derive(Serialize, Deserialize, Clone, Copy)]
 struct WaveguideEntity {
@@ -40,16 +39,16 @@ struct GaussianBeamEntity {
     y: Option<f64>
 }
 
-pub fn get_simulation(serialized: &str) -> WaveguideSimulation {
+pub fn get_simulation(serialized: &str) -> Waveguides {
     
     let w: WaveguideEntity = serde_json::from_str(serialized).unwrap();
         
     if let (&Some(x_axis), &Some(y_axis)) = (&w.x_axis, &w.y_axis) {
-        WaveguideSimulation::Tridimensional(get3d_simulation(w, x_axis, y_axis))
+        Waveguides::Tridimensional(get3d_simulation(w, x_axis, y_axis))
     } else if let (&Some(x_axis), None) = (&w.x_axis, &w.y_axis) {
-        WaveguideSimulation::Bidimensional(get2d_xsimulation(w, x_axis))
+        Waveguides::Bidimensional(get2d_xsimulation(w, x_axis))
     } else if let (None, &Some(y_axis)) = (&w.x_axis, &w.y_axis) {
-        WaveguideSimulation::Bidimensional(get2d_ysimulation(w, y_axis))
+        Waveguides::Bidimensional(get2d_ysimulation(w, y_axis))
     } else {
         panic!("simulation needs at last one dimension parameters")
     }

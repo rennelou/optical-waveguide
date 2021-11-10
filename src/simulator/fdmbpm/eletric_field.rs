@@ -1,7 +1,7 @@
-use super::*;
 use crate::tools::export;
 use crate::functional_types::{Matrix, matrix};
-use Phasor;
+use super::*;
+use types::*;
 use cores::AlTypeCore;
 use cores::Core;
 use grid::AlTypeGrid;

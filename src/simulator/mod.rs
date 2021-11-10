@@ -1,3 +1,3 @@
 pub mod input;
-pub mod lin_alg;
 pub mod fdmbpm;
+mod lin_alg;

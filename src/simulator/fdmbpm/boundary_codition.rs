@@ -1,4 +1,5 @@
 use super::*;
+use types::*;
 use num::complex::Complex;
 
 pub enum Side {
@@ -7,7 +8,7 @@ pub enum Side {
 }
 
 pub fn dirichlet(_: Side, _: &Vec<Phasor>) -> Phasor {
-    return *zero();
+    return *phasor::zero();
 }
 
 pub fn transparent(s: Side, es: &Vec<Phasor>) -> Phasor {
