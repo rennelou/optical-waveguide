@@ -85,7 +85,7 @@ Em seguide, execute:
 optical_waveguide my_bidimensional_simulation.json my_output_file.h5
 ```
 
-Você observara um novo arquivo criado HDF5 chamado `my_output_file.h5` que contém a seguinte hierarquia:
+Você observara um novo arquivo HDF5 criado chamado `my_output_file.h5` que contém a seguinte hierarquia:
 
 ```
 /         raiz do arquivo
@@ -98,7 +98,7 @@ Você observara um novo arquivo criado HDF5 chamado `my_output_file.h5` que cont
 
 ## 📫 Contribuindo para <optical-waveguide>
 <!---Se o seu README for longo ou se você tiver algum processo ou etapas específicas que deseja que os contribuidores sigam, considere a criação de um arquivo CONTRIBUTING.md separado--->
-Para contribuir com <nome_do_projeto>, siga estas etapas:
+Para contribuir com <optical-waveguide>, siga estas etapas:
 
 1. Bifurque este repositório.
 2. Crie um branch: `git checkout -b <nome_branch>`.
