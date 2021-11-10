@@ -1,11 +1,9 @@
 use super::*;
-use functional_types::{Matrix, matrix};
-use eletric_field::EletricField;
-use functional_types::list;
+use functional_types::{list, Matrix, matrix};
 
 impl WaveguideSimulation for Slab<3,2> {
 	
-	fn run(self) -> EletricField {
+	fn run(self) -> Box<dyn SimulationResults> {
 		let &[zdepht, ydepht, xdepht] = self.grid.get_shape();
 		let &[_, ydelta, xdelta] = self.grid.get_deltas();
 	
@@ -23,10 +21,12 @@ impl WaveguideSimulation for Slab<3,2> {
 			}
 		);
 	
-		eletric_field::new(
-			matrix::merge(es), 
-			self.grid.get_deltas().to_vec(),
-			self.get_refractive_indexes()
+		Box::new(
+			eletric_field::new(
+				matrix::merge(es), 
+				self.grid.get_deltas().to_vec(),
+				self.get_refractive_indexes()
+			)
 		)
 	}
 }

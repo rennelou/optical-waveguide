@@ -1,11 +1,10 @@
-use crate::functional_types;
+use crate::functional_types::matrix;
 use super::*;
-use functional_types::matrix;
-use eletric_field::EletricField;
+
 
 impl WaveguideSimulation for Slab<2,1>{
 	
-	fn run(self) -> EletricField {
+	fn run(self) -> Box<dyn SimulationResults> {
 		let &[zdepht, _] = self.grid.get_shape();
 	
 		let e_input = self.beam.input(&[self.grid.get_shape()[1]], &[self.grid.get_deltas()[1]]);
@@ -25,10 +24,12 @@ impl WaveguideSimulation for Slab<2,1>{
 			}
 		);
 
-		eletric_field::new(
-			matrix::merge(es), 
-			self.grid.get_deltas().to_vec(), 
-			self.get_refractive_indexes()
+		Box::new(
+			eletric_field::new(
+				matrix::merge(es), 
+				self.grid.get_deltas().to_vec(),
+				self.get_refractive_indexes()
+			)
 		)
 	}
 }

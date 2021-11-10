@@ -13,6 +13,27 @@ pub fn new(values: Matrix<Phasor>, grid_steps: Vec<f64>, refractive_indexes: Vec
     EletricField { values, grid_steps, refractive_indexes }
 }
 
+impl SimulationResults for EletricField{
+    fn export(&self, output_name: &str) {
+        
+        let shape = self.shape();
+        let intensity = self.get_intensity();
+        let eletric_field = self.get_eletric_fields();
+        let deltas = self.grid_steps();
+        
+        let core_matrix = self.refractive_indexes.clone();
+
+        export::hdf5(
+            output_name,
+            shape,
+            deltas,
+            eletric_field,
+            intensity,
+            core_matrix
+        );
+    }
+}
+
 impl EletricField {
     pub fn get_eletric_fields(&self) -> Matrix<f64>  {
         let values = self.values.raw().iter().map(|p|{
@@ -36,25 +57,6 @@ impl EletricField {
 
     pub fn grid_steps(&self) -> &[f64] {
         &self.grid_steps
-    }
-
-    pub fn export(self, output_name: &str) {
-        
-        let shape = self.shape();
-        let intensity = self.get_intensity();
-        let eletric_field = self.get_eletric_fields();
-        let deltas = self.grid_steps();
-        
-        let core_matrix = self.refractive_indexes.clone();
-
-        export::hdf5(
-            output_name,
-            shape,
-            deltas,
-            eletric_field,
-            intensity,
-            core_matrix
-        );
     }
 }
 

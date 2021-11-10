@@ -8,12 +8,15 @@ mod types;
 
 use super::*;
 use types::*;
-use eletric_field::EletricField;
 use input::get_simulation;
 use num::complex::Complex;
 
 pub trait WaveguideSimulation {
-	fn run(self) -> EletricField;
+	fn run(self) -> Box<dyn SimulationResults>;
+}
+
+pub trait SimulationResults {
+	fn export(&self, output_name: &str);
 }
 
 pub enum Waveguides {
@@ -22,7 +25,7 @@ pub enum Waveguides {
 }
 
 impl WaveguideSimulation for Waveguides {
-	fn run(self) -> EletricField{
+	fn run(self) -> Box<dyn SimulationResults>{
 		match self {
 			Waveguides::Bidimensional(bidimensional_simulation) => {
 				bidimensional_simulation.run()
