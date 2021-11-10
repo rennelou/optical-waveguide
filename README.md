@@ -2,27 +2,29 @@
 
 <!---Esses são exemplos. Veja https://shields.io para outras pessoas ou para personalizar este conjunto de escudos. Você pode querer incluir dependências, status do projeto e informações de licença aqui--->
 
-> Guia de onda optico para fotônica integrada.
+> Guia de ondas ópticas para fotônica integrada
 
 ## 💻 Pré-requisitos
 
-Antes de começar, verifique se você atendeu aos seguintes requisitos:
+Antes de começar, verifique se você atende aos seguintes requisitos:
 <!---Estes são apenas requisitos de exemplo. Adicionar, duplicar ou remover conforme necessário--->
-* Um ambiente de desenvolvimento Rust. Aconselhamos instalar a partir do `<rustup>`. 
+* Um ambiente de desenvolvimento Rust. Aconselhamos instalar a partir do `rustup`. 
 Mais informações https://rust-lang.github.io/rustup/installation/index.html
-* `<python3 >= 3.9>`
-* `<HDF5 >= 1.12.1>`
-* `<pip >= 21.3.1>`
-* `<maturin >= 0.11.5>`
-* `<Qt5 >= 5.15>`
+* `python3 >= 3.9`
+* `HDF5 >= 1.12.1`
+* `pip >= 21.3.1`
+* `maturin >= 0.11.5`
+* `Qt5 >= 5.15`
 
 ## 🚀 Instalando optical_waveguide
 
-Para instalar o <nome_do_projeto>, siga estas etapas:
+Para instalar o optical_waveguide, siga estas etapas:
 
 Linux:
 ```
-python - venv .env
+git clone https://github.com/rennelou/optical-waveguide.git
+cd optical-waveguide
+python -m venv .env
 source .env/bin/activate
 maturin develop
 ```
