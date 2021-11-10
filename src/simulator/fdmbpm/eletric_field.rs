@@ -2,20 +2,15 @@ use crate::tools::export;
 use crate::functional_types::{Matrix, matrix};
 use super::*;
 use types::*;
-use cores::AlTypeCore;
-use cores::Core;
-use grid::AlTypeGrid;
-use grid::Grid;
 
 pub struct EletricField {
     values: Matrix<Phasor>,
     grid_steps: Vec<f64>,
-    grid: AlTypeGrid,
-    core: AlTypeCore
+    refractive_indexes: Vec<f64>
 }
 
-pub fn new(values: Matrix<Phasor>, grid_steps: Vec<f64>, grid: AlTypeGrid, core: AlTypeCore) -> EletricField {
-    EletricField { values, grid_steps, grid, core }
+pub fn new(values: Matrix<Phasor>, grid_steps: Vec<f64>, refractive_indexes: Vec<f64>) -> EletricField {
+    EletricField { values, grid_steps, refractive_indexes }
 }
 
 impl EletricField {
@@ -49,18 +44,8 @@ impl EletricField {
         let intensity = self.get_intensity();
         let eletric_field = self.get_eletric_fields();
         let deltas = self.grid_steps();
-
-        let core_matrix = match (&self.grid, &self.core) {
-            (AlTypeGrid::Bidimensional(grid), AlTypeCore::Bidimensional(core)) => {
-                get_core_matrix(grid, core)
-            },
-            (AlTypeGrid::Tridimensional(grid), AlTypeCore::Tridimensional(core)) => {
-                get_core_matrix(grid, core)
-            },
-            _ => {
-                panic!("Grid and Core mudt have the same dimension")
-            }
-        };
+        
+        let core_matrix = self.refractive_indexes.clone();
 
         export::hdf5(
             output_name,
@@ -71,14 +56,6 @@ impl EletricField {
             core_matrix
         );
     }
-}
-
-fn get_core_matrix<const D: usize>(grid: &Grid<D>, core: &Box<dyn Core<D>>) -> Vec<f64> {
-    let shape = grid.get_shape().to_vec();
-    
-    matrix::cartesian_product_of_shape(shape).map(
-        |position| core.get_n(&grid, position.as_slice(), core.get_n0())
-    ).collect()
 }
 
 fn intensity(e: &Phasor) -> f64 {

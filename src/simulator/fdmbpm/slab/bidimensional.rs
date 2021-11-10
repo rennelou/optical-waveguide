@@ -2,8 +2,6 @@ use crate::functional_types;
 use super::*;
 use functional_types::matrix;
 use eletric_field::EletricField;
-use grid::AlTypeGrid;
-use cores::AlTypeCore;
 
 impl WaveguideSimulation for Slab<2,1>{
 	
@@ -26,12 +24,11 @@ impl WaveguideSimulation for Slab<2,1>{
 				list::append(acc, matrix::vec_to_matrix(e))
 			}
 		);
-	
+
 		eletric_field::new(
 			matrix::merge(es), 
 			self.grid.get_deltas().to_vec(), 
-			AlTypeGrid::Bidimensional(self.grid),
-			AlTypeCore::Bidimensional(self.core)
+			self.get_refractive_indexes()
 		)
 	}
 }

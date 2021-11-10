@@ -1,5 +1,4 @@
 use super::*;
-use fdmbpm::{cores::AlTypeCore, grid::AlTypeGrid};
 use functional_types::{Matrix, matrix};
 use eletric_field::EletricField;
 use functional_types::list;
@@ -27,8 +26,7 @@ impl WaveguideSimulation for Slab<3,2> {
 		eletric_field::new(
 			matrix::merge(es), 
 			self.grid.get_deltas().to_vec(),
-			AlTypeGrid::Tridimensional(self.grid),
-			AlTypeCore::Tridimensional(self.core)
+			self.get_refractive_indexes()
 		)
 	}
 }

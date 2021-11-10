@@ -1,5 +1,6 @@
 use crate::functional_types;
 use functional_types::list;
+use functional_types::matrix;
 use super::*;
 use types::*;
 use lin_alg::{DiagonalMatrix, diagonal_matrix};
@@ -74,6 +75,15 @@ impl<const D: usize, const N: usize> Slab<D,N> {
 	
 		s
 	}
+
+	fn get_refractive_indexes(&self) -> Vec<f64> {
+		let shape = self.grid.get_shape().to_vec();
+		
+		matrix::cartesian_product_of_shape(shape).map(
+			|position| self.core.get_n(&self.grid, position.as_slice(), self.core.get_n0())
+		).collect()
+	}
+	
 }
 
 // Colocar nome das equações no okamoto

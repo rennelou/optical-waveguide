@@ -2,11 +2,6 @@ use super::grid::Grid;
 
 pub mod rectilinear;
 
-pub enum AlTypeCore {
-    Bidimensional(Box<dyn Core<2>>),
-    Tridimensional(Box<dyn Core<3>>)
-}
-
 pub trait Core<const D: usize> {
     fn get_n(&self, grid: &Grid<D>, position: &[usize], n0: f64) -> f64;
 
