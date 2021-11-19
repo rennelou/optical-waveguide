@@ -79,7 +79,7 @@ fn areas_diff(file1: &hdf5::File, file2: &hdf5::File) -> Vec<f64> {
 
 fn save_line(output: &hdf5::File, result: Vec<f64>, title: &str) {
     
-    let dataset = output.new_dataset::<f64>().create(title).unwrap();
+    let dataset = output.new_dataset::<f64>().shape(&[result.len()]).create(title).unwrap();
     let result_array = Array::from_shape_vec(result.len(), result).unwrap();
 
     dataset.write(&result_array).unwrap();
