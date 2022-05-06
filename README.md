@@ -6,11 +6,11 @@
 
 ## Optical Waveguides
 
-Waveguides are devices builded to conduct a wave through itself. Common examples are antennas, optical fibers, transmission lines and etc. They are a important devices for semiconductor industries because on the current frequencies which microchips operates are high enough for the nets became electrical waveguides.
+Waveguides are devices builded to conduct a wave through itself. Common examples are antennas, optical fibers, transmission lines and etc. They are important devices for semiconductor industries because the current frequencies which microchips operate are high enough for the nets to became electrical waveguides.
 
-Specifically for optical applications, optical waveguides are light conductors which has the property to guide the light for long distances. The most famous device of this family is the optical fiber who are largely used on communication industry. However, the interest for optical waveguide are growing on semiconductor industry because transfer from electronic integrated devices (electrical domain) to photonic integrated devices (light domain) decrease the energy consumption and heat generation, those are the main current difficulties for the semiconductor industry scale up the performance of the current microchips.
+Specially for optical applications, optical waveguides are light conductors which have the property to guide the light for long distances. The most famous device of this family is the optical fiber who is largely used on communication industry. However, the interest for optical waveguide is growing on semiconductor industry because transfering from electronic integrated devices (electrical domain) to photonic integrated devices (light domain) decreases the energy consumption and heat generation, these are the main recent difficulties for the semiconductor industry scale up the performance of the new microchips.
 
-Given this context, this project is a simulator for rectangular optical waveguides. The rectangular geometry is a important characteristic because it’s the form used to construct current electronic integrated devices, increasing the compatibility with the current manufacturing methods.
+Given this context, this project is a simulator for rectangular optical waveguides. The rectangular geometry is a important characteristic because it’s the form used to construct the current electronic integrated devices, increasing the compatibility with the current manufacturing methods.
 
 # Getting Started
 
@@ -37,9 +37,9 @@ source .env/bin/activate
 maturin develop
 ```
 
-## ☕ Run a python example
+## ☕ Running a python example
 
-On `examples` folder has some examples of use, to run one of them follow up:
+On `examples` folder has some examples of using, to run one of them follow up:
 
 ```
 python examples/bidimensional.py
@@ -54,11 +54,11 @@ cargo install --path .
 PATH="$PATH:$HOME/.cargo/bin"
 ```
 
-Now, we have a program called `optical_waveguide` on the $HOME/.cargo/bin folder and we inserted this folder on the `PATH` enviroment variable for the OS can find the simulator. If you want to make this change persistent, add `PATH="$PATH:$HOME/.cargo/bin"` on `~/.bashrc` file.
+Now, we have a program called `optical_waveguide` on the $HOME/.cargo/bin folder and we inserted this folder on the `PATH` enviroment variable so the OS can find the simulator. If you want to make this change persistent, add `PATH="$PATH:$HOME/.cargo/bin"` on `~/.bashrc` file.
 
-### Run a Cli Example
+### Running a Cli Example
 
-The simulator cli take two arguments. The first is a filename for the simulation description on json format, the second result filename which will be generated.
+The simulator cli takes two arguments. The first is a filename for the simulation description on json format, the second is the result filename which will be generated.
 
 Create the `my_bidimensional_simulation.json` file:
 
@@ -94,14 +94,14 @@ Then, run:
 optical_waveguide my_bidimensional_simulation.json my_output_file.h5
 ```
 
-The result will be a HDF5 file called `my_output_file.h5` which is formed for the hierarchy below:
+The result will be a HDF5 file called `my_output_file.h5` which is formed from the hierarchy below:
 
 ```
 /               root
 /deltas         discretization steps of the simulation grid
-/core           refractive index distribution of the device simulated device
-/eletric_field  electrical field distribution of the simuation
-/intensity      light intensity distribution of the simuation
+/core           refractive index distribution of the device simulated
+/eletric_field  electrical field distribution of the simulation
+/intensity      light intensity distribution of the simulation
 ```
 
 
@@ -111,7 +111,7 @@ To contribute with this project, follow up:
 
 1. Fork this repository.
 2. Create a branch: `git checkout -b <new_branch>`.
-3. Make your chages and commit them: `git commit -m '<new_commit>'`
+3. Make your changes and commit them: `git commit -m '<new_commit>'`
 4. Push your branch to original: `git push origin optical-waveguide / rennelou`
 5. Create a pull request.
 
@@ -119,18 +119,18 @@ For more information how to create a pull request [creating a pull request](http
 
 ### To do
 
-This projec still on the beta fase.
+This project still on the beta fase.
 
 The next features:
-- [ ] parallelize the algoritm
+- [ ] parallelize the algorithm
 - [ ] optimize dephts_cartesian_product function
 - [ ] create a composition of cores
 - [ ] create a composition of beams
 
-unfortunately this project haven't a total unit test cover. Some cases which needs to be unit tested:
+unfortunately this project dosen't have a total unit test cover. Some cases which they unit needs to be tested:
 
 - [ ] test the panic conditions
-- [ ] gaussian beam with geometry larger then the simualtion grid
+- [ ] gaussian beam with geometry larger than the simulation grid
 
 ## 🤝 Contributors
 
@@ -150,9 +150,9 @@ Thank you:
 </table>
 
 
-## 😄 Be a contributors<br>
+## 😄 Be a contributor<br>
 
-Do you want to be a contributors? Click [here](CONTRIBUTING.md) and discover how became one.
+Do you want to be a contributor? Click [here](CONTRIBUTING.md) and discover how to became one.
 
 ## 📝 License
 
