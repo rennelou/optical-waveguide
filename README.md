@@ -10,7 +10,7 @@ Waveguides are devices builded to conduct a wave through itself. Common examples
 
 Specially for optical applications, optical waveguides are light conductors which have the property to guide the light for long distances. The most famous device of this family is the optical fiber who is largely used on communication industry. However, the interest for optical waveguide is growing on semiconductor industry because transfering from electronic integrated devices (electrical domain) to photonic integrated devices (light domain) decreases the energy consumption and heat generation, these are the main recent difficulties for the semiconductor industry scale up the performance of the new microchips.
 
-Given this context, this project is a simulator for rectangular optical waveguides. The rectangular geometry is a important characteristic because it’s the form used to construct the current electronic integrated devices, increasing the compatibility with the current manufacturing methods.
+Given this context, this project is a simulator for rectangular optical waveguides. The rectangular geometry is an important characteristic because it’s the form used to construct the current electronic integrated devices, increasing the compatibility with the current manufacturing methods.
 
 # Getting Started
 
@@ -127,7 +127,7 @@ The next features:
 - [ ] create a composition of cores
 - [ ] create a composition of beams
 
-unfortunately this project dosen't have a total unit test cover. Some cases which they unit needs to be tested:
+unfortunately this project doesn't have a total unit test cover. Some cases which the unit needs to be tested:
 
 - [ ] test the panic conditions
 - [ ] gaussian beam with geometry larger than the simulation grid
@@ -152,7 +152,7 @@ Thank you:
 
 ## 😄 Be a contributor<br>
 
-Do you want to be a contributor? Click [here](CONTRIBUTING.md) and discover how to became one.
+Do you want to be a contributor? Click [here](CONTRIBUTING.md) and discover how to become one.
 
 ## 📝 License
 
