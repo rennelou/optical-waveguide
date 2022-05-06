@@ -2,23 +2,31 @@
 
 <!---Esses são exemplos. Veja https://shields.io para outras pessoas ou para personalizar este conjunto de escudos. Você pode querer incluir dependências, status do projeto e informações de licença aqui--->
 
-> Guia de ondas ópticas para fotônica integrada
+> It's a simulator of optical waveguides on frequency domain. Focused on rectangular geometries for photonics integrated applications.
 
-## 💻 Pré-requisitos
+## Optical Waveguides
 
-Antes de começar, verifique se você atende aos seguintes requisitos:
-<!---Estes são apenas requisitos de exemplo. Adicionar, duplicar ou remover conforme necessário--->
-* Um ambiente de desenvolvimento Rust. Aconselhamos instalar a partir do `rustup`. 
-Mais informações https://rust-lang.github.io/rustup/installation/index.html
+Waveguides are devices builded to conduct a wave through itself. Common examples are antennas, optical fibers, transmission lines and etc. They are a important devices for semiconductor industries because on the current frequencies which microchips operates are high enough for the nets became electrical waveguides.
+
+Specifically for optical applications, optical waveguides are light conductors which has the property to guide the light for long distances. The most famous device of this family is the optical fiber who are largely used on communication industry. However, the interest for optical waveguide are growing on semiconductor industry because transfer from electronic integrated devices (electrical domain) to photonic integrated devices (light domain) decrease the energy consumption and heat generation, those are the main current difficulties for the semiconductor industry scale up the performance of the current microchips.
+
+Given this context, this project is a simulator for rectangular optical waveguides. The rectangular geometry is a important characteristic because it’s the form used to construct current electronic integrated devices, increasing the compatibility with the current manufacturing methods.
+
+# Getting Started
+
+## 💻 Prerequisites
+
+* Rust developement enviroment. Is recommended to install from `rustup`. 
+More informations https://rust-lang.github.io/rustup/installation/index.html
 * `python3 >= 3.9`
 * `HDF5 >= 1.12.1`
 * `pip >= 21.3.1`
 * `maturin >= 0.11.5`
 * `Qt5 >= 5.15`
 
-## 🚀 Instalando <optical_waveguide>
+## 🚀 Installation
 
-Para instalar o optical_waveguide, siga estas etapas:
+To install the optical_waveguide simulator, follow up:
 
 Linux:
 ```
@@ -29,29 +37,30 @@ source .env/bin/activate
 maturin develop
 ```
 
-## ☕ Usando <optical-waveguide>
+## ☕ Run a python example
 
-Para executar um exemplo bidimensional, siga estas etapas:
+On `examples` folder has some examples of use, to run one of them follow up:
 
 ```
 python examples/bidimensional.py
 ```
 
-## ☕ Usando pela linha de comando <optical-waveguide>
+## ☕ Enabling command line interface
 
-Além da biblioteca para python é possível usar o simulador direto pela linha de comando. Para tal execute:
+The `optical-waveguide` simulator has a command line interface too, to enable it follow up:
 
 ```
 cargo install --path .
-PATH="$HOME/.cargo/bin"
+PATH="$PATH:$HOME/.cargo/bin"
 ```
 
-Agora nós temos um executavel `optical_waveguide` no diretorio $HOME/.cargo/bin e adcionamos esse diretorio na variavel de ambiente `PATH` para que o sistema operacional possa encontrar o nosso executavel. Para tornar a mudança persistente adcione a linha `PATH="$HOME/.cargo/bin"` no seu arquivo ~/.bashrc
+Now, we have a program called `optical_waveguide` on the $HOME/.cargo/bin folder and we inserted this folder on the `PATH` enviroment variable for the OS can find the simulator. If you want to make this change persistent, add `PATH="$PATH:$HOME/.cargo/bin"` on `~/.bashrc` file.
 
-O simulador recebe dois argumentos por linha de comando. O primeiro é um json com a descrição da simalção e o segundo o nome do arquivo de resultados que será gerado.
+### Run a Cli Example
 
-Como exemplo iremos rodar a mesma simulação da seção que usa a biblioteca python, porém agora a partir da linha de comando.
-Pra isso crie o arquivo `my_bidimensional_simulation.json`:
+The simulator cli take two arguments. The first is a filename for the simulation description on json format, the second result filename which will be generated.
+
+Create the `my_bidimensional_simulation.json` file:
 
 ```json
 {
@@ -79,52 +88,53 @@ Pra isso crie o arquivo `my_bidimensional_simulation.json`:
 }
 ```
 
-Em seguide, execute:
+Then, run:
 
 ```
 optical_waveguide my_bidimensional_simulation.json my_output_file.h5
 ```
 
-Você observara um novo arquivo HDF5 criado chamado `my_output_file.h5` que contém a seguinte hierarquia:
+The result will be a HDF5 file called `my_output_file.h5` which is formed for the hierarchy below:
 
 ```
-/         raiz do arquivo
-/deltas        array com os passos discretização da grid de simulação
-/core        matriz bidimensional ou tridimensional com os valores do índice de refração pra cada ponto da grid de simulação
-/eletric_field    matriz bidimensional ou tridimensional com os valores do campo elétrico pra cada ponto da grid de simulação
-/intensity    matriz bidimensional ou tridimensional com os valores da intensidade da onda eletromagnética pra cada ponto da grid de simulação
+/               root
+/deltas         discretization steps of the simulation grid
+/core           refractive index distribution of the device simulated device
+/eletric_field  electrical field distribution of the simuation
+/intensity      light intensity distribution of the simuation
 ```
 
 
-## 📫 Contribuindo para <optical-waveguide>
+## 📫 To contribute
 <!---Se o seu README for longo ou se você tiver algum processo ou etapas específicas que deseja que os contribuidores sigam, considere a criação de um arquivo CONTRIBUTING.md separado--->
-Para contribuir com projeto, siga estas etapas:
+To contribute with this project, follow up:
 
-1. Bifurque este repositório.
-2. Crie um branch: `git checkout -b <nome_branch>`.
-3. Faça suas alterações e confirme-as: `git commit -m '<mensagem_commit>'`
-4. Envie para o branch original: `git push origin <nome_do_projeto> / <local>`
-5. Crie a solicitação de pull.
+1. Fork this repository.
+2. Create a branch: `git checkout -b <new_branch>`.
+3. Make your chages and commit them: `git commit -m '<new_commit>'`
+4. Push your branch to original: `git push origin optical-waveguide / rennelou`
+5. Create a pull request.
 
-Como alternativa, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
+For more information how to create a pull request [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
-### Ajustes e melhorias
+### To do
 
-O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas nas seguintes tarefas:
+This projec still on the beta fase.
 
-- [ ] tornar todos os maps do codigo em paralelo
-- [ ] otimizar dephts_cartesian_product
-- [ ] criar composição de cores
-- [ ] criar composição de beams
+The next features:
+- [ ] parallelize the algoritm
+- [ ] optimize dephts_cartesian_product function
+- [ ] create a composition of cores
+- [ ] create a composition of beams
 
-Infezlimente o código ainda não esta com cobertura total de testes. Um breve apanhado de casos de testes necessários:
+unfortunately this project haven't a total unit test cover. Some cases which needs to be unit tested:
 
-- [ ] testas todas as condições de panic
-- [ ] feixe gaussiano em regiões fora da grid de simulação
+- [ ] test the panic conditions
+- [ ] gaussian beam with geometry larger then the simualtion grid
 
-## 🤝 Colaboradores
+## 🤝 Contributors
 
-Agradecemos às seguintes pessoas que contribuíram para este projeto:
+Thank you:
 
 <table>
   <tr>
@@ -140,12 +150,12 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
 </table>
 
 
-## 😄 Seja um dos contribuidores<br>
+## 😄 Be a contributors<br>
 
-Quer fazer parte desse projeto? Clique [AQUI](CONTRIBUTING.md) e leia como contribuir.
+Do you want to be a contributors? Click [here](CONTRIBUTING.md) and discover how became one.
 
-## 📝 Licença
+## 📝 License
 
-Esse projeto está sob licença MIT. Veja o arquivo [LICENÇA](LICENSE.md) para mais detalhes.
+This project is under the MIT license. See the [license](LICENSE.md) file for more details.
 
-[⬆ Voltar ao topo](#optical-waveguide)<br>
+[⬆ Back to top](#optical-waveguide)<br>
