@@ -45,6 +45,8 @@ On `examples` folder has some examples of using, to run one of them follow up:
 python examples/bidimensional.py
 ```
 
+![alt text](https://github.com/rennelou/optical-waveguide/blob/master/examples/bidimensional.png)
+
 ## ☕ Enabling command line interface
 
 The `optical-waveguide` simulator has a command line interface too, to enable it follow up:
